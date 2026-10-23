@@ -8,7 +8,7 @@ from app.interfaces.api.dependencies import expense_service
 from app.interfaces.api.openapi import INVALID, NOT_FOUND
 from app.interfaces.api.schemas import ExpenseCreate, ExpenseOut
 
-router = APIRouter(prefix="/households/{household_id}/expenses", tags=["Ausgaben"])
+router = APIRouter(prefix="/households/{household_id}/expenses", tags=["Expenses"])
 Service = Annotated[ExpenseService, Depends(expense_service)]
 
 
@@ -16,18 +16,18 @@ Service = Annotated[ExpenseService, Depends(expense_service)]
     "",
     response_model=ExpenseOut,
     status_code=201,
-    summary="Ausgabe erfassen",
+    summary="Record expense",
     responses={**INVALID, **NOT_FOUND},
 )
 def record_expense(household_id: int, payload: ExpenseCreate, service: Service) -> Expense:
-    """Erfasst eine Ausgabe und berechnet die Anteile.
+    """Records an expense and calculates each participant's share.
 
-    - `equal`: gleich verteilt, `weight` wird ignoriert
-    - `percent`: `weight` sind Prozent und müssen zusammen 100 ergeben
-    - `shares`: `weight` sind Gewichte, z. B. 2 : 1 : 1
+    - `equal`: split evenly, `weight` is ignored
+    - `percent`: `weight` is a percentage and all weights must add up to 100
+    - `shares`: `weight` is a ratio, e.g. 2 : 1 : 1
 
-    Übrig bleibende Rappen erhalten die Beteiligten mit dem grössten Bruchteil
-    (Largest-Remainder). Die Summe der Anteile entspricht immer exakt dem Betrag.
+    Leftover cents go to the participants with the largest fractional part
+    (largest remainder). The shares always add up exactly to the amount.
     """
     return service.record_expense(
         household_id,
@@ -39,14 +39,14 @@ def record_expense(household_id: int, payload: ExpenseCreate, service: Service) 
     )
 
 
-@router.get("", response_model=list[ExpenseOut], summary="Ausgaben auflisten", responses=NOT_FOUND)
+@router.get("", response_model=list[ExpenseOut], summary="List expenses", responses=NOT_FOUND)
 def list_expenses(household_id: int, service: Service) -> list[Expense]:
-    """Alle Ausgaben des Haushalts in Erfassungsreihenfolge, inklusive Anteile."""
+    """All expenses of the household in the order they were recorded, including shares."""
     return service.list_expenses(household_id)
 
 
-@router.delete("/{expense_id}", status_code=204, summary="Ausgabe löschen", responses=NOT_FOUND)
+@router.delete("/{expense_id}", status_code=204, summary="Delete expense", responses=NOT_FOUND)
 def delete_expense(household_id: int, expense_id: int, service: Service) -> Response:
-    """Löscht eine Fehlerfassung. Salden werden sofort neu berechnet."""
+    """Deletes an expense recorded by mistake. Balances are recalculated immediately."""
     service.delete_expense(household_id, expense_id)
     return Response(status_code=204)

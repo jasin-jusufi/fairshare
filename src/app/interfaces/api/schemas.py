@@ -11,17 +11,17 @@ class OutModel(BaseModel):
 
 class ErrorOut(BaseModel):
     detail: str = Field(
-        description="Menschlich lesbare Fehlermeldung", examples=["Household 7 not found"]
+        description="Human-readable error message", examples=["Household 7 not found"]
     )
 
 
 class HouseholdCreate(BaseModel):
-    name: str = Field(description="Name des Haushalts, 1–80 Zeichen", examples=["WG Basel"])
+    name: str = Field(description="Household name, 1–80 characters", examples=["Flat Basel"])
 
 
 class MemberCreate(BaseModel):
     name: str = Field(
-        description="Name, 1–80 Zeichen, eindeutig im Haushalt (ohne Gross-/Kleinschreibung)",
+        description="Name, 1–80 characters, unique within the household (case-insensitive)",
         examples=["Lea"],
     )
 
@@ -33,54 +33,54 @@ class MemberOut(OutModel):
 
 class HouseholdOut(OutModel):
     id: int = Field(examples=[1])
-    name: str = Field(examples=["WG Basel"])
-    currency: str = Field(description="Immer CHF", examples=["CHF"])
+    name: str = Field(examples=["Flat Basel"])
+    currency: str = Field(description="Always CHF", examples=["CHF"])
     created_at: datetime
     members: list[MemberOut]
 
 
 class ParticipantIn(BaseModel):
-    member_id: int = Field(description="Beteiligtes Mitglied", examples=[1])
+    member_id: int = Field(description="Participating member", examples=[1])
     weight: int = Field(
         default=1,
-        description="Prozent (Methode `percent`, Summe 100) oder Gewicht (Methode `shares`); "
-        "bei `equal` ignoriert",
+        description="Percentage (method `percent`, total 100) or ratio (method `shares`); "
+        "ignored for `equal`",
         examples=[1],
     )
 
 
 class ExpenseCreate(BaseModel):
-    payer_id: int = Field(description="Mitglied, das bezahlt hat", examples=[1])
-    description: str = Field(description="1–120 Zeichen", examples=["Migros Wocheneinkauf"])
-    amount_cents: int = Field(description="Betrag in Rappen, > 0", examples=[9000])
-    method: SplitMethod = Field(default=SplitMethod.EQUAL, description="Aufteilungsart")
+    payer_id: int = Field(description="Member who paid", examples=[1])
+    description: str = Field(description="1–120 characters", examples=["Weekly groceries"])
+    amount_cents: int = Field(description="Amount in cents (Rappen), > 0", examples=[9000])
+    method: SplitMethod = Field(default=SplitMethod.EQUAL, description="Split method")
     participants: list[ParticipantIn] = Field(
-        description="Beteiligte, mindestens eine:r, keine Duplikate",
+        description="Participants, at least one, no duplicates",
         examples=[[{"member_id": 1}, {"member_id": 2}, {"member_id": 3}]],
     )
 
 
 class ShareOut(OutModel):
     member_id: int = Field(examples=[2])
-    amount_cents: int = Field(description="Anteil in Rappen", examples=[3000])
+    amount_cents: int = Field(description="Share in cents", examples=[3000])
 
 
 class ExpenseOut(OutModel):
     id: int = Field(examples=[1])
     household_id: int = Field(examples=[1])
     payer_id: int = Field(examples=[1])
-    description: str = Field(examples=["Migros Wocheneinkauf"])
+    description: str = Field(examples=["Weekly groceries"])
     amount_cents: int = Field(examples=[9000])
     method: SplitMethod
     created_at: datetime
-    shares: list[ShareOut] = Field(description="Summe entspricht immer exakt `amount_cents`")
+    shares: list[ShareOut] = Field(description="Always adds up exactly to `amount_cents`")
 
 
 class BalanceOut(OutModel):
     member_id: int = Field(examples=[1])
     name: str = Field(examples=["Lea"])
     balance_cents: int = Field(
-        description="Positiv: bekommt Geld. Negativ: schuldet Geld.", examples=[6000]
+        description="Positive: is owed money. Negative: owes money.", examples=[6000]
     )
 
 
@@ -93,11 +93,9 @@ class TransferOut(BaseModel):
 
 
 class SettlementCreate(BaseModel):
-    from_member_id: int = Field(description="Wer überweist (Schuldner:in)", examples=[2])
-    to_member_id: int = Field(description="Wer empfängt (Gläubiger:in)", examples=[1])
-    amount_cents: int = Field(
-        description="Rappen, > 0 und höchstens die offene Schuld", examples=[3000]
-    )
+    from_member_id: int = Field(description="Who pays (debtor)", examples=[2])
+    to_member_id: int = Field(description="Who receives (creditor)", examples=[1])
+    amount_cents: int = Field(description="Cents, > 0 and at most the open debt", examples=[3000])
 
 
 class SettlementOut(OutModel):
@@ -109,19 +107,19 @@ class SettlementOut(OutModel):
 
 
 class ChoreCreate(BaseModel):
-    name: str = Field(description="1–80 Zeichen", examples=["Bad putzen"])
-    effort: int = Field(description="Aufwand 1 (leicht) bis 5 (schwer)", examples=[5])
+    name: str = Field(description="1–80 characters", examples=["Bathroom"])
+    effort: int = Field(description="Effort from 1 (light) to 5 (heavy)", examples=[5])
 
 
 class ChoreOut(OutModel):
     id: int = Field(examples=[1])
-    name: str = Field(examples=["Bad putzen"])
+    name: str = Field(examples=["Bathroom"])
     effort: int = Field(examples=[5])
 
 
 class WeekPlanCreate(BaseModel):
     week_start: date = Field(
-        description="Beliebiges Datum der Woche; wird auf den Montag normalisiert",
+        description="Any date in the week; normalised to its Monday",
         examples=["2026-10-26"],
     )
 
@@ -129,11 +127,11 @@ class WeekPlanCreate(BaseModel):
 class AssignmentOut(OutModel):
     id: int = Field(examples=[1])
     chore_id: int = Field(examples=[1])
-    chore_name: str = Field(examples=["Bad putzen"])
+    chore_name: str = Field(examples=["Bathroom"])
     member_id: int = Field(examples=[1])
-    effort: int = Field(description="Aufwand-Snapshot zum Planungszeitpunkt", examples=[5])
+    effort: int = Field(description="Effort snapshot taken at planning time", examples=[5])
     week_start: date = Field(examples=["2026-10-26"])
-    completed_at: datetime | None = Field(description="`null`, solange nicht erledigt")
+    completed_at: datetime | None = Field(description="`null` until completed")
 
 
 class WeekPlanOut(OutModel):
@@ -144,4 +142,4 @@ class WeekPlanOut(OutModel):
 class MemberLoadOut(OutModel):
     member_id: int = Field(examples=[1])
     name: str = Field(examples=["Lea"])
-    effort_points: int = Field(description="Summe aller zugeteilten Aufwandpunkte", examples=[8])
+    effort_points: int = Field(description="Sum of all assigned effort points", examples=[8])
