@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FairShare API – Referenz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f3f1f4;
+      --paper: rgba(255, 255, 255, 0.72);
+      --ink: #2a2630;
+      --ink-soft: #4d4855;
+      --muted: #8d8794;
+      --line: rgba(42, 38, 48, 0.08);
+      --hover: rgba(42, 38, 48, 0.045);
+      --frame: rgba(255, 255, 255, 0.92);
+      --accent: #f06a3d;
+      --accent-2: #e5507a;
+      --code-bg: #f7f5f8;
+      --get: #2f9e78; --get-bg: #e3f5ec;
+      --post: #e2632f; --post-bg: #fdeee6;
+      --delete: #d84a5f; --delete-bg: #fbe7ea;
+      --shadow: 0 18px 48px -20px rgba(120, 86, 110, 0.3);
+      --shadow-sm: 0 6px 18px -10px rgba(120, 86, 110, 0.4);
+      --orb: radial-gradient(circle at 32% 28%, #ffe6da 0 10%, #fba07c 34%, #ec5d6c 66%, #b8446f 100%);
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+    body {
+      margin: 0; color: var(--ink); -webkit-font-smoothing: antialiased;
+      font: 400 16px/1.65 "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(900px 520px at 92% 115%, rgba(205, 176, 244, 0.45), transparent 62%),
+        radial-gradient(820px 520px at 30% 112%, rgba(255, 192, 164, 0.45), transparent 62%),
+        var(--bg);
+      background-attachment: fixed;
+    }
+    a { color: inherit; }
+    svg { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.7;
+          stroke-linecap: round; stroke-linejoin: round; }
+    code, pre, .mono { font-family: var(--mono); }
+    :not(pre) > code { font-size: 0.86em; padding: 2px 6px; border-radius: 6px; background: rgba(240, 106, 61, 0.09);
+                       color: #c24e2a; }
+
+    /* ---------- Sidebar ---------- */
+    .sidebar { position: fixed; inset: 16px auto 16px 16px; width: 286px; display: flex; flex-direction: column;
+               background: rgba(255, 255, 255, 0.6); border: 1px solid var(--frame); border-radius: 30px;
+               box-shadow: var(--shadow); backdrop-filter: blur(22px) saturate(1.3);
+               -webkit-backdrop-filter: blur(22px) saturate(1.3); z-index: 5; overflow: hidden; }
+    .workspace { display: flex; align-items: center; gap: 12px; padding: 22px 22px 14px; }
+    .orb { width: 34px; height: 34px; border-radius: 50%; background: var(--orb); flex: none;
+           box-shadow: 0 10px 22px -8px rgba(229, 80, 122, 0.6); }
+    .workspace b { display: block; font-size: 17px; font-weight: 600; line-height: 1.2; }
+    .workspace span { font-size: 13px; color: var(--muted); }
+    .search { margin: 4px 16px 10px; display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+              border-radius: 999px; background: rgba(255, 255, 255, 0.8); border: 1px solid var(--frame);
+              color: var(--muted); }
+    .search input { border: 0; outline: 0; background: transparent; font: inherit; font-size: 14px; color: var(--ink); width: 100%; }
+    .search kbd { font: 500 11px var(--mono); padding: 2px 6px; border-radius: 6px; background: var(--hover); color: var(--muted); }
+    .toc { flex: 1; overflow-y: auto; padding: 4px 10px 12px; scrollbar-width: thin; }
+    .toc h6 { margin: 16px 12px 4px; font-size: 11.5px; font-weight: 500; letter-spacing: 0.06em;
+              text-transform: uppercase; color: var(--muted); }
+    .toc a { display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 12px;
+             text-decoration: none; color: var(--ink-soft); font-size: 14.5px; line-height: 1.35; transition: background .15s; }
+    .toc a:hover { background: var(--hover); }
+    .toc a.active { background: #fff; color: var(--ink); font-weight: 500; box-shadow: var(--shadow-sm); }
+    .toc a .method { margin-left: auto; }
+    .toc .emoji { width: 20px; text-align: center; }
+    .sidebar footer { padding: 12px 16px 18px; border-top: 1px solid var(--line); display: grid; gap: 2px; }
+    .sidebar footer a { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 10px;
+                        text-decoration: none; color: var(--ink-soft); font-size: 14px; }
+    .sidebar footer a:hover { background: var(--hover); }
+    .menu { display: none; }
+
+    /* ---------- Page ---------- */
+    main { margin-left: 318px; padding: 16px 16px 120px; }
+    .page { max-width: 900px; margin: 0 auto; }
+    .cover { position: relative; height: 230px; border-radius: 30px; overflow: hidden; border: 8px solid var(--frame);
+             box-shadow: var(--shadow); background: #f4dfe6; }
+    .cover::before { content: ""; position: absolute; inset: -30%; filter: blur(30px) saturate(1.25);
+      background:
+        radial-gradient(30% 50% at 18% 40%, #ff9671 0, transparent 70%),
+        radial-gradient(32% 55% at 45% 25%, #f59ac8 0, transparent 70%),
+        radial-gradient(30% 55% at 70% 45%, #9fb1f6 0, transparent 70%),
+        radial-gradient(28% 50% at 88% 30%, #6fcf98 0, transparent 70%),
+        radial-gradient(60% 40% at 50% 95%, #ffe2c6 0, transparent 70%), #f7d6de;
+      transform: rotate(-4deg); }
+    .page-icon { width: 92px; height: 92px; border-radius: 50%; background: var(--orb); margin: -50px 0 0 54px;
+                 position: relative; border: 6px solid #f6f3f6; box-shadow: 0 16px 34px -12px rgba(229, 80, 122, 0.6); }
+    .doc { padding: 18px 54px 0; }
+    .doc h1 { font-size: 46px; line-height: 1.1; letter-spacing: -0.03em; font-weight: 700; margin: 18px 0 10px; }
+    .lead { font-size: 19px; color: var(--ink-soft); margin: 0 0 22px; font-weight: 300; }
+
+    .props { display: grid; grid-template-columns: 190px 1fr; margin: 0 0 26px; font-size: 15px; }
+    .props > div { padding: 7px 0; display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; min-width: 0; }
+    .props .k { color: var(--muted); }
+    .props .k svg { width: 16px; height: 16px; }
+    .tag { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 8px; font-size: 13.5px;
+           background: rgba(42, 38, 48, 0.06); }
+    .tag.peach { background: #fde6dc; color: #b6502b; } .tag.green { background: #e1f3e9; color: #23795a; }
+    .tag.lilac { background: #ebe6fb; color: #5f4fb3; } .tag.pink { background: #fbe4ee; color: #ad3c69; }
+
+    .divider { height: 1px; background: var(--line); margin: 26px 0; border: 0; }
+    .doc h2 { font-size: 30px; letter-spacing: -0.02em; font-weight: 650; margin: 54px 0 6px; display: flex;
+              align-items: center; gap: 12px; }
+    .doc h2 .emoji { font-size: 26px; }
+    .doc h3 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+    .doc p { margin: 8px 0; }
+    .doc ul, .doc ol { padding-left: 24px; margin: 8px 0; }
+    .doc li { margin: 4px 0; }
+    .muted { color: var(--muted); }
+
+    .callout { display: flex; gap: 14px; padding: 16px 20px; border-radius: 20px; margin: 18px 0;
+               background: linear-gradient(135deg, rgba(255, 241, 234, 0.95), rgba(253, 236, 244, 0.9));
+               border: 1px solid var(--frame); }
+    .callout .icon { font-size: 22px; line-height: 1.3; }
+    .callout.lilac { background: linear-gradient(135deg, rgba(238, 236, 253, 0.95), rgba(246, 236, 250, 0.9)); }
+    .callout.green { background: linear-gradient(135deg, rgba(229, 246, 237, 0.95), rgba(240, 249, 243, 0.9)); }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 16px 0; }
+    .mini { padding: 16px 18px; border-radius: 22px; background: var(--paper); border: 1px solid var(--frame);
+            box-shadow: var(--shadow-sm); text-decoration: none; transition: transform .2s; display: block; }
+    .mini:hover { transform: translateY(-2px); }
+    .mini .emoji { font-size: 22px; }
+    .mini b { display: block; margin-top: 6px; font-weight: 600; }
+    .mini span { color: var(--muted); font-size: 14px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin: 10px 0; }
+    th { text-align: left; font-weight: 500; color: var(--muted); font-size: 13px; padding: 8px 12px;
+         border-bottom: 1px solid var(--line); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    tr:last-child td { border-bottom: 0; }
+    .table-wrap { border: 1px solid var(--line); border-radius: 16px; overflow: auto; background: rgba(255, 255, 255, 0.55); }
+    .field { font-family: var(--mono); font-size: 13.5px; font-weight: 500; white-space: nowrap; }
+    .type { font-family: var(--mono); font-size: 12.5px; color: #6c5fbd; white-space: nowrap; }
+    .req { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; margin-left: 6px; }
+    .nested td { background: rgba(42, 38, 48, 0.02); }
+    .nested .field::before { content: "↳ "; color: var(--muted); }
+
+    /* code */
+    .code { position: relative; margin: 12px 0; border-radius: 18px; background: var(--code-bg);
+            border: 1px solid var(--line); overflow: hidden; }
+    .code header { display: flex; align-items: center; gap: 8px; padding: 8px 10px 8px 16px; border-bottom: 1px solid var(--line);
+                   font-size: 12.5px; color: var(--muted); }
+    .code header span { flex: 1; }
+    .code pre { margin: 0; padding: 14px 18px; overflow: auto; font-size: 13.2px; line-height: 1.6; color: #3d3846; }
+    .copy { border: 0; background: transparent; color: var(--muted); padding: 5px 9px; border-radius: 8px; cursor: pointer;
+            font: inherit; font-size: 12.5px; display: inline-flex; gap: 6px; align-items: center; }
+    .copy:hover { background: var(--hover); color: var(--ink); }
+    .j-key { color: #b4462a; } .j-str { color: #2f8a63; } .j-num { color: #6c5fbd; } .j-lit { color: #c2416b; }
+    .c-cmd { color: #c2416b; } .c-flag { color: #6c5fbd; }
+
+    /* endpoint */
+    .endpoint { margin: 22px 0 10px; padding: 24px 26px; border-radius: 26px; background: var(--paper);
+                border: 1px solid var(--frame); box-shadow: var(--shadow-sm); scroll-margin-top: 24px; }
+    .route { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .method { font: 600 11.5px var(--mono); letter-spacing: 0.04em; padding: 3px 9px; border-radius: 8px; }
+    .method.get { color: var(--get); background: var(--get-bg); }
+    .method.post { color: var(--post); background: var(--post-bg); }
+    .method.delete { color: var(--delete); background: var(--delete-bg); }
+    .path { font: 500 14.5px var(--mono); color: var(--ink-soft); word-break: break-all; }
+    .path .param { color: var(--accent); }
+    .anchor { margin-left: auto; color: var(--muted); text-decoration: none; opacity: 0; transition: opacity .2s; }
+    .endpoint:hover .anchor { opacity: 1; }
+    .desc { color: var(--ink-soft); }
+
+    details { border-radius: 14px; margin: 6px 0; }
+    details > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
+                        padding: 6px 8px; margin: 0 -8px; border-radius: 10px; font-weight: 500; user-select: none; }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary:hover { background: var(--hover); }
+    details > summary .chev { transition: transform .2s; color: var(--muted); }
+    details[open] > summary .chev { transform: rotate(90deg); }
+    details > summary .count { color: var(--muted); font-weight: 400; font-size: 14px; }
+    details > .body { padding: 4px 0 8px 26px; }
+    .status { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 13.5px; font-weight: 600; }
+    .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--get); }
+    .status.s4::before { background: var(--accent); }
+    .status.s5::before { background: var(--delete); }
+    .enum { display: inline-flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+
+    /* try it */
+    .try { margin-top: 10px; padding: 18px; border-radius: 20px; background: rgba(255, 255, 255, 0.75); border: 1px solid var(--frame); }
+    .try .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+    .try label { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 13px; color: var(--ink-soft); }
+    .try input, .try textarea { font: 13.5px var(--mono); border: 1px solid var(--line); background: #fff; border-radius: 12px;
+                                padding: 8px 12px; color: var(--ink); outline: none; }
+    .try input { width: 90px; border-radius: 999px; }
+    .try input:focus, .try textarea:focus { box-shadow: 0 0 0 4px rgba(240, 106, 61, 0.14); }
+    .try textarea { width: 100%; min-height: 150px; resize: vertical; line-height: 1.55; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 999px; padding: 10px 20px;
+           font: 600 14.5px "Outfit", system-ui, sans-serif; color: #fff; cursor: pointer;
+           background: linear-gradient(135deg, #f7915f, var(--accent) 45%, var(--accent-2));
+           box-shadow: 0 10px 22px -10px rgba(229, 80, 122, 0.8); }
+    .btn:hover { transform: translateY(-1px); }
+    .result-meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+    .page-footer { margin-top: 60px; color: var(--muted); font-size: 14px; display: flex; gap: 10px; align-items: center; }
+
+    @media (max-width: 980px) {
+      .sidebar { inset: 0 auto 0 0; border-radius: 0 28px 28px 0; transform: translateX(-105%); transition: transform .3s; width: 300px; }
+      body.nav-open .sidebar { transform: none; }
+      main { margin-left: 0; padding: 12px 12px 100px; }
+      .menu { display: inline-flex; position: fixed; top: 22px; left: 22px; z-index: 6; width: 44px; height: 44px; border-radius: 50%;
+              border: 1px solid var(--frame); background: rgba(255, 255, 255, 0.9); box-shadow: var(--shadow-sm);
+              align-items: center; justify-content: center; cursor: pointer; color: var(--ink); }
+      .doc { padding: 12px 8px 0; }
+      .doc h1 { font-size: 36px; }
+      .page-icon { margin-left: 22px; width: 76px; height: 76px; margin-top: -42px; }
+      .props { grid-template-columns: 150px 1fr; font-size: 14px; }
+      .props .k { flex-wrap: nowrap; }
+      .endpoint { padding: 20px 18px; }
+      details > .body { padding-left: 4px; }
+      .cover { height: 170px; }
+    }
+  </style>
+</head>
+<body>
+<button class="menu" id="menu" aria-label="Navigation öffnen"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+
+<aside class="sidebar" id="sidebar">
+  <div class="workspace">
+    <div class="orb"></div>
+    <div><b>FairShare API</b><span id="version">Referenz</span></div>
+  </div>
+  <label class="search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input id="search" placeholder="Endpunkte suchen…" aria-label="Endpunkte suchen">
+    <kbd>/</kbd>
+  </label>
+  <nav class="toc" id="toc">
+    <h6>Erste Schritte</h6>
+    <a href="#einfuehrung"><span class="emoji">👋</span>Einführung</a>
+    <a href="#grundlagen"><span class="emoji">🧭</span>Grundlagen</a>
+    <a href="#fehler"><span class="emoji">🚦</span>Fehler</a>
+    <a href="#schnellstart"><span class="emoji">⚡</span>Schnellstart</a>
+    <div id="toc-endpoints"></div>
+  </nav>
+  <footer>
+    <a href="/ui/"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Zur App</a>
+    <a href="/swagger"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Swagger UI</a>
+    <a href="/openapi.json" download="fairshare-openapi.json"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>openapi.json</a>
+  </footer>
+</aside>
+
+<main>
+  <div class="page">
+    <div class="cover"></div>
+    <div class="page-icon"></div>
+    <article class="doc">
+      <h1 id="einfuehrung">FairShare API</h1>
+      <p class="lead">REST-API für WG-Finanzen und Ämtli: Ausgaben fair aufteilen, mit möglichst wenigen Überweisungen abrechnen und Hausarbeit nach Aufwand verteilen.</p>
+
+      <div class="props">
+        <div class="k"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>Version</div>
+        <div><span class="tag peach" id="prop-version">–</span></div>
+        <div class="k"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>Basis-URL</div>
+        <div><code id="prop-base">–</code></div>
+        <div class="k"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Format</div>
+        <div><span class="tag lilac">JSON</span><span class="tag lilac">OpenAPI 3.1</span></div>
+        <div class="k"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Authentifizierung</div>
+        <div><span class="tag">keine (Demo)</span></div>
+        <div class="k"><svg viewBox="0 0 24 24"><path d="M4 12h4l3 7 4-14 3 7h2"/></svg>Endpunkte</div>
+        <div><span class="tag green" id="prop-count">–</span></div>
+        <div class="k"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg>Architektur</div>
+        <div><span class="tag pink">Clean Architecture</span><span class="tag pink">ADR-001…007</span></div>
+      </div>
+
+      <div class="callout">
+        <div class="icon">💡</div>
+        <div><b>Diese Seite schreibt sich selbst.</b> Sie wird beim Laden aus <code>/openapi.json</code> erzeugt. Diese Datei entsteht direkt aus den FastAPI-Routern und Pydantic-Schemas. Code und Doku können also nicht auseinanderlaufen.</div>
+      </div>
+
+      <h2 id="grundlagen"><span class="emoji">🧭</span>Grundlagen</h2>
+      <p>Alles hängt an einem <b>Haushalt</b>. Mitglieder, Ausgaben, Zahlungen und Ämtli sind über <code>/households/{household_id}/…</code> erreichbar.</p>
+      <div class="cards" id="resource-cards"></div>
+      <div class="callout green">
+        <div class="icon">🪙</div>
+        <div><b>Geld ist immer in Rappen.</b> <code>amount_cents: 9000</code> entspricht CHF 90.00. Es gibt keine Fliesskommazahlen. Beim Aufteilen gehen übrige Rappen an die Beteiligten mit dem grössten Bruchteil, die Summe stimmt also immer exakt (ADR-004).</div>
+      </div>
+
+      <h2 id="fehler"><span class="emoji">🚦</span>Fehler</h2>
+      <p>Fehler haben immer dieselbe Form. Die Domäne kennt keine HTTP-Codes; die Übersetzung passiert ausschliesslich an der API-Grenze.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Status</th><th>Bedeutung</th><th>Beispiel</th></tr></thead>
+        <tbody>
+          <tr><td><span class="status s4">400</span></td><td>Verletzte Geschäftsregel</td><td>Prozente ergeben nicht 100, Zahlung übersteigt Schuld</td></tr>
+          <tr><td><span class="status s4">404</span></td><td>Ressource existiert nicht</td><td>Unbekannte Haushalt- oder Ausgaben-ID</td></tr>
+          <tr><td><span class="status s4">409</span></td><td>Konflikt mit aktuellem Zustand</td><td>Mitglied „Lea“ existiert schon, Woche schon geplant</td></tr>
+          <tr><td><span class="status s4">422</span></td><td>Ungültiges JSON-Format</td><td>Pflichtfeld fehlt, falscher Datentyp</td></tr>
+        </tbody>
+      </table></div>
+      <div id="error-example"></div>
+
+      <h2 id="schnellstart"><span class="emoji">⚡</span>Schnellstart</h2>
+      <p>In vier Aufrufen von der leeren WG zum Ausgleichsvorschlag:</p>
+      <ol id="quickstart"></ol>
+
+      <div id="endpoints"></div>
+
+      <div class="page-footer"><div class="orb" style="width:22px;height:22px"></div>FairShare · FHNW AI-assisted Software Development 26H2 · generiert aus OpenAPI</div>
+    </article>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const BASE = location.origin;
+const TAG_EMOJI = { Haushalte: "🏠", Ausgaben: "🧾", Abrechnen: "⚖️", "Ämtli": "🧹", Betrieb: "🩺" };
+const slug = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+function icon(paths, className = "") {
+  const tpl = document.createElement("template");
+  tpl.innerHTML = `<svg viewBox="0 0 24 24" class="${className}" aria-hidden="true">${paths}</svg>`;
+  return tpl.content.firstChild;
+}
+
+function h(tag, props = {}, ...children) {
+  const el = document.createElement(tag);
+  for (const [key, value] of Object.entries(props ?? {})) {
+    if (value == null || value === false) continue;
+    if (key === "class") el.className = value;
+    else if (key === "html") el.innerHTML = value;
+    else if (key.startsWith("on")) el.addEventListener(key.slice(2), value);
+    else el.setAttribute(key, value === true ? "" : value);
+  }
+  for (const child of children.flat()) {
+    if (child == null || child === false) continue;
+    el.append(child instanceof Node ? child : String(child));
+  }
+  return el;
+}
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function markdown(text = "") {
+  const inline = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+  return text.trim().split(/\n\s*\n/).map((block) => {
+    const lines = block.split("\n").map((l) => l.trim());
+    if (lines.every((l) => l.startsWith("- "))) return `<ul>${lines.map((l) => `<li>${inline(l.slice(2))}</li>`).join("")}</ul>`;
+    return `<p>${inline(lines.join(" "))}</p>`;
+  }).join("");
+}
+
+function highlightJson(json) {
+  return esc(json).replace(/(&quot;(?:[^&]|&(?!quot;))*?&quot;)(\s*:)?|\b(true|false|null)\b|(?<![#\w])-?\d+(?:\.\d+)?\b/g,
+    (match, str, colon, lit) => {
+      if (str) return colon ? `<span class="j-key">${str}</span>${colon}` : `<span class="j-str">${str}</span>`;
+      if (lit) return `<span class="j-lit">${lit}</span>`;
+      return `<span class="j-num">${match}</span>`;
+    });
+}
+function highlightCurl(cmd) {
+  return esc(cmd).replace(/^curl/gm, '<span class="c-cmd">curl</span>').replace(/(\s)(-[A-Za-z]+)/g, '$1<span class="c-flag">$2</span>');
+}
+
+function codeBlock(label, text, kind) {
+  const pre = h("pre", { html: kind === "json" ? highlightJson(text) : kind === "curl" ? highlightCurl(text) : esc(text) });
+  const copy = h("button", { class: "copy", type: "button" }, "Kopieren");
+  copy.addEventListener("click", async () => {
+    await navigator.clipboard?.writeText(text).catch(() => {});
+    copy.textContent = "Kopiert ✓";
+    setTimeout(() => (copy.textContent = "Kopieren"), 1400);
+  });
+  return h("div", { class: "code" }, h("header", {}, h("span", {}, label), copy), pre);
+}
+
+/* ---------- OpenAPI helpers ---------- */
+let spec;
+const resolve = (schema) => {
+  if (schema?.$ref) return spec.components.schemas[schema.$ref.split("/").pop()];
+  return schema ?? {};
+};
+const refName = (schema) => schema?.$ref?.split("/").pop();
+function nonNull(schema) {
+  if (schema?.anyOf) return { nullable: true, schema: schema.anyOf.find((s) => s.type !== "null") };
+  return { nullable: false, schema };
+}
+
+function typeLabel(raw) {
+  const { nullable, schema } = nonNull(raw);
+  let label;
+  if (refName(schema)) {
+    const target = resolve(schema);
+    label = target.enum ? "enum" : refName(schema);
+  } else if (schema.type === "array") label = `${typeLabel(schema.items)}[]`;
+  else label = schema.format ? `${schema.type} · ${schema.format}` : schema.type ?? "any";
+  return nullable ? `${label} | null` : label;
+}
+
+function example(raw, depth = 0) {
+  const { schema } = nonNull(raw ?? {});
+  if (schema.examples?.length) return schema.examples[0];
+  if (schema.example !== undefined) return schema.example;
+  if (schema.default !== undefined && !schema.$ref) return schema.default;
+  if (schema.$ref) return example(resolve(schema), depth);
+  if (schema.enum) return schema.enum[0];
+  if (depth > 4) return null;
+  if (schema.type === "object" || schema.properties) {
+    return Object.fromEntries(Object.entries(schema.properties ?? {}).map(([k, v]) => [k, example(v, depth + 1)]));
+  }
+  if (schema.type === "array") return [example(schema.items, depth + 1)];
+  if (schema.format === "date-time") return "2026-10-23T09:00:00Z";
+  if (schema.format === "date") return "2026-10-26";
+  return { integer: 1, number: 1.5, boolean: true, string: "text" }[schema.type] ?? null;
+}
+
+function schemaRows(raw, depth = 0) {
+  const schema = resolve(nonNull(raw).schema);
+  const required = new Set(schema.required ?? []);
+  const rows = [];
+  for (const [name, prop] of Object.entries(schema.properties ?? {})) {
+    const inner = nonNull(prop).schema;
+    const enumTarget = inner.$ref ? resolve(inner) : null;
+    const desc = h("td", { html: markdown(prop.description ?? enumTarget?.description ?? "") || '<span class="muted">—</span>' });
+    if (enumTarget?.enum) desc.append(h("div", { class: "enum" }, enumTarget.enum.map((v) => h("code", {}, v))));
+    if (prop.default !== undefined && !inner.$ref) desc.append(h("div", { class: "muted", style: "font-size:13px" }, "Standard: ", h("code", {}, JSON.stringify(prop.default))));
+    rows.push(h("tr", { class: depth ? "nested" : "" },
+      h("td", {}, h("span", { class: "field", style: `padding-left:${depth * 18}px` }, name), required.has(name) ? h("span", { class: "req" }, "Pflicht") : null),
+      h("td", {}, h("span", { class: "type" }, typeLabel(prop))),
+      desc));
+    const child = inner.type === "array" ? inner.items : inner;
+    const childSchema = resolve(child);
+    if (depth < 2 && childSchema.properties) rows.push(...schemaRows(child, depth + 1));
+  }
+  return rows;
+}
+
+function schemaTable(raw) {
+  const rows = schemaRows(raw);
+  if (!rows.length) return h("p", { class: "muted" }, "Kein strukturierter Inhalt.");
+  return h("div", { class: "table-wrap" }, h("table", {},
+    h("thead", {}, h("tr", {}, h("th", {}, "Feld"), h("th", {}, "Typ"), h("th", {}, "Beschreibung"))),
+    h("tbody", {}, rows)));
+}
+
+function toggle(title, count, body, open = false) {
+  return h("details", { open },
+    h("summary", {}, icon('<path d="M9 6l6 6-6 6"/>', "chev"), title,
+      count != null ? h("span", { class: "count" }, `· ${count}`) : null),
+    h("div", { class: "body" }, body));
+}
+
+function pathHtml(path) {
+  return esc(path).replace(/\{([^}]+)\}/g, '<span class="param">{$1}</span>');
+}
+function concretePath(path, values = {}) {
+  return path.replace(/\{([^}]+)\}/g, (_, name) => encodeURIComponent(values[name] ?? (name === "week_start" ? "2026-10-26" : "1")));
+}
+function curlFor(method, path, body) {
+  const lines = [`curl -X ${method.toUpperCase()} ${BASE}${concretePath(path)}`];
+  if (body !== undefined) {
+    lines[0] += " \\";
+    lines.push(`  -H 'Content-Type: application/json' \\`, `  -d '${JSON.stringify(body)}'`);
+  }
+  return lines.join("\n");
+}
+
+/* ---------- endpoint block ---------- */
+function endpointBlock(path, method, op) {
+  const id = slug(`${op.tags?.[0] ?? ""}-${op.summary ?? op.operationId}`);
+  const params = (op.parameters ?? []).filter((p) => p.in === "path");
+  const bodySchema = op.requestBody?.content?.["application/json"]?.schema;
+  const bodyExample = bodySchema ? example(bodySchema) : undefined;
+
+  const block = h("section", { class: "endpoint", id, "data-search": `${method} ${path} ${op.summary} ${op.tags?.join(" ")}`.toLowerCase() },
+    h("div", { class: "route" },
+      h("span", { class: `method ${method}` }, method.toUpperCase()),
+      h("span", { class: "path", html: pathHtml(path) }),
+      h("a", { class: "anchor", href: `#${id}`, title: "Link zu diesem Abschnitt" }, "#")),
+    h("h3", {}, op.summary ?? op.operationId),
+    h("div", { class: "desc", html: markdown(op.description) }));
+
+  if (params.length) {
+    block.append(toggle("Pfad-Parameter", params.length, h("div", { class: "table-wrap" }, h("table", {},
+      h("thead", {}, h("tr", {}, h("th", {}, "Name"), h("th", {}, "Typ"), h("th", {}, "Beschreibung"))),
+      h("tbody", {}, params.map((p) => h("tr", {},
+        h("td", {}, h("span", { class: "field" }, p.name), h("span", { class: "req" }, "Pflicht")),
+        h("td", {}, h("span", { class: "type" }, typeLabel(p.schema))),
+        h("td", { class: "muted" }, p.name === "week_start" ? "Beliebiges Datum der Woche (YYYY-MM-DD)" : "Numerische ID"))))))));
+  }
+  if (bodySchema) {
+    block.append(toggle("Request-Body", refName(bodySchema), [schemaTable(bodySchema), codeBlock("Beispiel", JSON.stringify(bodyExample, null, 2), "json")], true));
+  }
+
+  const responses = Object.entries(op.responses ?? {});
+  block.append(toggle("Antworten", responses.length, responses.map(([status, response]) => {
+    const schema = response.content?.["application/json"]?.schema;
+    const meaningful = schema && (schema.$ref || schema.type === "array" || Object.keys(schema.properties ?? {}).length);
+    const body = [h("p", { class: "muted", style: "margin:2px 0 6px" }, response.description ?? "")];
+    if (meaningful && status !== "422") body.push(codeBlock(`Beispiel ${status}`, JSON.stringify(example(schema), null, 2), "json"));
+    return toggle(h("span", { class: `status s${status[0]}` }, status), null, body, status.startsWith("2"));
+  })));
+
+  block.append(toggle("curl", null, codeBlock("Terminal", curlFor(method, path, bodyExample), "curl")));
+  block.append(toggle("Ausprobieren", null, tryPanel(path, method, params, bodyExample)));
+  return block;
+}
+
+function tryPanel(path, method, params, bodyExample) {
+  const inputs = Object.fromEntries(params.map((p) => [p.name, h("input", { value: p.name === "week_start" ? "2026-10-26" : "1", "aria-label": p.name })]));
+  const textarea = bodyExample !== undefined ? h("textarea", { spellcheck: "false", "aria-label": "Request-Body" }) : null;
+  if (textarea) textarea.value = JSON.stringify(bodyExample, null, 2);
+  const out = h("div");
+  const send = h("button", { class: "btn", type: "button" },
+    icon('<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/>'), "Senden");
+  send.addEventListener("click", async () => {
+    const values = Object.fromEntries(Object.entries(inputs).map(([k, el]) => [k, el.value]));
+    const url = concretePath(path, values);
+    const started = performance.now();
+    out.replaceChildren(h("p", { class: "muted" }, "Sende …"));
+    try {
+      const res = await fetch(url, {
+        method: method.toUpperCase(),
+        headers: textarea ? { "Content-Type": "application/json" } : undefined,
+        body: textarea ? textarea.value : undefined,
+      });
+      const text = await res.text();
+      let pretty = text;
+      try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch { /* not JSON */ }
+      out.replaceChildren(
+        h("div", { class: "result-meta" }, h("span", { class: `status s${String(res.status)[0]}` }, res.status), `${Math.round(performance.now() - started)} ms`, h("code", {}, `${method.toUpperCase()} ${url}`)),
+        pretty ? codeBlock("Antwort", pretty, "json") : h("p", { class: "muted" }, "Kein Inhalt (204)."));
+    } catch (error) {
+      out.replaceChildren(h("p", { class: "muted" }, `Fehler: ${error.message}`));
+    }
+  });
+  return h("div", { class: "try" },
+    params.length ? h("div", { class: "row" }, params.map((p) => h("label", {}, p.name, inputs[p.name]))) : null,
+    textarea,
+    h("div", { class: "row", style: "margin:12px 0 0" }, send, h("span", { class: "muted", style: "font-size:13px" }, "Ruft die echte API auf diesem Server auf.")),
+    out);
+}
+
+/* ---------- page ---------- */
+function render() {
+  $("version").textContent = `Version ${spec.info.version}`;
+  $("prop-version").textContent = spec.info.version;
+  $("prop-base").textContent = BASE;
+
+  const byTag = new Map(spec.tags.map((t) => [t.name, { ...t, ops: [] }]));
+  for (const [path, ops] of Object.entries(spec.paths)) {
+    for (const [method, op] of Object.entries(ops)) byTag.get(op.tags?.[0])?.ops.push({ path, method, op });
+  }
+  const total = [...byTag.values()].reduce((sum, t) => sum + t.ops.length, 0);
+  $("prop-count").textContent = `${total} Endpunkte`;
+
+  $("resource-cards").replaceChildren(...[...byTag.values()].map((t) =>
+    h("a", { class: "mini", href: `#${slug(t.name)}` }, h("div", { class: "emoji" }, TAG_EMOJI[t.name] ?? "📄"),
+      h("b", {}, t.name), h("span", {}, `${t.ops.length} Endpunkt${t.ops.length === 1 ? "" : "e"}`))));
+
+  $("error-example").replaceChildren(codeBlock("Fehler-Antwort", JSON.stringify({ detail: "Percentages must sum to 100" }, null, 2), "json"));
+
+  const steps = [
+    ["Haushalt anlegen", "POST", "/households", { name: "WG Basel" }],
+    ["Mitglieder hinzufügen (für Lea, Noah, Mia wiederholen)", "POST", "/households/1/members", { name: "Lea" }],
+    ["Ausgabe erfassen: Lea zahlt CHF 90 für alle", "POST", "/households/1/expenses",
+      { payer_id: 1, description: "Migros", amount_cents: 9000, method: "equal", participants: [{ member_id: 1 }, { member_id: 2 }, { member_id: 3 }] }],
+    ["Ausgleich abfragen → Noah und Mia überweisen je CHF 30 an Lea", "GET", "/households/1/settle-up"],
+  ];
+  $("quickstart").replaceChildren(...steps.map(([title, method, path, body]) =>
+    h("li", {}, title, codeBlock(`${method} ${path}`, curlFor(method.toLowerCase(), path, body), "curl"))));
+
+  const toc = $("toc-endpoints");
+  const container = $("endpoints");
+  toc.replaceChildren();
+  container.replaceChildren();
+  for (const tag of byTag.values()) {
+    toc.append(h("h6", {}, tag.name));
+    container.append(
+      h("h2", { id: slug(tag.name) }, h("span", { class: "emoji" }, TAG_EMOJI[tag.name] ?? "📄"), tag.name),
+      h("div", { class: "muted", html: markdown(tag.description) }));
+    for (const { path, method, op } of tag.ops) {
+      const block = endpointBlock(path, method, op);
+      container.append(block);
+      toc.append(h("a", { href: `#${block.id}`, "data-search": block.dataset.search },
+        h("span", {}, op.summary), h("span", { class: `method ${method}` }, method === "delete" ? "DEL" : method.toUpperCase())));
+    }
+  }
+  setupScrollSpy();
+  if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+}
+
+function setupScrollSpy() {
+  const links = new Map([...document.querySelectorAll(".toc a")].map((a) => [a.getAttribute("href").slice(1), a]));
+  const targets = [...links.keys()].map((id) => document.getElementById(id)).filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+    if (!visible) return;
+    for (const a of links.values()) a.classList.remove("active");
+    links.get(visible.target.id)?.classList.add("active");
+  }, { rootMargin: "0px 0px -70% 0px" });
+  targets.forEach((t) => observer.observe(t));
+}
+
+$("search").addEventListener("input", (event) => {
+  const q = event.target.value.trim().toLowerCase();
+  for (const a of $("toc-endpoints").querySelectorAll("a")) a.hidden = q && !a.dataset.search.includes(q);
+  for (const h6 of $("toc-endpoints").querySelectorAll("h6")) {
+    let el = h6.nextElementSibling, any = false;
+    while (el && el.tagName === "A") { any ||= !el.hidden; el = el.nextElementSibling; }
+    h6.hidden = Boolean(q) && !any;
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "/" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") {
+    event.preventDefault();
+    $("search").focus();
+  }
+});
+$("menu").addEventListener("click", () => document.body.classList.toggle("nav-open"));
+$("toc").addEventListener("click", (event) => { if (event.target.closest("a")) document.body.classList.remove("nav-open"); });
+
+fetch("/openapi.json").then((r) => r.json()).then((json) => { spec = json; render(); })
+  .catch((error) => $("endpoints").replaceChildren(h("div", { class: "callout" }, h("div", { class: "icon" }, "⚠️"), `OpenAPI konnte nicht geladen werden: ${error.message}`)));
+</script>
+</body>
+</html>
