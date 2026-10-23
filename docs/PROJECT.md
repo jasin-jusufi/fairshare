@@ -45,7 +45,7 @@ Entscheidungen: siehe `docs/adr/`.
 | Ausgaben | `POST/GET /households/{id}/expenses`, `DELETE …/expenses/{expense_id}` | 002 |
 | Abrechnung | `GET …/balances`, `GET …/settle-up`, `POST/GET …/settlements` | 003 |
 | Ämtli | `POST/GET …/chores`, `POST …/chore-plans`, `GET …/chore-plans/{week}`, `POST …/assignments/{id}/complete`, `GET …/chore-load` | 004 |
-| Betrieb | `GET /health`, `/docs` (OpenAPI), `/ui/` (Web-UI) | — |
+| Betrieb | `GET /health`, `/docs` (API-Referenz), `/swagger`, `/openapi.json`, `/ui/` (Web-UI) | — |
 
 ## Structure
 

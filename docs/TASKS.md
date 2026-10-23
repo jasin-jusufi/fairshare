@@ -42,3 +42,4 @@ docs/specs/UC-004-ROTATE-CHORES.md
 | 2026-10-23 | alle | 4 Validate | done | Jasin + Claude Code | Coverage 99.8 % (Gate 90 %), Docker-Image, E2E lokal gegen SQLite und PostgreSQL 16, Release- und CD-Workflow |
 | 2026-10-23 | UC-001–004 | 3 Develop | done | Jasin + Claude Code | Web-UI unter `/ui` (Test zuerst), im Browser mit Demo-Daten geprüft |
 | 2026-10-23 | UI | Fast Track | done | Jasin + Claude Code | Scope: UI-Redesign (Glass/Pastell, Navigation in 5 Ansichten, Schnellerfassung). Grund: Nutzbarkeit/Präsentation. Keine API-, Daten- oder Architekturänderung → DESIGN übersprungen. Checks: UI-Tests grün, Browser Desktop 1440 px + Mobile 375 px ohne horizontalen Scroll |
+| 2026-10-23 | API-Doku | 3 Develop | done | Jasin + Claude Code | Test zuerst; OpenAPI mit Tags, Summaries, Beschreibungen, Fehlerantworten, Beispielen; eigene Referenz unter `/docs`, Swagger unter `/swagger`; Browser-Check Desktop + Mobile |
