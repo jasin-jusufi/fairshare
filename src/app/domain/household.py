@@ -1,18 +1,10 @@
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
-from app.domain.errors import DuplicateMemberError, ValidationError
+from app.domain.errors import DuplicateMemberError
+from app.domain.validation import clean_text
 
 MAX_NAME_LENGTH = 80
-
-
-def clean_name(value: str, label: str) -> str:
-    name = value.strip()
-    if not name:
-        raise ValidationError(f"{label} must not be empty")
-    if len(name) > MAX_NAME_LENGTH:
-        raise ValidationError(f"{label} must be at most {MAX_NAME_LENGTH} characters")
-    return name
 
 
 @dataclass
@@ -22,7 +14,7 @@ class Member:
     id: int | None = None
 
     def __post_init__(self) -> None:
-        self.name = clean_name(self.name, "Member name")
+        self.name = clean_text(self.name, "Member name", MAX_NAME_LENGTH)
 
 
 @dataclass
@@ -34,7 +26,7 @@ class Household:
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def __post_init__(self) -> None:
-        self.name = clean_name(self.name, "Household name")
+        self.name = clean_text(self.name, "Household name", MAX_NAME_LENGTH)
 
     def add_member(self, name: str) -> Member:
         member = Member(name=name, household_id=self.id)

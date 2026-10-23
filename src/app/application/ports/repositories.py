@@ -1,5 +1,6 @@
 from typing import Protocol
 
+from app.domain.expense import Expense
 from app.domain.household import Household
 
 
@@ -11,3 +12,13 @@ class HouseholdRepository(Protocol):
     def list(self) -> list[Household]: ...
 
     def save(self, household: Household) -> Household: ...
+
+
+class ExpenseRepository(Protocol):
+    def add(self, expense: Expense) -> Expense: ...
+
+    def get(self, expense_id: int) -> Expense | None: ...
+
+    def list_by_household(self, household_id: int) -> list[Expense]: ...
+
+    def delete(self, expense_id: int) -> None: ...

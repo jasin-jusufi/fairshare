@@ -1,4 +1,4 @@
-from app.application.errors import NotFoundError
+from app.application.lookup import require_household
 from app.application.ports.repositories import HouseholdRepository
 from app.domain.household import Household, Member
 
@@ -14,10 +14,7 @@ class HouseholdService:
         return self._households.list()
 
     def get_household(self, household_id: int) -> Household:
-        household = self._households.get(household_id)
-        if household is None:
-            raise NotFoundError(f"Household {household_id} not found")
-        return household
+        return require_household(self._households, household_id)
 
     def add_member(self, household_id: int, name: str) -> Member:
         household = self.get_household(household_id)

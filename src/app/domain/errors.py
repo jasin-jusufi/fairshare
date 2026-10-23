@@ -8,3 +8,7 @@ class ValidationError(DomainError):
 
 class DuplicateMemberError(DomainError):
     pass
+
+
+class UnknownMemberError(ValidationError):
+    pass

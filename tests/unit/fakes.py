@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from app.domain.expense import Expense
 from app.domain.household import Household
 
 
@@ -28,3 +29,25 @@ class InMemoryHouseholdRepository:
             member.household_id = household.id
         self._items[household.id] = deepcopy(household)
         return household
+
+
+class InMemoryExpenseRepository:
+    def __init__(self) -> None:
+        self._items: dict[int, Expense] = {}
+        self._next_id = 1
+
+    def add(self, expense: Expense) -> Expense:
+        expense.id = self._next_id
+        self._next_id += 1
+        self._items[expense.id] = deepcopy(expense)
+        return expense
+
+    def get(self, expense_id: int) -> Expense | None:
+        stored = self._items.get(expense_id)
+        return deepcopy(stored) if stored else None
+
+    def list_by_household(self, household_id: int) -> list[Expense]:
+        return [deepcopy(e) for e in self._items.values() if e.household_id == household_id]
+
+    def delete(self, expense_id: int) -> None:
+        del self._items[expense_id]

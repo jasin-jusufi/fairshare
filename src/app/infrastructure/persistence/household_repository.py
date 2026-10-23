@@ -1,14 +1,9 @@
-from datetime import UTC, datetime
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.domain.household import Household, Member
+from app.infrastructure.persistence.mapping import as_utc
 from app.infrastructure.persistence.models import HouseholdModel, MemberModel
-
-
-def as_utc(value: datetime) -> datetime:
-    return value if value.tzinfo else value.replace(tzinfo=UTC)
 
 
 def to_domain(model: HouseholdModel) -> Household:
