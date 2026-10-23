@@ -1,29 +1,29 @@
-# ADR-006: Delivery-Pipeline: GitHub Actions, GHCR und Render
+# ADR-006: Delivery pipeline: GitHub Actions, GHCR and Render
 
-- **Status:** akzeptiert
-- **Datum:** 2026-10-23
+- **Status:** accepted
+- **Date:** 2026-10-23
 
-## Kontext
+## Context
 
-Gefordert sind CI, Release-Workflow, Docker-Image und Cloud-Deployment mit
-PostgreSQL. Das Deployment soll nachvollziehbar und reproduzierbar sein.
+CI, a release workflow, a Docker image and cloud deployment with PostgreSQL are
+required. Deployment should be traceable and reproducible.
 
-## Alternativen
+## Alternatives
 
-1. Render baut direkt aus dem Git-Repository (Auto-Deploy)
+1. Render builds directly from the Git repository (auto-deploy)
 2. Fly.io / Railway
-3. Image wird in GitHub Actions gebaut, getestet und in GHCR veröffentlicht; Render deployt genau dieses Image
+3. The image is built, tested and published to GHCR in GitHub Actions; Render deploys exactly this image
 
-## Entscheid
+## Decision
 
-Variante 3, analog zum Referenzprojekt:
+Option 3, analogous to the reference project:
 
-- **CI** (`ci.yml`, jeder Push/PR): Lint, Format, Typecheck, Architekturregeln, Unit- und Integrationstests mit Coverage, Migrationscheck, Docker-Build mit E2E-Smoke-Test.
-- **Release** (`release.yml`, Tag `v*`): Image bauen, E2E gegen Container, Push nach `ghcr.io`, GitHub Release mit Notes.
-- **CD** (`cd.yml`, manuell): Render deployt das neueste GHCR-Image, danach Smoke-Test gegen `/health`.
+- **CI** (`ci.yml`, every push/PR): lint, format, type check, architecture rules, unit and integration tests with coverage, migration check, Docker build with E2E smoke test.
+- **Release** (`release.yml`, tag `v*`): build image, E2E against the container, push to `ghcr.io`, GitHub Release with notes.
+- **CD** (`cd.yml`, manual): Render deploys the latest GHCR image, followed by a smoke test against `/health`.
 
-## Konsequenzen
+## Consequences
 
-- Getestetes Artefakt = deploytes Artefakt.
-- Render-Secrets (`RENDER_API_KEY`, `RENDER_SERVICE_ID`) liegen nur in GitHub.
-- Deployment ist bewusst manuell (Freigabe durch Menschen, siehe `AGENTS.md`).
+- Tested artifact = deployed artifact.
+- Render secrets (`RENDER_API_KEY`, `RENDER_SERVICE_ID`) are stored only in GitHub.
+- Deployment is deliberately manual (human approval, see `AGENTS.md`).

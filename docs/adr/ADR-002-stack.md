@@ -1,26 +1,28 @@
-# ADR-002: Python 3.12, FastAPI und SQLAlchemy 2
+# ADR-002: Python 3.12, FastAPI and SQLAlchemy 2
 
-- **Status:** akzeptiert
-- **Datum:** 2026-10-23
+- **Status:** accepted
+- **Date:** 2026-10-23
 
-## Kontext
+## Context
 
-Zwei Personen, eine Woche bis zur Präsentation. Der Stack muss von Coding
-Agents gut beherrscht werden, schnelle Tests erlauben und dem Referenzprojekt
-BAIssue nahe sein, damit Architekturvergleiche möglich sind.
+Two people, one week until the presentation. The stack must be handled well by
+coding agents, allow fast tests and be close to the reference project BAIssue
+so that architecture comparisons are possible.
 
-## Alternativen
+## Alternatives
 
-1. Java / Spring Boot + JPA: sehr „enterprise“, aber langsamer Build/Test-Zyklus
-2. TypeScript / NestJS + Prisma: gute Typen, aber zweites Ökosystem fürs Team
-3. Python / FastAPI + SQLAlchemy 2: schlank, OpenAPI automatisch, bekanntes Team-Know-how
+1. Java / Spring Boot + JPA: very "enterprise", but slow build/test cycle
+2. TypeScript / NestJS + Prisma: good types, but a second ecosystem for the team
+3. Python / FastAPI + SQLAlchemy 2: lean, automatic OpenAPI, existing team know-how
 
-## Entscheid
+## Decision
 
-Variante 3. Zusätzlich `mypy --strict`, `ruff` und `import-linter`, um die
-fehlende Compile-Time-Sicherheit von Python auszugleichen.
+Option 3. In addition, `mypy --strict`, `ruff` and `import-linter` compensate
+for Python's lack of compile-time safety.
 
-## Konsequenzen
+## Consequences
 
-- Swagger-UI unter `/docs` gratis, gut für Demo und E2E-Tests.
-- Strenge Typprüfung kostet anfangs Zeit, fängt aber Agent-Fehler früh ab.
+- Swagger UI at `/docs` for free, useful for the demo and E2E tests.
+- Strict type checking costs time at first but catches agent mistakes early.
+
+> **Update 2026-10-23:** Swagger UI moved to `/swagger`; `/docs` now serves a custom API reference generated from the same OpenAPI document. The decision itself is unchanged.

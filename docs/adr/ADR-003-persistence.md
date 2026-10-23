@@ -1,30 +1,30 @@
-# ADR-003: SQLite für Entwicklung/CI, PostgreSQL in Produktion, Alembic-Migrationen
+# ADR-003: SQLite for development/CI, PostgreSQL in production, Alembic migrations
 
-- **Status:** akzeptiert
-- **Datum:** 2026-10-23
+- **Status:** accepted
+- **Date:** 2026-10-23
 
-## Kontext
+## Context
 
-Gefordert ist eine relationale Datenbank mit ORM. Lokale Entwicklung und CI
-sollen ohne Datenbankserver laufen; Produktion braucht eine persistente,
-verwaltete Datenbank.
+A relational database with an ORM is required. Local development and CI should
+run without a database server; production needs a persistent, managed
+database.
 
-## Alternativen
+## Alternatives
 
-1. Überall PostgreSQL (Docker Compose lokal, Service-Container in CI)
-2. SQLite überall, auch in Produktion
-3. SQLite lokal/CI, PostgreSQL in Produktion, Schema via Alembic
+1. PostgreSQL everywhere (Docker Compose locally, service container in CI)
+2. SQLite everywhere, including production
+3. SQLite locally/in CI, PostgreSQL in production, schema via Alembic
 
-## Entscheid
+## Decision
 
-Variante 3. `DATABASE_URL` wählt die Datenbank. `postgres://`-URLs von Render
-werden auf `postgresql+psycopg://` normalisiert. Das Schema wird in Produktion
-über Alembic-Migrationen erstellt (`alembic upgrade head` beim Container-Start),
-in Tests über `metadata.create_all`. CI prüft mit `alembic check`, dass
-Migrationen und ORM-Modelle übereinstimmen.
+Option 3. `DATABASE_URL` selects the database. `postgres://` URLs from Render
+are normalized to `postgresql+psycopg://`. In production the schema is created
+via Alembic migrations (`alembic upgrade head` on container start), in tests via
+`metadata.create_all`. CI uses `alembic check` to verify that migrations and
+ORM models match.
 
-## Konsequenzen
+## Consequences
 
-- Schnelle Tests ohne Infrastruktur.
-- Nur portables SQL verwenden (keine Postgres-spezifischen Typen).
-- Schemaänderungen brauchen immer eine Migration, sonst wird CI rot.
+- Fast tests without infrastructure.
+- Use portable SQL only (no Postgres-specific types).
+- Schema changes always require a migration, otherwise CI turns red.

@@ -1,60 +1,60 @@
 # UC-005-SCAN-RECEIPT
 
-> Owner: **Bajram** · Status: spezifiziert, Umsetzung offen
+> Owner: **Bajram** · Status: specified, implementation pending
 
 ## Intent
-Statt Betrag und Beschreibung abzutippen, lädt ein Mitglied ein Foto des
-Kassenbons hoch. Ein KI-Modell schlägt Beschreibung und Betrag vor; das
-Mitglied bestätigt und erfasst die Ausgabe wie in UC-002.
+Instead of typing in the amount and description, a member uploads a photo of
+the receipt. An AI model suggests a description and amount; the member
+confirms and records the expense as in UC-002.
 
 ## Actors
 
-Primary: WG-Mitglied
-Secondary: Externes Vision-LLM (über Port `ReceiptParser`)
+Primary: Flatmate
+Secondary: external vision LLM (via port `ReceiptParser`)
 
 ## Preconditions
 
-- Haushalt existiert (UC-001).
-- Für Produktion: `ANTHROPIC_API_KEY` ist gesetzt (nur als Secret, nie im Repo).
+- The household exists (UC-001).
+- For production: `ANTHROPIC_API_KEY` is set (only as a secret, never in the repo).
 
 ## Flow
 
-1. Mitglied lädt ein Bild hoch (`POST /households/{id}/receipts`, JPEG/PNG, ≤ 5 MB).
-2. Application-Service ruft den Port `ReceiptParser.parse(image_bytes, media_type)` auf.
-3. Adapter (Infrastruktur) fragt das LLM nach strukturiertem JSON `{merchant, total_cents, date}`.
-4. Service validiert den Vorschlag (Betrag > 0, Beschreibung 1–120 Zeichen) und gibt ihn zurück. **Es wird nichts gespeichert.**
-5. UI füllt das Formular von UC-002 vor; das Mitglied bestätigt.
+1. The member uploads an image (`POST /households/{id}/receipts`, JPEG/PNG, ≤ 5 MB).
+2. The application service calls the port `ReceiptParser.parse(image_bytes, media_type)`.
+3. The adapter (infrastructure) asks the LLM for structured JSON `{merchant, total_cents, date}`.
+4. The service validates the suggestion (amount > 0, description 1–120 characters) and returns it. **Nothing is stored.**
+5. The UI pre-fills the UC-002 form; the member confirms.
 
 ## Errors
 
-- invalid input: falscher Dateityp oder zu gross → 400
-- unreadable: Modell findet keinen Betrag → 422
-- unavailable: kein API-Key oder LLM nicht erreichbar → 503
-- not found: Haushalt existiert nicht → 404
+- invalid input: wrong file type or too large → 400
+- unreadable: the model finds no amount → 422
+- unavailable: no API key or LLM unreachable → 503
+- not found: household does not exist → 404
 
 ## Acceptance
 
-- AC1 Given Fake-Parser liefert „Migros, 2350“, When Bild hochgeladen, Then 200 mit `description = "Migros"`, `amount_cents = 2350`.
-- AC2 Given PDF statt Bild, When hochgeladen, Then 400.
-- AC3 Given Parser findet keinen Betrag, When hochgeladen, Then 422.
-- AC4 Given kein API-Key konfiguriert, When hochgeladen, Then 503.
-- AC5 Given Vorschlag, Then es existiert danach **keine** neue Ausgabe.
+- AC1 Given the fake parser returns "Migros, 2350", When an image is uploaded, Then 200 with `description = "Migros"`, `amount_cents = 2350`.
+- AC2 Given a PDF instead of an image, When uploaded, Then 400.
+- AC3 Given the parser finds no amount, When uploaded, Then 422.
+- AC4 Given no API key is configured, When uploaded, Then 503.
+- AC5 Given a suggestion, Then **no** new expense exists afterwards.
 
 ## Tests
 
-Unit: `ReceiptService` mit `FakeReceiptParser`, Validierung des Vorschlags
-Integration: AC1–AC5 mit Fake-Adapter über `dependency_overrides`
-E2E: nicht im CI (externe API); manueller Test dokumentieren
+Unit: `ReceiptService` with `FakeReceiptParser`, validation of the suggestion
+Integration: AC1–AC5 with a fake adapter via `dependency_overrides`
+E2E: not in CI (external API); document a manual test
 
 ## Design
 
-| Layer | Komponente |
+| Layer | Component |
 |---|---|
-| domain | `ReceiptSuggestion` (Value Object, Validierung) |
-| application | `ReceiptService`, Port `ReceiptParser` (`Protocol`), `ReceiptUnreadableError`, `ParserUnavailableError` |
-| interfaces | Router `POST /households/{id}/receipts` (`UploadFile`), Schema `ReceiptSuggestionOut` |
-| infrastructure | `AnthropicReceiptParser` (Anthropic SDK, Vision), Auswahl per Env in `create_app`; Fallback ohne Key → 503 |
+| domain | `ReceiptSuggestion` (value object, validation) |
+| application | `ReceiptService`, port `ReceiptParser` (`Protocol`), `ReceiptUnreadableError`, `ParserUnavailableError` |
+| interfaces | Router `POST /households/{id}/receipts` (`UploadFile`), schema `ReceiptSuggestionOut` |
+| infrastructure | `AnthropicReceiptParser` (Anthropic SDK, vision), selected via env in `create_app`; fallback without key → 503 |
 
-Neue Abhängigkeiten (`anthropic`, `python-multipart`) und die Wahl des Modells
-→ ADR-008. Der Port sorgt dafür, dass Domain und Application das LLM nicht kennen
-und alle Tests ohne Netzwerk laufen.
+New dependencies (`anthropic`, `python-multipart`) and the choice of model
+→ ADR-008. The port ensures that domain and application know nothing about the
+LLM and that all tests run without network access.

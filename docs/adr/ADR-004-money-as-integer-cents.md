@@ -1,28 +1,28 @@
-# ADR-004: Geldbeträge als ganzzahlige Rappen
+# ADR-004: Money as integer cents
 
-- **Status:** akzeptiert
-- **Datum:** 2026-10-23
+- **Status:** accepted
+- **Date:** 2026-10-23
 
-## Kontext
+## Context
 
-Beim Aufteilen von Ausgaben entstehen Restbeträge (CHF 100 / 3). Floats führen
-zu Rundungsfehlern; die Summe der Anteile muss exakt dem Betrag entsprechen,
-sonst stimmen Salden nie auf null.
+Splitting expenses produces remainders (CHF 100 / 3). Floats lead to rounding
+errors; the sum of the shares must equal the amount exactly, otherwise
+balances never add up to zero.
 
-## Alternativen
+## Alternatives
 
 1. `float`
-2. `decimal.Decimal` mit Rundung
-3. `int` in Rappen, Restverteilung nach Largest-Remainder-Verfahren
+2. `decimal.Decimal` with rounding
+3. `int` in cents, remainder distributed using the largest remainder method
 
-## Entscheid
+## Decision
 
-Variante 3. Alle Beträge sind `int` in Rappen (`amount_cents`). Beim Splitten
-werden übrig bleibende Rappen deterministisch an die Teilnehmenden mit dem
-grössten Bruchteil verteilt (bei Gleichstand nach Reihenfolge).
+Option 3. All amounts are `int` in cents (`amount_cents`). When splitting,
+leftover cents are distributed deterministically to the participants with the
+largest fractional part (ties are broken by order).
 
-## Konsequenzen
+## Consequences
 
-- Invariante „Summe der Anteile = Betrag“ ist exakt prüfbar und getestet.
-- Die API arbeitet mit `amount_cents`; nur das UI rechnet CHF ↔ Rappen um.
-- Einwährungssystem (CHF) — Mehrwährung ist Out of Scope.
+- The invariant "sum of shares = amount" can be checked exactly and is tested.
+- The API works with `amount_cents`; only the UI converts between CHF and cents.
+- Single-currency system (CHF) — multi-currency is out of scope.

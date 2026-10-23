@@ -1,60 +1,60 @@
 # UC-004-ROTATE-CHORES
 
 ## Intent
-Ämtli (Bad putzen, Küche, Abfall …) sollen **fair nach Aufwand** verteilt
-werden, nicht nur der Reihe nach. Wer in vergangenen Wochen viel Aufwand
-hatte, bekommt diese Woche weniger.
+Chores (cleaning the bathroom, kitchen, trash …) should be distributed **fairly
+by effort**, not just in turn. Whoever had a lot of effort in past weeks gets
+less this week.
 
 ## Actors
 
-Primary: WG-Mitglied (pflegt Ämtli, plant Woche, hakt erledigte Ämtli ab)
-Secondary: übrige Mitglieder (erhalten Zuteilungen)
+Primary: Flatmate (maintains chores, plans the week, ticks off completed chores)
+Secondary: other members (receive assignments)
 
 ## Preconditions
 
-- Haushalt mit mindestens einem Mitglied (UC-001).
+- Household with at least one member (UC-001).
 
 ## Flow
 
-1. Mitglied erfasst Ämtli mit Name und Aufwand (1–5 Punkte).
-2. Mitglied plant eine Woche (beliebiges Datum → Montag dieser Woche).
-3. System verteilt jedes Ämtli genau einmal: das aufwändigste zuerst an das Mitglied mit der bisher kleinsten Gesamtlast (Historie + bereits in dieser Woche zugeteilt), Gleichstand → kleinere Mitglied-ID (LPT-Heuristik).
-4. Mitglieder sehen den Wochenplan und haken erledigte Ämtli ab.
-5. Mitglieder sehen die kumulierte Last pro Person (Fairness-Übersicht).
+1. A member records chores with a name and effort (1–5 points).
+2. A member plans a week (any date → Monday of that week).
+3. The system assigns each chore exactly once: the most demanding one first, to the member with the lowest total load so far (history + already assigned this week); ties → lower member ID (LPT heuristic).
+4. Members see the weekly plan and tick off completed chores.
+5. Members see the cumulative load per person (fairness overview).
 
 ## Errors
 
-- invalid input: leerer Name, Aufwand ausserhalb 1–5 → 400
-- nothing to plan: keine Ämtli oder keine Mitglieder → 400
-- conflict: Woche bereits geplant, Zuteilung bereits erledigt → 409
-- not found: Haushalt oder Zuteilung existiert nicht → 404
+- invalid input: empty name, effort outside 1–5 → 400
+- nothing to plan: no chores or no members → 400
+- conflict: week already planned, assignment already completed → 409
+- not found: household or assignment does not exist → 404
 
 ## Acceptance
 
-- AC1 Given Haushalt, When `POST …/chores {"name": "Bad", "effort": 5}`, Then 201 mit `id`, `name`, `effort`.
-- AC2 Given Aufwand 0 oder 6, When erfasst, Then 400.
-- AC3 Given Lea, Noah, Mia und Ämtli Bad 5, Küche 3, Müll 1, Staubsaugen 3, When Woche geplant, Then Bad → Lea, Küche → Noah, Staubsaugen → Mia, Müll → Noah.
-- AC4 Given AC3, When die Folgewoche geplant wird, Then hat nach zwei Wochen jedes Mitglied genau 8 Punkte.
-- AC5 Given geplante Woche, When dieselbe Woche erneut geplant wird, Then 409.
-- AC6 Given Datum Donnerstag 2026-10-29, When geplant, Then `week_start = 2026-10-26`.
-- AC7 Given Zuteilung, When `POST …/assignments/{id}/complete`, Then 200 mit `completed_at`; erneut → 409; unbekannte ID → 404.
-- AC8 Given keine Ämtli, When Woche geplant, Then 400.
-- AC9 Given geplante Wochen, When `GET …/chore-load`, Then Punkte pro Mitglied.
+- AC1 Given a household, When `POST …/chores {"name": "Bathroom", "effort": 5}`, Then 201 with `id`, `name`, `effort`.
+- AC2 Given effort 0 or 6, When recorded, Then 400.
+- AC3 Given Lea, Noah, Mia and chores Bathroom 5, Kitchen 3, Trash 1, Vacuuming 3, When the week is planned, Then Bathroom → Lea, Kitchen → Noah, Vacuuming → Mia, Trash → Noah.
+- AC4 Given AC3, When the following week is planned, Then after two weeks every member has exactly 8 points.
+- AC5 Given a planned week, When the same week is planned again, Then 409.
+- AC6 Given the date Thursday 2026-10-29, When planned, Then `week_start = 2026-10-26`.
+- AC7 Given an assignment, When `POST …/assignments/{id}/complete`, Then 200 with `completed_at`; again → 409; unknown ID → 404.
+- AC8 Given no chores, When a week is planned, Then 400.
+- AC9 Given planned weeks, When `GET …/chore-load`, Then points per member.
 
 ## Tests
 
-Unit: `week_start_of`, `plan_week` (Reihenfolge, Gleichstand, Historie, Fairness über viele Wochen), `Chore`-/`ChoreAssignment`-Invarianten, `ChoreService`
-Integration: AC1–AC9 über `TestClient` + SQLite in-memory
-E2E: Ämtli anlegen und Woche planen gegen den Container
+Unit: `week_start_of`, `plan_week` (order, ties, history, fairness over many weeks), `Chore`/`ChoreAssignment` invariants, `ChoreService`
+Integration: AC1–AC9 via `TestClient` + SQLite in-memory
+E2E: create chores and plan a week against the container
 
 ## Design
 
-| Layer | Komponente |
+| Layer | Component |
 |---|---|
-| domain | `Chore`, `ChoreAssignment` (Entities), `week_start_of()`, `plan_week()`, `ConflictError` als Basis für 409-Fehler |
-| application | `ChoreService` (`add_chore`, `list_chores`, `plan_week`, `week_plan`, `complete_assignment`, `load_by_member`), Ports `ChoreRepository`, `ChoreAssignmentRepository` |
+| domain | `Chore`, `ChoreAssignment` (entities), `week_start_of()`, `plan_week()`, `ConflictError` as the base for 409 errors |
+| application | `ChoreService` (`add_chore`, `list_chores`, `plan_week`, `week_plan`, `complete_assignment`, `load_by_member`), ports `ChoreRepository`, `ChoreAssignmentRepository` |
 | interfaces | Router `/households/{id}/chores`, `/chore-plans`, `/assignments/{id}/complete`, `/chore-load` |
-| infrastructure | `ChoreModel`, `ChoreAssignmentModel` (Unique: Ämtli + Woche), Repositories, Migration |
+| infrastructure | `ChoreModel`, `ChoreAssignmentModel` (unique: chore + week), repositories, migration |
 
-Die Zuteilung speichert den Aufwand als Snapshot, damit spätere Änderungen am
-Ämtli die Fairness-Historie nicht verfälschen.
+The assignment stores the effort as a snapshot so that later changes to the
+chore do not distort the fairness history.
