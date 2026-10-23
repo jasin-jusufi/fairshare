@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Date, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.database import Base
@@ -61,3 +61,26 @@ class SettlementModel(Base):
     to_member_id: Mapped[int] = mapped_column(ForeignKey("members.id"))
     amount_cents: Mapped[int] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ChoreModel(Base):
+    __tablename__ = "chores"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    household_id: Mapped[int] = mapped_column(ForeignKey("households.id"), index=True)
+    name: Mapped[str] = mapped_column(String(80))
+    effort: Mapped[int] = mapped_column(Integer)
+
+
+class ChoreAssignmentModel(Base):
+    __tablename__ = "chore_assignments"
+    __table_args__ = (UniqueConstraint("chore_id", "week_start"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    household_id: Mapped[int] = mapped_column(ForeignKey("households.id"), index=True)
+    chore_id: Mapped[int] = mapped_column(ForeignKey("chores.id"))
+    chore_name: Mapped[str] = mapped_column(String(80))
+    member_id: Mapped[int] = mapped_column(ForeignKey("members.id"))
+    effort: Mapped[int] = mapped_column(Integer)
+    week_start: Mapped[date] = mapped_column(Date, index=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

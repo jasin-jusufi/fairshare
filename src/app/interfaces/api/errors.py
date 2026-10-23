@@ -2,11 +2,11 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.application.errors import NotFoundError
-from app.domain.errors import DomainError, DuplicateMemberError
+from app.domain.errors import ConflictError, DomainError
 
 STATUS_BY_ERROR: list[tuple[type[Exception], int]] = [
     (NotFoundError, 404),
-    (DuplicateMemberError, 409),
+    (ConflictError, 409),
     (DomainError, 400),
 ]
 

@@ -1,5 +1,7 @@
+from datetime import date
 from typing import Protocol
 
+from app.domain.chore import Chore, ChoreAssignment
 from app.domain.expense import Expense
 from app.domain.household import Household
 from app.domain.settlement import Settlement
@@ -29,3 +31,21 @@ class SettlementRepository(Protocol):
     def add(self, settlement: Settlement) -> Settlement: ...
 
     def list_by_household(self, household_id: int) -> list[Settlement]: ...
+
+
+class ChoreRepository(Protocol):
+    def add(self, chore: Chore) -> Chore: ...
+
+    def list_by_household(self, household_id: int) -> list[Chore]: ...
+
+
+class ChoreAssignmentRepository(Protocol):
+    def add_all(self, assignments: list[ChoreAssignment]) -> list[ChoreAssignment]: ...
+
+    def get(self, assignment_id: int) -> ChoreAssignment | None: ...
+
+    def list_by_household(
+        self, household_id: int, week_start: date | None = None
+    ) -> list[ChoreAssignment]: ...
+
+    def save(self, assignment: ChoreAssignment) -> ChoreAssignment: ...

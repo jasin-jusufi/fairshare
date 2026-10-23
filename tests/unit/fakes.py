@@ -2,7 +2,6 @@ from copy import deepcopy
 from datetime import date
 
 from app.domain.chore import Chore, ChoreAssignment
-
 from app.domain.expense import Expense
 from app.domain.household import Household
 from app.domain.settlement import Settlement

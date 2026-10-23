@@ -1,8 +1,8 @@
 from datetime import date
 
 import pytest
-from app.application.chore_service import ChoreService
 
+from app.application.chore_service import ChoreService
 from app.application.errors import NotFoundError
 from app.domain.errors import ConflictError
 from app.domain.household import Household

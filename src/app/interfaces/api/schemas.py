@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -85,3 +85,39 @@ class SettlementOut(OutModel):
     to_member_id: int
     amount_cents: int
     created_at: datetime
+
+
+class ChoreCreate(BaseModel):
+    name: str
+    effort: int
+
+
+class ChoreOut(OutModel):
+    id: int
+    name: str
+    effort: int
+
+
+class WeekPlanCreate(BaseModel):
+    week_start: date
+
+
+class AssignmentOut(OutModel):
+    id: int
+    chore_id: int
+    chore_name: str
+    member_id: int
+    effort: int
+    week_start: date
+    completed_at: datetime | None
+
+
+class WeekPlanOut(OutModel):
+    week_start: date
+    assignments: list[AssignmentOut]
+
+
+class MemberLoadOut(OutModel):
+    member_id: int
+    name: str
+    effort_points: int

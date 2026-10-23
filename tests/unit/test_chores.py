@@ -2,8 +2,8 @@ import random
 from datetime import date
 
 import pytest
-from app.domain.chore import Chore, ChoreAssignment, plan_week, week_start_of
 
+from app.domain.chore import Chore, ChoreAssignment, plan_week, week_start_of
 from app.domain.errors import ConflictError, ValidationError
 
 
@@ -56,10 +56,9 @@ def test_long_run_fairness(seed: int) -> None:
     chores = [chore(i, rng.randint(1, 5)) for i in range(1, rng.randint(3, 8))]
     members = list(range(1, rng.randint(2, 5) + 1))
     load = dict.fromkeys(members, 0)
-    for week in range(12):
+    for _ in range(12):
         for a in plan_week(1, chores, members, load, date(2026, 1, 5)):
             load[a.member_id] += a.effort
-        assert week >= 0
     assert max(load.values()) - min(load.values()) <= max(c.effort for c in chores)
 
 

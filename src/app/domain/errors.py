@@ -6,7 +6,11 @@ class ValidationError(DomainError):
     pass
 
 
-class DuplicateMemberError(DomainError):
+class ConflictError(DomainError):
+    """The request conflicts with the current state."""
+
+
+class DuplicateMemberError(ConflictError):
     pass
 
 

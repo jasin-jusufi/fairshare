@@ -1,3 +1,4 @@
+from app.application.chore_service import ChoreService
 from app.application.expense_service import ExpenseService
 from app.application.household_service import HouseholdService
 from app.application.settlement_service import SettlementService
@@ -14,4 +15,8 @@ def expense_service() -> ExpenseService:
 
 
 def settlement_service() -> SettlementService:
+    raise NotImplementedError(PROVIDED_BY_INFRASTRUCTURE)
+
+
+def chore_service() -> ChoreService:
     raise NotImplementedError(PROVIDED_BY_INFRASTRUCTURE)
