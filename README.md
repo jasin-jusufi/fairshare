@@ -59,6 +59,18 @@ aufwändigste Ämtli.
 
 ---
 
+### API-Referenz
+
+Unter `/docs` liegt eine eigene API-Referenz im FairShare-Design. Sie wird im
+Browser aus `/openapi.json` erzeugt, also direkt aus Routern, Docstrings und
+Pydantic-Schemas. Code und Doku können dadurch nicht auseinanderlaufen; ein
+Integrationstest prüft, dass jeder Endpunkt Summary, Beschreibung und
+dokumentierte Fehler hat.
+
+![API-Referenz](docs/assets/api-docs.png)
+
+---
+
 ## 2. Architektur
 
 Clean Architecture mit vier Layern. Abhängigkeiten zeigen nur nach innen
@@ -280,7 +292,8 @@ PYTHONPATH=src uvicorn app.main:app --reload
 ```
 
 - UI: <http://localhost:8000/ui/>
-- API-Doku (Swagger): <http://localhost:8000/docs>
+- API-Referenz: <http://localhost:8000/docs> (eigene Seite, live aus OpenAPI generiert, mit „Ausprobieren“)
+- Swagger UI: <http://localhost:8000/swagger>
 - Health: <http://localhost:8000/health>
 
 Mit Docker:
