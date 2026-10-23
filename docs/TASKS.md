@@ -1,17 +1,16 @@
 # TASKS.md
 
-PHASE: 3
+PHASE: 2
 STATUS: done
 
 (0=Bootstrap | 1=Specify | 2=Design | 3=Develop | 4=Validate | 5=Deploy)
 
 ## Current Use Case
 
-docs/specs/UC-003-SETTLE-UP.md
+docs/specs/UC-004-ROTATE-CHORES.md
 
 ## Backlog
 
-- docs/specs/UC-004-ROTATE-CHORES.md
 
 ## Working agreement
 
@@ -34,3 +33,5 @@ docs/specs/UC-003-SETTLE-UP.md
 | 2026-10-23 | UC-003 | 1 Specify | done | Jasin + Claude Code | AC1–AC8 inkl. Kettenschulden und Überzahlung |
 | 2026-10-23 | UC-003 | 2 Design | done | Jasin + Claude Code | ADR-007 Greedy-Ausgleich |
 | 2026-10-23 | UC-003 | 3 Develop | done | Jasin + Claude Code | TDD: 51 neue Tests inkl. 25 Zufallsszenarien, rot → grün |
+| 2026-10-23 | UC-004 | 1 Specify | done | Jasin + Claude Code | AC1–AC9, Fairness über zwei Wochen als Akzeptanzkriterium |
+| 2026-10-23 | UC-004 | 2 Design | done | Jasin + Claude Code | LPT-Heuristik, Aufwand-Snapshot, ConflictError-Hierarchie |
