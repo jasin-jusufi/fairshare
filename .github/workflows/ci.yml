@@ -26,7 +26,59 @@ jobs:
           test -f docs/specs/UC-TEMPLATE.md
           test -f .github/copilot-instructions.md
           test -d skills
+          test -d docs/adr
           test -d .devcontainer
 
       - name: Check whitespace errors
         run: git diff --check
+
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Format (ruff)
+        run: ruff format --check .
+
+      - name: Typecheck (mypy --strict)
+        run: mypy
+
+      - name: Architecture rules (import-linter)
+        env:
+          PYTHONPATH: src
+        run: lint-imports
+
+  test:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: "sqlite:///:memory:"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Unit and integration tests
+        run: pytest tests/unit tests/integration

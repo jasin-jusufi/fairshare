@@ -38,6 +38,7 @@ disallow_untyped_decorators = false
 
 [tool.importlinter]
 root_package = "app"
+include_external_packages = true
 
 [[tool.importlinter.contracts]]
 name = "Clean Architecture layers (dependencies point inward)"
