@@ -12,8 +12,8 @@ docs/specs/UC-004-ROTATE-CHORES.md
 ## Backlog
 
 - docs/specs/UC-005-SCAN-RECEIPT.md — Owner: Bajram (Phase 2 → 3, ADR-008)
-- UI-E2E mit Playwright (Owner: Bajram)
-- Phase 5: Render-Deployment einrichten und `cd.yml` ausführen (Jasin + Bajram)
+- UI E2E with Playwright (Owner: Bajram)
+- Phase 5: set up Render deployment and run `cd.yml` (Jasin + Bajram)
 
 ## Working agreement
 
@@ -24,22 +24,23 @@ docs/specs/UC-004-ROTATE-CHORES.md
 
 ## Log
 
-| Datum | UC | Phase | Status | Wer / Agent | Notiz |
+| Date | UC | Phase | Status | Who / Agent | Note |
 |---|---|---|---|---|---|
-| 2026-10-23 | — | 0 Bootstrap | done | Jasin + Claude Code | Template übernommen, Struktur, Tooling, PROJECT.md |
-| 2026-10-23 | UC-001 | 1 Specify | done | Jasin + Claude Code | Spezifikation mit AC1–AC7 |
-| 2026-10-23 | UC-001 | 2 Design | done | Jasin + Claude Code | Komponenten pro Layer, keine neue ADR nötig |
-| 2026-10-23 | UC-001 | 3 Develop | done | Jasin + Claude Code | TDD: 12 Integration- + 12 Unit-Tests rot → grün, Alembic-Migration |
-| 2026-10-23 | UC-002 | 1 Specify | done | Jasin + Claude Code | AC1–AC8, drei Aufteilungsarten |
-| 2026-10-23 | UC-002 | 2 Design | done | Jasin + Claude Code | ADR-004 präzisiert: API in Rappen |
-| 2026-10-23 | UC-002 | 3 Develop | done | Jasin + Claude Code | TDD: 50 neue Tests rot → grün, Refactor gemeinsamer Validierung |
-| 2026-10-23 | UC-003 | 1 Specify | done | Jasin + Claude Code | AC1–AC8 inkl. Kettenschulden und Überzahlung |
-| 2026-10-23 | UC-003 | 2 Design | done | Jasin + Claude Code | ADR-007 Greedy-Ausgleich |
-| 2026-10-23 | UC-003 | 3 Develop | done | Jasin + Claude Code | TDD: 51 neue Tests inkl. 25 Zufallsszenarien, rot → grün |
-| 2026-10-23 | UC-004 | 1 Specify | done | Jasin + Claude Code | AC1–AC9, Fairness über zwei Wochen als Akzeptanzkriterium |
-| 2026-10-23 | UC-004 | 2 Design | done | Jasin + Claude Code | LPT-Heuristik, Aufwand-Snapshot, ConflictError-Hierarchie |
-| 2026-10-23 | UC-004 | 3 Develop | done | Jasin + Claude Code | TDD: 38 neue Tests inkl. 12-Wochen-Fairness-Simulation, rot → grün |
-| 2026-10-23 | alle | 4 Validate | done | Jasin + Claude Code | Coverage 99.8 % (Gate 90 %), Docker-Image, E2E lokal gegen SQLite und PostgreSQL 16, Release- und CD-Workflow |
-| 2026-10-23 | UC-001–004 | 3 Develop | done | Jasin + Claude Code | Web-UI unter `/ui` (Test zuerst), im Browser mit Demo-Daten geprüft |
-| 2026-10-23 | UI | Fast Track | done | Jasin + Claude Code | Scope: UI-Redesign (Glass/Pastell, Navigation in 5 Ansichten, Schnellerfassung). Grund: Nutzbarkeit/Präsentation. Keine API-, Daten- oder Architekturänderung → DESIGN übersprungen. Checks: UI-Tests grün, Browser Desktop 1440 px + Mobile 375 px ohne horizontalen Scroll |
-| 2026-10-23 | API-Doku | 3 Develop | done | Jasin + Claude Code | Test zuerst; OpenAPI mit Tags, Summaries, Beschreibungen, Fehlerantworten, Beispielen; eigene Referenz unter `/docs`, Swagger unter `/swagger`; Browser-Check Desktop + Mobile |
+| 2026-10-23 | — | 0 Bootstrap | done | Jasin + Claude Code | Adopted template, structure, tooling, PROJECT.md |
+| 2026-10-23 | UC-001 | 1 Specify | done | Jasin + Claude Code | Specification with AC1–AC7 |
+| 2026-10-23 | UC-001 | 2 Design | done | Jasin + Claude Code | Components per layer, no new ADR needed |
+| 2026-10-23 | UC-001 | 3 Develop | done | Jasin + Claude Code | TDD: 12 integration + 12 unit tests red → green, Alembic migration |
+| 2026-10-23 | UC-002 | 1 Specify | done | Jasin + Claude Code | AC1–AC8, three split methods |
+| 2026-10-23 | UC-002 | 2 Design | done | Jasin + Claude Code | ADR-004 refined: API in cents |
+| 2026-10-23 | UC-002 | 3 Develop | done | Jasin + Claude Code | TDD: 50 new tests red → green, refactored shared validation |
+| 2026-10-23 | UC-003 | 1 Specify | done | Jasin + Claude Code | AC1–AC8 including chained debts and overpayment |
+| 2026-10-23 | UC-003 | 2 Design | done | Jasin + Claude Code | ADR-007 greedy settle-up |
+| 2026-10-23 | UC-003 | 3 Develop | done | Jasin + Claude Code | TDD: 51 new tests including 25 random scenarios, red → green |
+| 2026-10-23 | UC-004 | 1 Specify | done | Jasin + Claude Code | AC1–AC9, fairness over two weeks as an acceptance criterion |
+| 2026-10-23 | UC-004 | 2 Design | done | Jasin + Claude Code | LPT heuristic, effort snapshot, ConflictError hierarchy |
+| 2026-10-23 | UC-004 | 3 Develop | done | Jasin + Claude Code | TDD: 38 new tests including a 12-week fairness simulation, red → green |
+| 2026-10-23 | all | 4 Validate | done | Jasin + Claude Code | Coverage 99.8 % (gate 90 %), Docker image, E2E locally against SQLite and PostgreSQL 16, release and CD workflows |
+| 2026-10-23 | UC-001–004 | 3 Develop | done | Jasin + Claude Code | Web UI at `/ui` (test first), checked in the browser with demo data |
+| 2026-10-23 | UI | Fast Track | done | Jasin + Claude Code | Scope: UI redesign (glass/pastel, navigation across 5 views, quick add). Reason: usability/presentation. No API, data or architecture change → DESIGN skipped. Checks: UI tests green, browser desktop 1440 px + mobile 375 px without horizontal scrolling |
+| 2026-10-23 | API docs | 3 Develop | done | Jasin + Claude Code | Test first; OpenAPI with tags, summaries, descriptions, error responses, examples; custom reference at `/docs`, Swagger at `/swagger`; browser check desktop + mobile |
+| 2026-10-23 | all | Fast Track | done | Jasin + Claude Code | Scope: translate every artifact to English (docs, specs, ADRs, UI, OpenAPI texts, test data). Reason: team decision, recorded in AGENTS.md. No behaviour change → DESIGN skipped. Checks: 175 tests green, UI and /docs verified, no German left (grep) |
