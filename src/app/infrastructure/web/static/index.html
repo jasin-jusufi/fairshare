@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FairShare</title>
+  <style>
+    :root {
+      --bg: #f6f5f1; --card: #ffffff; --text: #1d1d1b; --muted: #6b6a65;
+      --line: #e4e2db; --accent: #1f6f5c; --accent-soft: #e3f0ec;
+      --pos: #1f6f5c; --neg: #b3402a; --radius: 12px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161614; --card: #201f1d; --text: #ecebe6; --muted: #a09e97;
+        --line: #34322e; --accent: #5cbfa3; --accent-soft: #1f3a33;
+        --pos: #5cbfa3; --neg: #e8826c;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+           background: var(--bg); color: var(--text); }
+    header { padding: 20px 16px 8px; max-width: 1080px; margin: 0 auto;
+             display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+    h1 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+    h1 span { color: var(--accent); }
+    h2 { margin: 0 0 12px; font-size: 16px; }
+    main { max-width: 1080px; margin: 0 auto; padding: 8px 16px 40px;
+           display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+    .wide { grid-column: 1 / -1; }
+    form { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    input, select, button { font: inherit; padding: 8px 10px; border-radius: 8px;
+                            border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+    input { flex: 1 1 120px; min-width: 0; }
+    button { background: var(--accent); color: #fff; border: none; cursor: pointer; font-weight: 600; }
+    button.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); }
+    button:disabled { opacity: .5; cursor: default; }
+    ul { list-style: none; margin: 0; padding: 0; }
+    li { display: flex; justify-content: space-between; align-items: center; gap: 8px;
+         padding: 8px 0; border-top: 1px solid var(--line); }
+    li:first-child { border-top: none; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .pos { color: var(--pos); font-weight: 600; } .neg { color: var(--neg); font-weight: 600; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
+    .chip { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px;
+            background: var(--accent-soft); font-size: 13px; }
+    .chip input[type=number] { width: 56px; flex: none; padding: 2px 6px; }
+    .bar { height: 8px; border-radius: 4px; background: var(--accent); }
+    .done { text-decoration: line-through; color: var(--muted); }
+    #toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+             background: var(--neg); color: #fff; padding: 10px 16px; border-radius: 8px; display: none; }
+    .empty { color: var(--muted); font-style: italic; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Fair<span>Share</span></h1>
+  <form id="household-form" style="margin:0">
+    <select id="household-select" aria-label="Haushalt"></select>
+    <input id="household-name" placeholder="Neuer Haushalt" aria-label="Neuer Haushalt">
+    <button>Anlegen</button>
+  </form>
+</header>
+
+<main>
+  <section>
+    <h2>Mitglieder</h2>
+    <form id="member-form">
+      <input id="member-name" placeholder="Name" aria-label="Mitgliedername" required>
+      <button>Hinzufügen</button>
+    </form>
+    <ul id="members"></ul>
+  </section>
+
+  <section>
+    <h2>Salden &amp; Ausgleich</h2>
+    <ul id="balances"></ul>
+    <h2 style="margin-top:16px">Vorgeschlagene Zahlungen</h2>
+    <ul id="transfers"></ul>
+  </section>
+
+  <section class="wide">
+    <h2>Ausgabe erfassen</h2>
+    <form id="expense-form">
+      <select id="expense-payer" aria-label="Bezahlt von"></select>
+      <input id="expense-description" placeholder="Beschreibung" aria-label="Beschreibung" required>
+      <input id="expense-amount" type="number" min="0.05" step="0.05" placeholder="CHF" aria-label="Betrag in CHF" required>
+      <select id="expense-method" aria-label="Aufteilung">
+        <option value="equal">gleich</option>
+        <option value="percent">Prozent</option>
+        <option value="shares">Anteile</option>
+      </select>
+      <div class="chips" id="expense-participants"></div>
+      <button>Erfassen</button>
+    </form>
+    <ul id="expenses"></ul>
+  </section>
+
+  <section>
+    <h2>Ämtli</h2>
+    <form id="chore-form">
+      <input id="chore-name" placeholder="Ämtli" aria-label="Ämtli" required>
+      <select id="chore-effort" aria-label="Aufwand">
+        <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option>
+        <option value="4">4</option><option value="5">5</option>
+      </select>
+      <button>Hinzufügen</button>
+    </form>
+    <ul id="chores"></ul>
+  </section>
+
+  <section>
+    <h2>Wochenplan</h2>
+    <form id="plan-form">
+      <input id="plan-week" type="date" aria-label="Woche">
+      <button>Woche planen</button>
+      <button type="button" class="ghost" id="plan-show">Anzeigen</button>
+    </form>
+    <ul id="assignments"></ul>
+    <h2 style="margin-top:16px">Last pro Person</h2>
+    <ul id="load"></ul>
+  </section>
+</main>
+<div id="toast" role="alert"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const chf = (cents) => (cents / 100).toLocaleString("de-CH", { style: "currency", currency: "CHF" });
+const state = { householdId: null, members: [] };
+
+async function api(path, options = {}) {
+  const res = await fetch(path, { headers: { "Content-Type": "application/json" }, ...options });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const detail = Array.isArray(body.detail) ? body.detail.map((d) => d.msg).join(", ") : body.detail;
+    throw new Error(detail || res.statusText);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+function toast(message) {
+  const el = $("toast");
+  el.textContent = message;
+  el.style.display = "block";
+  setTimeout(() => (el.style.display = "none"), 3500);
+}
+
+const guard = (fn) => async (event) => {
+  event?.preventDefault();
+  try { await fn(event); } catch (error) { toast(error.message); }
+};
+
+function list(el, items, render, emptyText) {
+  el.replaceChildren();
+  if (!items.length) {
+    const li = document.createElement("li");
+    li.className = "empty";
+    li.textContent = emptyText;
+    el.append(li);
+  }
+  for (const item of items) el.append(render(item));
+}
+
+function row(left, right) {
+  const li = document.createElement("li");
+  const a = document.createElement("span");
+  a.append(...[left].flat());
+  li.append(a);
+  if (right !== undefined) li.append(...[right].flat());
+  return li;
+}
+
+function span(text, className) {
+  const s = document.createElement("span");
+  s.textContent = text;
+  if (className) s.className = className;
+  return s;
+}
+
+function button(text, onClick, ghost = true) {
+  const b = document.createElement("button");
+  b.textContent = text;
+  b.type = "button";
+  if (ghost) b.className = "ghost";
+  b.addEventListener("click", guard(onClick));
+  return b;
+}
+
+const nameOf = (id) => state.members.find((m) => m.id === id)?.name ?? `#${id}`;
+
+async function loadHouseholds(selectId) {
+  const households = await api("/households");
+  const select = $("household-select");
+  select.replaceChildren(...households.map((h) => new Option(h.name, h.id)));
+  if (!households.length) { state.householdId = null; return render(); }
+  state.householdId = selectId ?? state.householdId ?? households[0].id;
+  select.value = state.householdId;
+  await refresh();
+}
+
+async function refresh() {
+  if (!state.householdId) return render();
+  const base = `/households/${state.householdId}`;
+  const [household, expenses, balances, transfers, chores, load] = await Promise.all([
+    api(base), api(`${base}/expenses`), api(`${base}/balances`), api(`${base}/settle-up`),
+    api(`${base}/chores`), api(`${base}/chore-load`),
+  ]);
+  state.members = household.members;
+  render({ expenses, balances, transfers, chores, load });
+  await showWeek();
+}
+
+function render(data = { expenses: [], balances: [], transfers: [], chores: [], load: [] }) {
+  list($("members"), state.members, (m) => row(m.name), "Noch keine Mitglieder");
+
+  $("expense-payer").replaceChildren(...state.members.map((m) => new Option(m.name, m.id)));
+  renderParticipants();
+
+  list($("expenses"), data.expenses.slice().reverse(), (e) => row(
+    [span(e.description), document.createElement("br"),
+     span(`${nameOf(e.payer_id)} · ${e.shares.map((s) => `${nameOf(s.member_id)} ${chf(s.amount_cents)}`).join(", ")}`, "muted")],
+    [span(chf(e.amount_cents)), button("Löschen", async () => {
+      await api(`/households/${state.householdId}/expenses/${e.id}`, { method: "DELETE" });
+      await refresh();
+    })],
+  ), "Noch keine Ausgaben");
+
+  list($("balances"), data.balances, (b) => row(b.name,
+    span(chf(b.balance_cents), b.balance_cents > 0 ? "pos" : b.balance_cents < 0 ? "neg" : "muted")),
+    "Keine Mitglieder");
+
+  list($("transfers"), data.transfers, (t) => row(
+    `${t.from_name} → ${t.to_name}`,
+    [span(chf(t.amount_cents)), button("Bezahlt", async () => {
+      await api(`/households/${state.householdId}/settlements`, {
+        method: "POST",
+        body: JSON.stringify({ from_member_id: t.from_member_id, to_member_id: t.to_member_id, amount_cents: t.amount_cents }),
+      });
+      await refresh();
+    })],
+  ), "Alles ausgeglichen 🎉");
+
+  list($("chores"), data.chores, (c) => row(c.name, span(`${c.effort} Pkt.`, "muted")), "Noch keine Ämtli");
+
+  const maxLoad = Math.max(1, ...data.load.map((l) => l.effort_points));
+  list($("load"), data.load, (l) => {
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    bar.style.width = `${Math.max(4, (l.effort_points / maxLoad) * 120)}px`;
+    return row(l.name, [bar, span(`${l.effort_points} Pkt.`, "muted")]);
+  }, "Noch keine Planung");
+}
+
+function renderParticipants() {
+  const method = $("expense-method").value;
+  $("expense-participants").replaceChildren(...state.members.map((m) => {
+    const label = document.createElement("label");
+    label.className = "chip";
+    const check = Object.assign(document.createElement("input"), { type: "checkbox", checked: true, value: m.id });
+    label.append(check, m.name);
+    if (method !== "equal") {
+      const weight = Object.assign(document.createElement("input"), {
+        type: "number", min: 1, value: method === "percent" ? Math.floor(100 / state.members.length) : 1,
+      });
+      weight.dataset.member = m.id;
+      label.append(weight, method === "percent" ? "%" : "×");
+    }
+    return label;
+  }));
+}
+
+async function showWeek() {
+  if (!state.householdId) return;
+  const plan = await api(`/households/${state.householdId}/chore-plans/${$("plan-week").value}`);
+  list($("assignments"), plan.assignments, (a) => {
+    const label = span(`${a.chore_name} · ${nameOf(a.member_id)}`, a.completed_at ? "done" : "");
+    const right = a.completed_at ? span("erledigt", "muted") : button("Erledigt", async () => {
+      await api(`/households/${state.householdId}/assignments/${a.id}/complete`, { method: "POST" });
+      await showWeek();
+    });
+    return row(label, right);
+  }, `Woche ab ${plan.week_start} noch nicht geplant`);
+}
+
+$("household-form").addEventListener("submit", guard(async () => {
+  const name = $("household-name").value;
+  if (!name.trim()) return;
+  const household = await api("/households", { method: "POST", body: JSON.stringify({ name }) });
+  $("household-name").value = "";
+  await loadHouseholds(household.id);
+}));
+
+$("household-select").addEventListener("change", guard(async (e) => {
+  state.householdId = Number(e.target.value);
+  await refresh();
+}));
+
+$("member-form").addEventListener("submit", guard(async () => {
+  if (!state.householdId) throw new Error("Zuerst einen Haushalt anlegen");
+  await api(`/households/${state.householdId}/members`, { method: "POST", body: JSON.stringify({ name: $("member-name").value }) });
+  $("member-name").value = "";
+  await refresh();
+}));
+
+$("expense-method").addEventListener("change", renderParticipants);
+
+$("expense-form").addEventListener("submit", guard(async () => {
+  const participants = [...$("expense-participants").querySelectorAll("label")]
+    .filter((label) => label.querySelector("input[type=checkbox]").checked)
+    .map((label) => {
+      const id = Number(label.querySelector("input[type=checkbox]").value);
+      const weight = label.querySelector("input[type=number]");
+      return weight ? { member_id: id, weight: Number(weight.value) } : { member_id: id };
+    });
+  await api(`/households/${state.householdId}/expenses`, {
+    method: "POST",
+    body: JSON.stringify({
+      payer_id: Number($("expense-payer").value),
+      description: $("expense-description").value,
+      amount_cents: Math.round(Number($("expense-amount").value) * 100),
+      method: $("expense-method").value,
+      participants,
+    }),
+  });
+  $("expense-description").value = "";
+  $("expense-amount").value = "";
+  await refresh();
+}));
+
+$("chore-form").addEventListener("submit", guard(async () => {
+  await api(`/households/${state.householdId}/chores`, {
+    method: "POST", body: JSON.stringify({ name: $("chore-name").value, effort: Number($("chore-effort").value) }),
+  });
+  $("chore-name").value = "";
+  await refresh();
+}));
+
+$("plan-form").addEventListener("submit", guard(async () => {
+  await api(`/households/${state.householdId}/chore-plans`, { method: "POST", body: JSON.stringify({ week_start: $("plan-week").value }) });
+  await refresh();
+}));
+$("plan-show").addEventListener("click", guard(showWeek));
+
+$("plan-week").value = new Date().toISOString().slice(0, 10);
+loadHouseholds().catch((error) => toast(error.message));
+</script>
+</body>
+</html>
