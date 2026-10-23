@@ -16,4 +16,4 @@ Präsentation (Lessons Learned).
 | Datum | Wer | Phase / UC | Prompt (gekürzt) | Ergebnis | Menschliche Korrektur / Entscheid |
 |---|---|---|---|---|---|
 | 2026-10-23 | Jasin | 0 | „Analysiere BAIssue und die Bewertungskriterien, schlage Use Case und Plan vor“ | Rubric-Mapping, drei Use-Case-Ideen | Use Case FairShare gewählt |
-| 2026-10-23 | Jasin | 0 | „Execute phase 0 of AI-SDLC for FairShare (Python/FastAPI, Render)“ | Template übernommen, Skills verlinkt, Struktur, Tooling | Agent hätte BAIssue kopiert → explizit verlangt: nur Struktur und Prozess übernehmen, eigene Domäne |
+| 2026-10-23 | Jasin | 0 | „Execute phase 0 of AI-SDLC for FairShare (Python/FastAPI, Render)“ | Template übernommen, Skills verlinkt, Struktur, Tooling | Klarstellung durch uns: BAIssue ist nur Referenz für Struktur und Prozess, Domäne ist eigen |
