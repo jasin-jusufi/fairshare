@@ -1,17 +1,16 @@
 # TASKS.md
 
-PHASE: 3
+PHASE: 2
 STATUS: done
 
 (0=Bootstrap | 1=Specify | 2=Design | 3=Develop | 4=Validate | 5=Deploy)
 
 ## Current Use Case
 
-docs/specs/UC-002-RECORD-EXPENSE.md
+docs/specs/UC-003-SETTLE-UP.md
 
 ## Backlog
 
-- docs/specs/UC-003-SETTLE-UP.md
 - docs/specs/UC-004-ROTATE-CHORES.md
 
 ## Working agreement
@@ -32,3 +31,5 @@ docs/specs/UC-002-RECORD-EXPENSE.md
 | 2026-10-23 | UC-002 | 1 Specify | done | Jasin + Claude Code | AC1–AC8, drei Aufteilungsarten |
 | 2026-10-23 | UC-002 | 2 Design | done | Jasin + Claude Code | ADR-004 präzisiert: API in Rappen |
 | 2026-10-23 | UC-002 | 3 Develop | done | Jasin + Claude Code | TDD: 50 neue Tests rot → grün, Refactor gemeinsamer Validierung |
+| 2026-10-23 | UC-003 | 1 Specify | done | Jasin + Claude Code | AC1–AC8 inkl. Kettenschulden und Überzahlung |
+| 2026-10-23 | UC-003 | 2 Design | done | Jasin + Claude Code | ADR-007 Greedy-Ausgleich |
