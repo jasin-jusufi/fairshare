@@ -12,3 +12,7 @@ class DuplicateMemberError(DomainError):
 
 class UnknownMemberError(ValidationError):
     pass
+
+
+class OverpaymentError(DomainError):
+    pass

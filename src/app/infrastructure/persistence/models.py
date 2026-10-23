@@ -50,3 +50,14 @@ class ExpenseShareModel(Base):
     expense_id: Mapped[int] = mapped_column(ForeignKey("expenses.id"), index=True)
     member_id: Mapped[int] = mapped_column(ForeignKey("members.id"))
     amount_cents: Mapped[int] = mapped_column(Integer)
+
+
+class SettlementModel(Base):
+    __tablename__ = "settlements"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    household_id: Mapped[int] = mapped_column(ForeignKey("households.id"), index=True)
+    from_member_id: Mapped[int] = mapped_column(ForeignKey("members.id"))
+    to_member_id: Mapped[int] = mapped_column(ForeignKey("members.id"))
+    amount_cents: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

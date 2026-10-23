@@ -6,12 +6,14 @@ from sqlalchemy.orm import Session
 
 from app.application.expense_service import ExpenseService
 from app.application.household_service import HouseholdService
+from app.application.settlement_service import SettlementService
 from app.infrastructure import config
 from app.infrastructure.database import create_schema as create_db_schema
 from app.infrastructure.database import make_engine, make_session_factory
 from app.infrastructure.persistence.expense_repository import SqlAlchemyExpenseRepository
 from app.infrastructure.persistence.household_repository import SqlAlchemyHouseholdRepository
-from app.interfaces.api import dependencies, expenses, households
+from app.infrastructure.persistence.settlement_repository import SqlAlchemySettlementRepository
+from app.interfaces.api import dependencies, expenses, households, settlements
 from app.interfaces.api.errors import register_error_handlers
 
 
@@ -42,10 +44,19 @@ def create_app(database_url: str | None = None, create_schema: bool | None = Non
             SqlAlchemyHouseholdRepository(session), SqlAlchemyExpenseRepository(session)
         )
 
+    def settlement_service(session: DbSession) -> SettlementService:
+        return SettlementService(
+            SqlAlchemyHouseholdRepository(session),
+            SqlAlchemyExpenseRepository(session),
+            SqlAlchemySettlementRepository(session),
+        )
+
     app.dependency_overrides[dependencies.household_service] = household_service
     app.dependency_overrides[dependencies.expense_service] = expense_service
+    app.dependency_overrides[dependencies.settlement_service] = settlement_service
     app.include_router(households.router)
     app.include_router(expenses.router)
+    app.include_router(settlements.router)
     register_error_handlers(app)
 
     @app.get("/health", tags=["ops"])

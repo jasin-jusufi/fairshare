@@ -2,6 +2,7 @@ from typing import Protocol
 
 from app.domain.expense import Expense
 from app.domain.household import Household
+from app.domain.settlement import Settlement
 
 
 class HouseholdRepository(Protocol):
@@ -22,3 +23,9 @@ class ExpenseRepository(Protocol):
     def list_by_household(self, household_id: int) -> list[Expense]: ...
 
     def delete(self, expense_id: int) -> None: ...
+
+
+class SettlementRepository(Protocol):
+    def add(self, settlement: Settlement) -> Settlement: ...
+
+    def list_by_household(self, household_id: int) -> list[Settlement]: ...

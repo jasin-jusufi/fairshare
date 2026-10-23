@@ -2,6 +2,7 @@ from copy import deepcopy
 
 from app.domain.expense import Expense
 from app.domain.household import Household
+from app.domain.settlement import Settlement
 
 
 class InMemoryHouseholdRepository:
@@ -51,3 +52,16 @@ class InMemoryExpenseRepository:
 
     def delete(self, expense_id: int) -> None:
         del self._items[expense_id]
+
+
+class InMemorySettlementRepository:
+    def __init__(self) -> None:
+        self._items: list[Settlement] = []
+
+    def add(self, settlement: Settlement) -> Settlement:
+        settlement.id = len(self._items) + 1
+        self._items.append(deepcopy(settlement))
+        return settlement
+
+    def list_by_household(self, household_id: int) -> list[Settlement]:
+        return [deepcopy(s) for s in self._items if s.household_id == household_id]

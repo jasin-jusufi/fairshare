@@ -57,3 +57,31 @@ class ExpenseOut(OutModel):
     method: SplitMethod
     created_at: datetime
     shares: list[ShareOut]
+
+
+class BalanceOut(OutModel):
+    member_id: int
+    name: str
+    balance_cents: int
+
+
+class TransferOut(BaseModel):
+    from_member_id: int
+    from_name: str
+    to_member_id: int
+    to_name: str
+    amount_cents: int
+
+
+class SettlementCreate(BaseModel):
+    from_member_id: int
+    to_member_id: int
+    amount_cents: int
+
+
+class SettlementOut(OutModel):
+    id: int
+    from_member_id: int
+    to_member_id: int
+    amount_cents: int
+    created_at: datetime
