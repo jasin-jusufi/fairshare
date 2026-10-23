@@ -77,3 +77,24 @@ before the project context has been completed.
   when terminology or lifecycle responsibilities are unclear.
 
 If requirements or architecture are unclear → ask the user.
+
+---
+
+## Project Rules (FairShare)
+
+Human-approved durable rules derived from the ADRs in `docs/adr/`:
+
+- Layer boundaries are enforced by `lint-imports`; never weaken a contract to
+  make a change pass ([ADR-001](docs/adr/ADR-001-clean-architecture.md)).
+- Domain and application code must not import FastAPI, Pydantic, SQLAlchemy or
+  Alembic; repositories are `Protocol` ports in `application/ports`.
+- Money is always `int` cents; split remainders use largest remainder
+  ([ADR-004](docs/adr/ADR-004-money-as-integer-cents.md)).
+- Every schema change needs an Alembic migration
+  ([ADR-003](docs/adr/ADR-003-persistence.md)).
+- TDD trail: commit failing tests first (`test(uc-NNN): ... (red)`), then the
+  implementation (`feat(uc-NNN): ...`) ([ADR-005](docs/adr/ADR-005-testing-strategy.md)).
+- One branch and pull request per use case; CI must be green before merge.
+- Before finishing a phase run: `ruff check . && ruff format --check . && mypy && lint-imports && pytest tests/unit tests/integration`.
+- Log notable agent sessions (prompt, result, human correction) in `docs/AI-LOG.md`.
+- Deployment and releases only after explicit human approval.
