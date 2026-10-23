@@ -4,130 +4,494 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FairShare</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f6f5f1; --card: #ffffff; --text: #1d1d1b; --muted: #6b6a65;
-      --line: #e4e2db; --accent: #1f6f5c; --accent-soft: #e3f0ec;
-      --pos: #1f6f5c; --neg: #b3402a; --radius: 12px;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #161614; --card: #201f1d; --text: #ecebe6; --muted: #a09e97;
-        --line: #34322e; --accent: #5cbfa3; --accent-soft: #1f3a33;
-        --pos: #5cbfa3; --neg: #e8826c;
-      }
+      --bg: #efedf1;
+      --ink: #2a2630;
+      --ink-soft: #4a4552;
+      --muted: #8d8794;
+      --line: rgba(42, 38, 48, 0.07);
+      --glass: rgba(255, 255, 255, 0.58);
+      --glass-strong: rgba(255, 255, 255, 0.86);
+      --frame: rgba(255, 255, 255, 0.92);
+      --accent: #f06a3d;
+      --accent-2: #e5507a;
+      --accent-soft: #fff1ea;
+      --pos: #2f9e78;
+      --neg: #e25d3f;
+      --r-xl: 36px;
+      --r-lg: 28px;
+      --r-md: 20px;
+      --shadow: 0 18px 48px -18px rgba(120, 86, 110, 0.28);
+      --shadow-sm: 0 6px 18px -8px rgba(120, 86, 110, 0.35);
+      --orb: radial-gradient(circle at 32% 28%, #ffe6da 0 10%, #fba07c 34%, #ec5d6c 66%, #b8446f 100%);
     }
     * { box-sizing: border-box; }
-    body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
-           background: var(--bg); color: var(--text); }
-    header { padding: 20px 16px 8px; max-width: 1080px; margin: 0 auto;
-             display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
-    h1 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
-    h1 span { color: var(--accent); }
-    h2 { margin: 0 0 12px; font-size: 16px; }
-    main { max-width: 1080px; margin: 0 auto; padding: 8px 16px 40px;
-           display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-    section { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
-    .wide { grid-column: 1 / -1; }
-    form { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-    input, select, button { font: inherit; padding: 8px 10px; border-radius: 8px;
-                            border: 1px solid var(--line); background: var(--bg); color: var(--text); }
-    input { flex: 1 1 120px; min-width: 0; }
-    button { background: var(--accent); color: #fff; border: none; cursor: pointer; font-weight: 600; }
-    button.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); }
-    button:disabled { opacity: .5; cursor: default; }
-    ul { list-style: none; margin: 0; padding: 0; }
-    li { display: flex; justify-content: space-between; align-items: center; gap: 8px;
-         padding: 8px 0; border-top: 1px solid var(--line); }
-    li:first-child { border-top: none; }
-    .muted { color: var(--muted); font-size: 13px; }
-    .pos { color: var(--pos); font-weight: 600; } .neg { color: var(--neg); font-weight: 600; }
-    .chips { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
-    .chip { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px;
-            background: var(--accent-soft); font-size: 13px; }
-    .chip input[type=number] { width: 56px; flex: none; padding: 2px 6px; }
-    .bar { height: 8px; border-radius: 4px; background: var(--accent); }
-    .done { text-decoration: line-through; color: var(--muted); }
-    #toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
-             background: var(--neg); color: #fff; padding: 10px 16px; border-radius: 8px; display: none; }
-    .empty { color: var(--muted); font-style: italic; }
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font: 400 15px/1.5 "Outfit", system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 520px at 88% 112%, rgba(205, 176, 244, 0.6), transparent 62%),
+        radial-gradient(820px 520px at 6% 108%, rgba(255, 192, 164, 0.62), transparent 62%),
+        radial-gradient(760px 420px at 48% 122%, rgba(255, 168, 200, 0.5), transparent 62%),
+        var(--bg);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    svg { width: 20px; height: 20px; flex: none; stroke: currentColor; fill: none;
+          stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+    .app { display: grid; grid-template-columns: 250px 1fr; gap: 26px;
+           max-width: 1360px; margin: 0 auto; padding: 28px; }
+
+    .glass { background: var(--glass); border: 1px solid var(--frame); border-radius: var(--r-xl);
+             box-shadow: var(--shadow); backdrop-filter: blur(22px) saturate(1.3);
+             -webkit-backdrop-filter: blur(22px) saturate(1.3); }
+
+    /* Sidebar */
+    .sidebar { position: sticky; top: 28px; align-self: start; padding: 30px 22px 22px; }
+    .brand { display: flex; align-items: center; gap: 14px; padding: 0 8px 30px; }
+    .orb { width: 44px; height: 44px; border-radius: 50%; background: var(--orb);
+           box-shadow: 0 12px 26px -8px rgba(229, 80, 122, 0.6); flex: none; }
+    .brand b { font-size: 25px; font-weight: 600; letter-spacing: -0.02em; }
+    .nav-label { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
+                 color: var(--muted); padding: 10px 12px 8px; }
+    .nav { display: grid; gap: 4px; }
+    .nav button { display: flex; align-items: center; gap: 14px; padding: 13px 16px;
+                  border-radius: 999px; border: 0; background: transparent; color: var(--ink-soft);
+                  font-size: 16px; text-align: left; transition: background .2s, box-shadow .2s; }
+    .nav button:hover { background: rgba(255, 255, 255, 0.5); }
+    .nav button.active { background: var(--glass-strong); box-shadow: var(--shadow-sm); color: var(--ink); font-weight: 600; }
+    .nav button.active svg { color: var(--accent); }
+    .nav a { display: flex; align-items: center; gap: 14px; padding: 13px 16px; color: var(--ink-soft);
+             text-decoration: none; border-radius: 999px; }
+    .nav a:hover { background: rgba(255, 255, 255, 0.5); }
+
+    /* Top bar */
+    .content { min-width: 0; display: grid; gap: 22px; align-content: start; }
+    .topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 999px;
+            border: 1px solid rgba(42, 38, 48, 0.1); background: rgba(255, 255, 255, 0.35);
+            font-size: 15px; transition: all .2s; }
+    .pill:hover { background: rgba(255, 255, 255, 0.7); }
+    .pill.active { background: #fff; border-color: #fff; box-shadow: var(--shadow-sm); font-weight: 600; }
+    .pill.add { color: var(--accent); border-style: dashed; }
+    .topbar form { display: flex; gap: 8px; }
+    .spacer { flex: 1; }
+    .avatars { display: flex; }
+    .avatars .avatar { margin-left: -10px; border: 3px solid #f6f4f7; }
+    .round { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%;
+             background: var(--glass-strong); border: 1px solid var(--frame); box-shadow: var(--shadow-sm);
+             color: var(--ink); text-decoration: none; }
+
+    /* Grid */
+    .view { display: none; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 22px; grid-auto-flow: dense; }
+    .view.active { display: grid; animation: rise .35s ease; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .s3 { grid-column: span 3; } .s4 { grid-column: span 4; } .s5 { grid-column: span 5; }
+    .s6 { grid-column: span 6; } .s7 { grid-column: span 7; } .s8 { grid-column: span 8; }
+    .s12 { grid-column: span 12; } .r2 { grid-row: span 2; }
+
+    .card { padding: 26px 28px; min-width: 0; }
+    .card h2 { margin: 0 0 4px; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+    .card .sub { color: var(--muted); margin: 0 0 18px; font-size: 14px; }
+    .eyebrow { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+
+    /* Greeting */
+    .greeting { position: relative; overflow: hidden; display: grid; place-items: center; text-align: center;
+                padding: 46px 32px; min-height: 360px; }
+    .greeting::before { content: ""; position: absolute; inset: 0;
+      background: radial-gradient(rgba(240, 106, 61, 0.16) 1.2px, transparent 1.6px) 0 0 / 15px 15px;
+      mask-image: radial-gradient(closest-side, #000 25%, transparent 100%);
+      -webkit-mask-image: radial-gradient(closest-side, #000 25%, transparent 100%); }
+    .greeting > * { position: relative; }
+    .greeting .orb { width: 86px; height: 86px; margin-bottom: 26px; animation: breathe 6s ease-in-out infinite; }
+    @keyframes breathe { 50% { transform: scale(1.06); box-shadow: 0 18px 40px -8px rgba(229, 80, 122, 0.55); } }
+    .greeting h1 { margin: 0; font-size: clamp(28px, 3.2vw, 40px); font-weight: 400; line-height: 1.15; letter-spacing: -0.02em; }
+    .greeting h1 b { font-weight: 700; }
+    .greeting p { color: var(--muted); margin: 14px 0 0; }
+    .greeting form { margin-top: 22px; display: flex; gap: 8px; width: min(380px, 100%); }
+
+    /* Painted cards */
+    .art { position: relative; overflow: hidden; border-radius: 32px; border: 8px solid var(--frame);
+           box-shadow: var(--shadow); min-height: 178px; padding: 18px 20px; display: flex; flex-direction: column;
+           justify-content: flex-end; background: #f4e6ea; }
+    .art::before { content: ""; position: absolute; inset: -25%; background: var(--paint);
+                   filter: blur(26px) saturate(1.25); transform: rotate(-6deg); }
+    .art::after { content: ""; position: absolute; inset: 0;
+                  background: linear-gradient(to top, rgba(255, 255, 255, 0.9) 6%, rgba(255, 255, 255, 0) 55%); }
+    .art > * { position: relative; z-index: 1; }
+    .art .value { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; }
+    .art .label { font-size: 20px; font-weight: 500; }
+    .art .hint { color: var(--ink-soft); font-size: 13px; }
+    .art .go { position: absolute; top: 4px; right: 4px; z-index: 2; width: 42px; height: 42px; border-radius: 50%;
+               border: 0; background: #fff; color: var(--accent); display: grid; place-items: center;
+               box-shadow: var(--shadow-sm); transition: transform .2s; }
+    .art .go:hover { transform: rotate(-8deg) scale(1.06); }
+    .art .go svg { width: 18px; height: 18px; }
+    .paint-peach { --paint: radial-gradient(38% 48% at 22% 36%, #ff9671 0, transparent 70%),
+                            radial-gradient(42% 52% at 74% 26%, #f59ac8 0, transparent 70%),
+                            radial-gradient(60% 46% at 52% 88%, #ffe2c6 0, transparent 70%), #f7d6de; }
+    .paint-lavender { --paint: radial-gradient(40% 60% at 28% 30%, #9fb1f6 0, transparent 70%),
+                               radial-gradient(38% 58% at 76% 42%, #f6a0b9 0, transparent 70%),
+                               radial-gradient(60% 50% at 50% 92%, #ece3fd 0, transparent 70%), #dfe1f7; }
+    .paint-mint { --paint: radial-gradient(44% 56% at 70% 30%, #6fcf98 0, transparent 70%),
+                           radial-gradient(44% 56% at 24% 34%, #ffb085 0, transparent 70%),
+                           radial-gradient(60% 50% at 50% 92%, #e6f6ea 0, transparent 70%), #e3eee4; }
+    .paint-sunset { --paint: radial-gradient(40% 55% at 60% 40%, #ff8a3d 0, transparent 70%),
+                             radial-gradient(40% 50% at 30% 30%, #ffd36e 0, transparent 70%),
+                             radial-gradient(55% 55% at 70% 85%, #f6b8d6 0, transparent 70%), #f8e4dc; }
+
+    /* Rows, avatars, buttons */
+    ul.rows { list-style: none; margin: 0; padding: 0; }
+    .rows li { display: flex; align-items: center; gap: 14px; padding: 14px 2px; border-top: 1px solid var(--line); }
+    .rows li:first-child { border-top: 0; }
+    .grow { flex: 1; min-width: 0; }
+    .title { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .meta { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .amount { font-weight: 600; white-space: nowrap; }
+    .pos { color: var(--pos); } .neg { color: var(--neg); }
+    .avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; flex: none;
+              color: #fff; font-weight: 600; font-size: 15px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15); }
+    .avatar.sm { width: 30px; height: 30px; font-size: 12px; }
+    .empty { color: var(--muted); padding: 18px 0; text-align: center; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0;
+           border-radius: 999px; padding: 12px 22px; font-weight: 600; white-space: nowrap;
+           background: linear-gradient(135deg, #f7915f, var(--accent) 45%, var(--accent-2));
+           color: #fff; box-shadow: 0 10px 22px -10px rgba(229, 80, 122, 0.8); transition: transform .15s, box-shadow .2s; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 14px 26px -10px rgba(229, 80, 122, 0.85); }
+    .btn.soft { background: var(--glass-strong); color: var(--ink); box-shadow: var(--shadow-sm); border: 1px solid var(--frame); }
+    .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--frame); background: #fff;
+                display: grid; place-items: center; color: var(--accent); box-shadow: var(--shadow-sm); flex: none;
+                transition: transform .15s; }
+    .icon-btn:hover { transform: scale(1.07); }
+    .icon-btn.ghost { color: var(--muted); box-shadow: none; background: transparent; border-color: transparent; }
+    .icon-btn.ghost:hover { color: var(--neg); background: rgba(255, 255, 255, 0.7); }
+    .icon-btn svg { width: 18px; height: 18px; }
+
+    input, select { border-radius: 999px; border: 1px solid var(--frame); background: rgba(255, 255, 255, 0.78);
+                    padding: 12px 18px; min-width: 0; outline: none; transition: box-shadow .2s;
+                    box-shadow: inset 0 1px 2px rgba(42, 38, 48, 0.04); }
+    input:focus, select:focus { box-shadow: 0 0 0 4px rgba(240, 106, 61, 0.16); }
+    input::placeholder { color: #a7a1ad; }
+    .form { display: grid; gap: 12px; }
+    .form .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .form .row > input { flex: 1 1 140px; }
+    .seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(42, 38, 48, 0.05); }
+    .seg button { border: 0; background: transparent; padding: 8px 16px; border-radius: 999px; color: var(--ink-soft); }
+    .seg button.active { background: #fff; box-shadow: var(--shadow-sm); color: var(--ink); font-weight: 600; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px 5px 5px; border-radius: 999px;
+            background: rgba(255, 255, 255, 0.6); border: 1px solid var(--frame); cursor: pointer; user-select: none;
+            transition: all .2s; }
+    .chip.off { opacity: 0.45; filter: grayscale(0.6); }
+    .chip input { width: 64px; padding: 4px 10px; text-align: right; }
+
+    /* Composer (quick add) */
+    .composer { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 22px; border-radius: 999px; }
+    .composer input { flex: 1; border: 0; background: transparent; box-shadow: none; padding: 12px 0; font-size: 16px; }
+    .composer input:focus { box-shadow: none; }
+    .composer select { padding: 8px 14px; }
+
+    /* Next payment pill */
+    .nextpay { display: flex; align-items: center; gap: 14px; padding: 16px 16px 16px 18px; border-radius: 999px; }
+    .nextpay .pair { display: flex; }
+    .nextpay .pair .avatar + .avatar { margin-left: -12px; border: 3px solid #fbf9fb; }
+    .nextpay.wide { border-radius: 32px; flex-direction: column; align-items: flex-start; justify-content: space-between;
+                    gap: 10px; padding: 20px 22px; min-height: 170px; }
+    .nextpay.wide .grow { width: 100%; }
+    .nextpay.wide .title { white-space: normal; font-size: 17px; }
+    .nextpay.wide .big { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+    .nextpay.wide .foot { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 10px; }
+
+    /* Balance bars */
+    .bal { display: grid; grid-template-columns: 1fr 1fr; align-items: center; height: 10px; margin-top: 8px; }
+    .bal span { height: 10px; border-radius: 999px; }
+    .bal .l { justify-self: end; background: linear-gradient(90deg, #ffc1a8, var(--neg)); }
+    .bal .r { justify-self: start; background: linear-gradient(90deg, #88d9b6, var(--pos)); }
+
+    /* Chores */
+    .effort { display: inline-flex; gap: 5px; }
+    .effort button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--frame);
+                     background: rgba(255, 255, 255, 0.7); font-size: 13px; color: var(--muted); }
+    .effort button.on { background: var(--orb); color: #fff; border-color: transparent; }
+    .dots { display: inline-flex; gap: 3px; }
+    .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(42, 38, 48, 0.1); }
+    .dots i.on { background: var(--accent); }
+    .week-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .week-nav strong { flex: 1; text-align: center; font-weight: 500; }
+    .check { width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(42, 38, 48, 0.14);
+             background: #fff; display: grid; place-items: center; color: transparent; transition: all .2s; flex: none; }
+    .check:hover { border-color: var(--pos); color: var(--pos); }
+    .check.done { background: var(--pos); border-color: var(--pos); color: #fff; cursor: default; }
+    .check svg { width: 16px; height: 16px; stroke-width: 2.4; }
+    li.is-done .title { text-decoration: line-through; color: var(--muted); }
+    .loadbar { height: 10px; border-radius: 999px; background: rgba(42, 38, 48, 0.06); overflow: hidden; margin-top: 8px; }
+    .loadbar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #ffb48c, var(--accent), var(--accent-2)); transition: width .5s; }
+
+    .toast { position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 30px); opacity: 0;
+             padding: 14px 22px; border-radius: 999px; background: var(--glass-strong); border: 1px solid var(--frame);
+             box-shadow: var(--shadow); backdrop-filter: blur(16px); display: flex; gap: 10px; align-items: center;
+             transition: all .3s; pointer-events: none; z-index: 10; max-width: calc(100% - 32px); }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--pos); flex: none; }
+    .toast.error .dot { background: var(--neg); }
+
+    @media (max-width: 1180px) {
+      .s3 { grid-column: span 6; } .s4, .s5, .s6, .s7, .s8 { grid-column: span 12; } .r2 { grid-row: auto; }
+    }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 16px; }
+      .sidebar { position: static; padding: 14px; border-radius: var(--r-lg); min-width: 0; }
+      .avatars { display: none; }
+      .pill { padding: 9px 16px; }
+      .brand { padding: 4px 6px 12px; }
+      .nav-label { display: none; }
+      .nav { display: flex; overflow-x: auto; scrollbar-width: none; }
+      .nav button, .nav a { padding: 10px 14px; font-size: 14px; white-space: nowrap; }
+      .card { padding: 22px; }
+      .greeting { min-height: 280px; padding: 34px 20px; }
+    }
+    @media (max-width: 560px) {
+      .s3 { grid-column: span 12; }
+      .view { gap: 16px; }
+      .composer select { display: none; }
+    }
   </style>
 </head>
 <body>
-<header>
-  <h1>Fair<span>Share</span></h1>
-  <form id="household-form" style="margin:0">
-    <select id="household-select" aria-label="Haushalt"></select>
-    <input id="household-name" placeholder="Neuer Haushalt" aria-label="Neuer Haushalt">
-    <button>Anlegen</button>
-  </form>
-</header>
+<div class="app">
+  <aside class="sidebar glass">
+    <div class="brand"><div class="orb"></div><b>FairShare</b></div>
+    <div class="nav-label">Allgemein</div>
+    <nav class="nav" id="nav">
+      <button data-view="overview" class="active"><span data-icon="grid"></span>Übersicht</button>
+      <button data-view="expenses"><span data-icon="receipt"></span>Ausgaben</button>
+      <button data-view="settle"><span data-icon="swap"></span>Abrechnen</button>
+      <button data-view="chores"><span data-icon="sparkles"></span>Ämtli</button>
+      <button data-view="members"><span data-icon="users"></span>Mitglieder</button>
+      <a href="/docs" target="_blank" rel="noopener"><span data-icon="code"></span>API-Doku</a>
+    </nav>
+  </aside>
 
-<main>
-  <section>
-    <h2>Mitglieder</h2>
-    <form id="member-form">
-      <input id="member-name" placeholder="Name" aria-label="Mitgliedername" required>
-      <button>Hinzufügen</button>
-    </form>
-    <ul id="members"></ul>
-  </section>
+  <div class="content">
+    <div class="topbar">
+      <div id="households" style="display:contents"></div>
+      <button class="pill add" id="household-add" type="button"><span data-icon="plus"></span>Haushalt</button>
+      <form id="household-form" hidden>
+        <input id="household-name" placeholder="Name des Haushalts" aria-label="Name des Haushalts">
+        <button class="btn">Anlegen</button>
+      </form>
+      <div class="spacer"></div>
+      <div class="avatars" id="member-stack"></div>
+    </div>
 
-  <section>
-    <h2>Salden &amp; Ausgleich</h2>
-    <ul id="balances"></ul>
-    <h2 style="margin-top:16px">Vorgeschlagene Zahlungen</h2>
-    <ul id="transfers"></ul>
-  </section>
+    <!-- Übersicht -->
+    <section class="view active" id="view-overview">
+      <div class="glass greeting s6 r2" id="greeting"></div>
+      <div class="art paint-peach s3" id="art-expenses"></div>
+      <div class="art paint-lavender s3" id="art-open"></div>
+      <div class="art paint-mint s3" id="art-chores"></div>
+      <div class="glass nextpay wide s3" id="nextpay"></div>
+      <form class="glass composer s12" id="quick-form" autocomplete="off">
+        <span data-icon="sparkles" style="color:var(--accent)"></span>
+        <input id="quick-text" placeholder="Schnell erfassen … z. B. „Migros 45.50“ (gleich auf alle verteilt)" aria-label="Schnell erfassen">
+        <select id="quick-payer" aria-label="Bezahlt von"></select>
+        <button class="icon-btn" aria-label="Erfassen"><span data-icon="send"></span></button>
+      </form>
+      <div class="glass card s7">
+        <h2>Letzte Ausgaben</h2>
+        <p class="sub">Was zuletzt in die WG-Kasse ging</p>
+        <ul class="rows" id="recent-expenses"></ul>
+      </div>
+      <div class="glass card s5">
+        <h2>Ämtli diese Woche</h2>
+        <p class="sub" id="week-label-overview"></p>
+        <ul class="rows" id="week-overview"></ul>
+      </div>
+    </section>
 
-  <section class="wide">
-    <h2>Ausgabe erfassen</h2>
-    <form id="expense-form">
-      <select id="expense-payer" aria-label="Bezahlt von"></select>
-      <input id="expense-description" placeholder="Beschreibung" aria-label="Beschreibung" required>
-      <input id="expense-amount" type="number" min="0.05" step="0.05" placeholder="CHF" aria-label="Betrag in CHF" required>
-      <select id="expense-method" aria-label="Aufteilung">
-        <option value="equal">gleich</option>
-        <option value="percent">Prozent</option>
-        <option value="shares">Anteile</option>
-      </select>
-      <div class="chips" id="expense-participants"></div>
-      <button>Erfassen</button>
-    </form>
-    <ul id="expenses"></ul>
-  </section>
+    <!-- Ausgaben -->
+    <section class="view" id="view-expenses">
+      <div class="glass card s5">
+        <h2>Ausgabe erfassen</h2>
+        <p class="sub">Restrappen werden fair verteilt – die Summe stimmt immer.</p>
+        <form class="form" id="expense-form" autocomplete="off">
+          <div class="row">
+            <input id="expense-description" placeholder="Beschreibung" aria-label="Beschreibung" required>
+          </div>
+          <div class="row">
+            <input id="expense-amount" type="number" min="0.05" step="0.05" placeholder="Betrag in CHF" aria-label="Betrag in CHF" required>
+            <select id="expense-payer" aria-label="Bezahlt von"></select>
+          </div>
+          <div class="seg" id="expense-method">
+            <button type="button" data-method="equal" class="active">Gleich</button>
+            <button type="button" data-method="percent">Prozent</button>
+            <button type="button" data-method="shares">Anteile</button>
+          </div>
+          <div class="chips" id="expense-participants"></div>
+          <div><button class="btn"><span data-icon="plus"></span>Ausgabe erfassen</button></div>
+        </form>
+      </div>
+      <div class="glass card s7">
+        <h2>Alle Ausgaben</h2>
+        <p class="sub" id="expense-total"></p>
+        <ul class="rows" id="expenses"></ul>
+      </div>
+    </section>
 
-  <section>
-    <h2>Ämtli</h2>
-    <form id="chore-form">
-      <input id="chore-name" placeholder="Ämtli" aria-label="Ämtli" required>
-      <select id="chore-effort" aria-label="Aufwand">
-        <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option>
-        <option value="4">4</option><option value="5">5</option>
-      </select>
-      <button>Hinzufügen</button>
-    </form>
-    <ul id="chores"></ul>
-  </section>
+    <!-- Abrechnen -->
+    <section class="view" id="view-settle">
+      <div class="glass card s6">
+        <h2>Salden</h2>
+        <p class="sub">Grün bekommt Geld, Orange schuldet.</p>
+        <ul class="rows" id="balances"></ul>
+      </div>
+      <div class="glass card s6">
+        <h2>Vorgeschlagene Zahlungen</h2>
+        <p class="sub">So wenige Überweisungen wie möglich (≤ n − 1).</p>
+        <ul class="rows" id="transfers"></ul>
+      </div>
+      <div class="glass card s12">
+        <h2>Erfasste Zahlungen</h2>
+        <p class="sub">Verlauf aller Ausgleichszahlungen</p>
+        <ul class="rows" id="settlements"></ul>
+      </div>
+    </section>
 
-  <section>
-    <h2>Wochenplan</h2>
-    <form id="plan-form">
-      <input id="plan-week" type="date" aria-label="Woche">
-      <button>Woche planen</button>
-      <button type="button" class="ghost" id="plan-show">Anzeigen</button>
-    </form>
-    <ul id="assignments"></ul>
-    <h2 style="margin-top:16px">Last pro Person</h2>
-    <ul id="load"></ul>
-  </section>
-</main>
-<div id="toast" role="alert"></div>
+    <!-- Ämtli -->
+    <section class="view" id="view-chores">
+      <div class="glass card s5">
+        <h2>Ämtli</h2>
+        <p class="sub">Aufwand 1–5 bestimmt die faire Verteilung.</p>
+        <form class="form" id="chore-form" autocomplete="off">
+          <div class="row">
+            <input id="chore-name" placeholder="z. B. Bad putzen" aria-label="Ämtli" required>
+          </div>
+          <div class="row" style="align-items:center;justify-content:space-between">
+            <div class="effort" id="chore-effort"></div>
+            <button class="btn"><span data-icon="plus"></span>Hinzufügen</button>
+          </div>
+        </form>
+        <ul class="rows" id="chores" style="margin-top:14px"></ul>
+      </div>
+      <div class="glass card s7">
+        <h2>Wochenplan</h2>
+        <div class="week-nav">
+          <button class="icon-btn" type="button" id="week-prev" aria-label="Vorherige Woche"><span data-icon="left"></span></button>
+          <strong id="week-label"></strong>
+          <button class="icon-btn" type="button" id="week-next" aria-label="Nächste Woche"><span data-icon="right"></span></button>
+          <button class="btn" type="button" id="plan-week"><span data-icon="sparkles"></span>Fair planen</button>
+        </div>
+        <ul class="rows" id="assignments"></ul>
+      </div>
+      <div class="glass card s12">
+        <h2>Last pro Person</h2>
+        <p class="sub">Summe der Aufwandpunkte über alle Wochen</p>
+        <ul class="rows" id="load"></ul>
+      </div>
+    </section>
+
+    <!-- Mitglieder -->
+    <section class="view" id="view-members">
+      <div class="glass card s6">
+        <h2>Mitglieder</h2>
+        <p class="sub">Wer gehört zum Haushalt?</p>
+        <form class="form" id="member-form" autocomplete="off">
+          <div class="row">
+            <input id="member-name" placeholder="Name" aria-label="Name" required>
+            <button class="btn"><span data-icon="plus"></span>Hinzufügen</button>
+          </div>
+        </form>
+        <ul class="rows" id="members" style="margin-top:14px"></ul>
+      </div>
+      <div class="art paint-sunset s6" style="min-height:260px">
+        <div class="label">So funktioniert FairShare</div>
+        <div class="hint">1. Mitglieder hinzufügen · 2. Ausgaben erfassen · 3. Mit wenigen Zahlungen abrechnen · 4. Ämtli fair planen</div>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"><span class="dot"></span><span id="toast-text"></span></div>
 
 <script>
+const ICONS = {
+  grid: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+  receipt: '<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+  swap: '<path d="M7 7h13l-4-4M17 17H4l4 4"/>',
+  sparkles: '<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.5 3.2-5.5 6.5-5.5s5.9 2 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.7.8 2.7 2.6 3 5.2"/>',
+  code: '<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  send: '<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/>',
+  arrow: '<path d="M7 17L17 7M9 7h8v8"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+  left: '<path d="M15 6l-6 6 6 6"/>',
+  right: '<path d="M9 6l6 6-6 6"/>',
+};
+const PALETTE = [
+  "linear-gradient(135deg,#ffb38a,#f0683c)", "linear-gradient(135deg,#a8b6ff,#7b6cf0)",
+  "linear-gradient(135deg,#8fe0b6,#2f9e78)", "linear-gradient(135deg,#ffa3c4,#e5507a)",
+  "linear-gradient(135deg,#ffd77a,#f29b2c)", "linear-gradient(135deg,#8fd8f0,#3a8fd1)",
+];
+
 const $ = (id) => document.getElementById(id);
-const chf = (cents) => (cents / 100).toLocaleString("de-CH", { style: "currency", currency: "CHF" });
-const state = { householdId: null, members: [] };
+const chf = (cents) => `CHF ${(cents / 100).toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const signedChf = (cents) => (cents > 0 ? "+ " : cents < 0 ? "− " : "") + chf(Math.abs(cents));
+
+function svg(name) {
+  const tpl = document.createElement("template");
+  tpl.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>`;
+  return tpl.content.firstChild;
+}
+
+function h(tag, props = {}, ...children) {
+  const el = document.createElement(tag);
+  for (const [key, value] of Object.entries(props ?? {})) {
+    if (value == null || value === false) continue;
+    if (key === "class") el.className = value;
+    else if (key === "style") el.style.cssText = value;
+    else if (key.startsWith("on")) el.addEventListener(key.slice(2), value);
+    else el.setAttribute(key, value === true ? "" : value);
+  }
+  for (const child of children.flat()) {
+    if (child == null || child === false) continue;
+    el.append(child instanceof Node ? child : String(child));
+  }
+  return el;
+}
+
+const iso = (date) => date.toISOString().slice(0, 10);
+function mondayOf(isoDate) {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return iso(d);
+}
+function addDays(isoDate, days) {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return iso(d);
+}
+const fmtDate = (isoDate) => new Date(`${isoDate}T00:00:00Z`).toLocaleDateString("de-CH", { day: "numeric", month: "short", timeZone: "UTC" });
+const weekLabel = (monday) => `${fmtDate(monday)} – ${fmtDate(addDays(monday, 6))}`;
+
+const EMPTY = { household: null, expenses: [], balances: [], transfers: [], settlements: [], chores: [], load: [], plan: { assignments: [] } };
+const state = {
+  households: [], householdId: null, members: [], data: EMPTY,
+  view: "overview", method: "equal", effort: 3, week: mondayOf(iso(new Date())),
+  excluded: new Set(),
+};
 
 async function api(path, options = {}) {
   const res = await fetch(path, { headers: { "Content-Type": "application/json" }, ...options });
@@ -139,211 +503,356 @@ async function api(path, options = {}) {
   return res.status === 204 ? null : res.json();
 }
 
-function toast(message) {
-  const el = $("toast");
-  el.textContent = message;
-  el.style.display = "block";
-  setTimeout(() => (el.style.display = "none"), 3500);
+let toastTimer;
+function toast(message, error = false) {
+  $("toast-text").textContent = message;
+  $("toast").classList.toggle("error", error);
+  $("toast").classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $("toast").classList.remove("show"), 3200);
 }
 
 const guard = (fn) => async (event) => {
-  event?.preventDefault();
-  try { await fn(event); } catch (error) { toast(error.message); }
+  event?.preventDefault?.();
+  try { await fn(event); } catch (error) { toast(error.message, true); }
 };
 
-function list(el, items, render, emptyText) {
-  el.replaceChildren();
-  if (!items.length) {
-    const li = document.createElement("li");
-    li.className = "empty";
-    li.textContent = emptyText;
-    el.append(li);
-  }
-  for (const item of items) el.append(render(item));
+const member = (id) => state.members.find((m) => m.id === id);
+const nameOf = (id) => member(id)?.name ?? `#${id}`;
+function avatar(id, small = false) {
+  const name = nameOf(id);
+  return h("div", { class: `avatar${small ? " sm" : ""}`, title: name, style: `background:${PALETTE[(id - 1) % PALETTE.length]}` },
+    name.slice(0, 1).toUpperCase());
 }
-
-function row(left, right) {
-  const li = document.createElement("li");
-  const a = document.createElement("span");
-  a.append(...[left].flat());
-  li.append(a);
-  if (right !== undefined) li.append(...[right].flat());
-  return li;
+function fill(el, items, render, emptyText) {
+  el.replaceChildren(...(items.length ? items.map(render) : [h("li", { class: "empty" }, emptyText)]));
 }
+const base = () => `/households/${state.householdId}`;
 
-function span(text, className) {
-  const s = document.createElement("span");
-  s.textContent = text;
-  if (className) s.className = className;
-  return s;
-}
-
-function button(text, onClick, ghost = true) {
-  const b = document.createElement("button");
-  b.textContent = text;
-  b.type = "button";
-  if (ghost) b.className = "ghost";
-  b.addEventListener("click", guard(onClick));
-  return b;
-}
-
-const nameOf = (id) => state.members.find((m) => m.id === id)?.name ?? `#${id}`;
-
+/* ---------- data ---------- */
 async function loadHouseholds(selectId) {
-  const households = await api("/households");
-  const select = $("household-select");
-  select.replaceChildren(...households.map((h) => new Option(h.name, h.id)));
-  if (!households.length) { state.householdId = null; return render(); }
-  state.householdId = selectId ?? state.householdId ?? households[0].id;
-  select.value = state.householdId;
+  state.households = await api("/households");
+  state.householdId = selectId ?? (state.households.some((x) => x.id === state.householdId) ? state.householdId : state.households[0]?.id ?? null);
   await refresh();
 }
 
 async function refresh() {
-  if (!state.householdId) return render();
-  const base = `/households/${state.householdId}`;
-  const [household, expenses, balances, transfers, chores, load] = await Promise.all([
-    api(base), api(`${base}/expenses`), api(`${base}/balances`), api(`${base}/settle-up`),
-    api(`${base}/chores`), api(`${base}/chore-load`),
+  if (!state.householdId) {
+    state.members = [];
+    state.data = EMPTY;
+    return render();
+  }
+  const b = base();
+  const [household, expenses, balances, transfers, settlements, chores, load, plan] = await Promise.all([
+    api(b), api(`${b}/expenses`), api(`${b}/balances`), api(`${b}/settle-up`), api(`${b}/settlements`),
+    api(`${b}/chores`), api(`${b}/chore-load`), api(`${b}/chore-plans/${state.week}`),
   ]);
   state.members = household.members;
-  render({ expenses, balances, transfers, chores, load });
-  await showWeek();
+  state.data = { household, expenses, balances, transfers, settlements, chores, load, plan };
+  render();
 }
 
-function render(data = { expenses: [], balances: [], transfers: [], chores: [], load: [] }) {
-  list($("members"), state.members, (m) => row(m.name), "Noch keine Mitglieder");
+/* ---------- render ---------- */
+function render() {
+  renderTopbar();
+  renderOverview();
+  renderExpenses();
+  renderSettle();
+  renderChores();
+  renderMembers();
+}
 
-  $("expense-payer").replaceChildren(...state.members.map((m) => new Option(m.name, m.id)));
+function renderTopbar() {
+  $("households").replaceChildren(...state.households.map((x) =>
+    h("button", { type: "button", class: `pill${x.id === state.householdId ? " active" : ""}`,
+      onclick: guard(async () => { state.householdId = x.id; state.excluded.clear(); await refresh(); }) }, x.name)));
+  $("member-stack").replaceChildren(...state.members.slice(0, 6).map((m) => avatar(m.id)));
+}
+
+function greetingWord() {
+  const hour = new Date().getHours();
+  return hour < 11 ? "Guten Morgen" : hour < 18 ? "Hallo" : "Guten Abend";
+}
+
+function renderOverview() {
+  const { household, expenses, balances, transfers, plan } = state.data;
+  const g = $("greeting");
+  if (!household) {
+    g.replaceChildren(
+      h("div", { class: "orb" }),
+      h("h1", {}, "Willkommen bei ", h("b", {}, "FairShare")),
+      h("p", {}, "Lege deinen ersten Haushalt an – z. B. eure WG."),
+      h("form", { onsubmit: guard(createHousehold) },
+        h("input", { name: "name", placeholder: "WG Basel", "aria-label": "Name des Haushalts", required: true }),
+        h("button", { class: "btn" }, "Los geht's")),
+    );
+  } else {
+    const settled = transfers.length === 0;
+    g.replaceChildren(
+      h("div", { class: "orb" }),
+      h("h1", {}, `${greetingWord()} `, h("b", {}, `${household.name},`), settled ? " alles ist ausgeglichen." : " wer schuldet wem?"),
+      h("p", {}, state.members.length
+        ? `${state.members.length} Mitglieder · ${expenses.length} Ausgaben · ${plan.assignments.length} Ämtli diese Woche`
+        : "Füge zuerst Mitglieder hinzu."),
+    );
+  }
+
+  const total = expenses.reduce((sum, e) => sum + e.amount_cents, 0);
+  const open = balances.reduce((sum, b) => sum + Math.max(0, b.balance_cents), 0);
+  const done = plan.assignments.filter((a) => a.completed_at).length;
+  artCard($("art-expenses"), "Ausgaben", chf(total), `${expenses.length} Einträge`, "expenses");
+  artCard($("art-open"), "Offen", chf(open), transfers.length ? `${transfers.length} Zahlung(en) nötig` : "Alles ausgeglichen", "settle");
+  artCard($("art-chores"), "Ämtli", `${done}/${plan.assignments.length}`, "erledigt diese Woche", "chores");
+
+  const next = transfers[0];
+  $("nextpay").replaceChildren(...(next
+    ? [h("div", { class: "foot" },
+         h("div", { class: "pair" }, avatar(next.from_member_id), avatar(next.to_member_id)),
+         h("span", { class: "meta" }, "Nächste Zahlung")),
+       h("div", { class: "grow" },
+         h("div", { class: "big" }, chf(next.amount_cents)),
+         h("div", { class: "foot" },
+           h("div", { class: "title" }, `${next.from_name} → ${next.to_name}`),
+           h("button", { class: "icon-btn", title: "Als bezahlt erfassen", "aria-label": "Als bezahlt erfassen", onclick: guard(() => settle(next)) }, svg("check"))))]
+    : [h("div", { class: "orb", style: "width:38px;height:38px" }),
+       h("div", { class: "grow" }, h("div", { class: "title" }, "Keine offenen Zahlungen"), h("div", { class: "meta" }, "Geniesst den Feierabend ✨"))]));
+
+  $("quick-payer").replaceChildren(...state.members.map((m) => new Option(m.name, m.id)));
+  fill($("recent-expenses"), expenses.slice(-5).reverse(), expenseRow, "Noch keine Ausgaben – erfasse oben die erste.");
+  $("week-label-overview").textContent = `Woche ${weekLabel(state.week)}`;
+  fill($("week-overview"), plan.assignments, assignmentRow, "Diese Woche ist noch nicht geplant.");
+}
+
+function artCard(el, label, value, hint, view) {
+  el.replaceChildren(
+    h("button", { class: "go", "aria-label": `${label} öffnen`, onclick: () => show(view) }, svg("arrow")),
+    h("div", { class: "value" }, value),
+    h("div", { class: "label" }, label),
+    h("div", { class: "hint" }, hint),
+  );
+}
+
+function expenseRow(e) {
+  return h("li", {},
+    avatar(e.payer_id),
+    h("div", { class: "grow" },
+      h("div", { class: "title" }, e.description),
+      h("div", { class: "meta" }, `${nameOf(e.payer_id)} · ${e.shares.map((s) => `${nameOf(s.member_id)} ${chf(s.amount_cents)}`).join(" · ")}`)),
+    h("div", { class: "amount" }, chf(e.amount_cents)),
+    h("button", { class: "icon-btn ghost", title: "Löschen", "aria-label": `${e.description} löschen`,
+      onclick: guard(async () => { await api(`${base()}/expenses/${e.id}`, { method: "DELETE" }); toast("Ausgabe gelöscht"); await refresh(); }) },
+      svg("trash")));
+}
+
+function assignmentRow(a) {
+  const done = Boolean(a.completed_at);
+  return h("li", { class: done ? "is-done" : "" },
+    h("button", { class: `check${done ? " done" : ""}`, "aria-label": done ? "Erledigt" : `${a.chore_name} erledigt`, disabled: done,
+      onclick: guard(async () => { await api(`${base()}/assignments/${a.id}/complete`, { method: "POST" }); toast(`${a.chore_name} erledigt 🎉`); await refresh(); }) },
+      svg("check")),
+    h("div", { class: "grow" }, h("div", { class: "title" }, a.chore_name), h("div", { class: "meta" }, nameOf(a.member_id))),
+    dots(a.effort),
+    avatar(a.member_id, true));
+}
+
+function dots(effort) {
+  return h("span", { class: "dots", title: `Aufwand ${effort}` }, [1, 2, 3, 4, 5].map((i) => h("i", { class: i <= effort ? "on" : "" })));
+}
+
+function renderExpenses() {
+  const { expenses } = state.data;
+  $("expense-payer").replaceChildren(...state.members.map((m) => new Option(`bezahlt von ${m.name}`, m.id)));
+  for (const b of $("expense-method").children) b.classList.toggle("active", b.dataset.method === state.method);
   renderParticipants();
-
-  list($("expenses"), data.expenses.slice().reverse(), (e) => row(
-    [span(e.description), document.createElement("br"),
-     span(`${nameOf(e.payer_id)} · ${e.shares.map((s) => `${nameOf(s.member_id)} ${chf(s.amount_cents)}`).join(", ")}`, "muted")],
-    [span(chf(e.amount_cents)), button("Löschen", async () => {
-      await api(`/households/${state.householdId}/expenses/${e.id}`, { method: "DELETE" });
-      await refresh();
-    })],
-  ), "Noch keine Ausgaben");
-
-  list($("balances"), data.balances, (b) => row(b.name,
-    span(chf(b.balance_cents), b.balance_cents > 0 ? "pos" : b.balance_cents < 0 ? "neg" : "muted")),
-    "Keine Mitglieder");
-
-  list($("transfers"), data.transfers, (t) => row(
-    `${t.from_name} → ${t.to_name}`,
-    [span(chf(t.amount_cents)), button("Bezahlt", async () => {
-      await api(`/households/${state.householdId}/settlements`, {
-        method: "POST",
-        body: JSON.stringify({ from_member_id: t.from_member_id, to_member_id: t.to_member_id, amount_cents: t.amount_cents }),
-      });
-      await refresh();
-    })],
-  ), "Alles ausgeglichen 🎉");
-
-  list($("chores"), data.chores, (c) => row(c.name, span(`${c.effort} Pkt.`, "muted")), "Noch keine Ämtli");
-
-  const maxLoad = Math.max(1, ...data.load.map((l) => l.effort_points));
-  list($("load"), data.load, (l) => {
-    const bar = document.createElement("div");
-    bar.className = "bar";
-    bar.style.width = `${Math.max(4, (l.effort_points / maxLoad) * 120)}px`;
-    return row(l.name, [bar, span(`${l.effort_points} Pkt.`, "muted")]);
-  }, "Noch keine Planung");
+  const total = expenses.reduce((sum, e) => sum + e.amount_cents, 0);
+  $("expense-total").textContent = `${expenses.length} Ausgaben · total ${chf(total)}`;
+  fill($("expenses"), expenses.slice().reverse(), expenseRow, "Noch keine Ausgaben.");
 }
 
 function renderParticipants() {
-  const method = $("expense-method").value;
-  $("expense-participants").replaceChildren(...state.members.map((m) => {
-    const label = document.createElement("label");
-    label.className = "chip";
-    const check = Object.assign(document.createElement("input"), { type: "checkbox", checked: true, value: m.id });
-    label.append(check, m.name);
-    if (method !== "equal") {
-      const weight = Object.assign(document.createElement("input"), {
-        type: "number", min: 1, value: method === "percent" ? Math.floor(100 / state.members.length) : 1,
-      });
-      weight.dataset.member = m.id;
-      label.append(weight, method === "percent" ? "%" : "×");
+  const n = Math.max(1, state.members.length);
+  $("expense-participants").replaceChildren(...state.members.map((m, index) => {
+    const off = state.excluded.has(m.id);
+    const chip = h("label", { class: `chip${off ? " off" : ""}`, "data-member": m.id },
+      avatar(m.id, true), m.name);
+    chip.addEventListener("click", (event) => {
+      if (event.target.tagName === "INPUT") return;
+      event.preventDefault();
+      off ? state.excluded.delete(m.id) : state.excluded.add(m.id);
+      renderParticipants();
+    });
+    if (state.method !== "equal" && !off) {
+      const fallback = state.method === "percent" ? Math.floor(100 / n) + (index < 100 % n ? 1 : 0) : 1;
+      chip.append(h("input", { type: "number", min: 1, value: fallback, "aria-label": `Gewicht ${m.name}` }),
+        state.method === "percent" ? "%" : "×");
     }
-    return label;
+    return chip;
   }));
 }
 
-async function showWeek() {
-  if (!state.householdId) return;
-  const plan = await api(`/households/${state.householdId}/chore-plans/${$("plan-week").value}`);
-  list($("assignments"), plan.assignments, (a) => {
-    const label = span(`${a.chore_name} · ${nameOf(a.member_id)}`, a.completed_at ? "done" : "");
-    const right = a.completed_at ? span("erledigt", "muted") : button("Erledigt", async () => {
-      await api(`/households/${state.householdId}/assignments/${a.id}/complete`, { method: "POST" });
-      await showWeek();
-    });
-    return row(label, right);
-  }, `Woche ab ${plan.week_start} noch nicht geplant`);
+function renderSettle() {
+  const { balances, transfers, settlements } = state.data;
+  const max = Math.max(1, ...balances.map((b) => Math.abs(b.balance_cents)));
+  fill($("balances"), balances, (b) => h("li", {},
+    avatar(b.member_id),
+    h("div", { class: "grow" },
+      h("div", { style: "display:flex;justify-content:space-between;gap:8px" },
+        h("span", { class: "title" }, b.name),
+        h("span", { class: `amount ${b.balance_cents > 0 ? "pos" : b.balance_cents < 0 ? "neg" : ""}` }, signedChf(b.balance_cents))),
+      h("div", { class: "bal" },
+        h("span", { class: "l", style: `width:${b.balance_cents < 0 ? (Math.abs(b.balance_cents) / max) * 100 : 0}%` }),
+        h("span", { class: "r", style: `width:${b.balance_cents > 0 ? (b.balance_cents / max) * 100 : 0}%` })))),
+    "Noch keine Mitglieder.");
+
+  fill($("transfers"), transfers, (t) => h("li", {},
+    h("div", { class: "pair", style: "display:flex" }, avatar(t.from_member_id), avatar(t.to_member_id)),
+    h("div", { class: "grow" }, h("div", { class: "title" }, `${t.from_name} → ${t.to_name}`), h("div", { class: "meta" }, "überweist")),
+    h("div", { class: "amount" }, chf(t.amount_cents)),
+    h("button", { class: "btn", onclick: guard(() => settle(t)) }, svg("check"), "Bezahlt")),
+    "Alles ausgeglichen ✨");
+
+  fill($("settlements"), settlements.slice().reverse(), (s) => h("li", {},
+    avatar(s.from_member_id),
+    h("div", { class: "grow" },
+      h("div", { class: "title" }, `${nameOf(s.from_member_id)} → ${nameOf(s.to_member_id)}`),
+      h("div", { class: "meta" }, new Date(s.created_at).toLocaleString("de-CH", { dateStyle: "medium", timeStyle: "short" }))),
+    h("div", { class: "amount pos" }, chf(s.amount_cents))),
+    "Noch keine Zahlungen erfasst.");
 }
 
-$("household-form").addEventListener("submit", guard(async () => {
-  const name = $("household-name").value;
-  if (!name.trim()) return;
-  const household = await api("/households", { method: "POST", body: JSON.stringify({ name }) });
-  $("household-name").value = "";
-  await loadHouseholds(household.id);
-}));
+function renderChores() {
+  const { chores, load, plan } = state.data;
+  $("chore-effort").replaceChildren(...[1, 2, 3, 4, 5].map((i) => h("button", {
+    type: "button", class: i <= state.effort ? "on" : "", "aria-label": `Aufwand ${i}`,
+    onclick: () => { state.effort = i; renderChores(); },
+  }, i)));
+  fill($("chores"), chores, (c) => h("li", {},
+    h("div", { class: "grow" }, h("div", { class: "title" }, c.name)), dots(c.effort)), "Noch keine Ämtli.");
+  $("week-label").textContent = weekLabel(state.week);
+  $("plan-week").hidden = plan.assignments.length > 0;
+  fill($("assignments"), plan.assignments, assignmentRow, "Diese Woche ist noch nicht geplant – „Fair planen“ verteilt nach Aufwand.");
+  const max = Math.max(1, ...load.map((l) => l.effort_points));
+  fill($("load"), load, (l) => h("li", {},
+    avatar(l.member_id),
+    h("div", { class: "grow" },
+      h("div", { style: "display:flex;justify-content:space-between" }, h("span", { class: "title" }, l.name), h("span", { class: "meta" }, `${l.effort_points} Punkte`)),
+      h("div", { class: "loadbar" }, h("span", { style: `width:${(l.effort_points / max) * 100}%` })))),
+    "Noch keine Mitglieder.");
+}
 
-$("household-select").addEventListener("change", guard(async (e) => {
-  state.householdId = Number(e.target.value);
+function renderMembers() {
+  fill($("members"), state.members, (m) => h("li", {}, avatar(m.id), h("div", { class: "grow title" }, m.name)),
+    state.householdId ? "Noch keine Mitglieder." : "Zuerst einen Haushalt anlegen.");
+}
+
+/* ---------- actions ---------- */
+function show(view) {
+  state.view = view;
+  for (const b of $("nav").querySelectorAll("button")) b.classList.toggle("active", b.dataset.view === view);
+  for (const v of document.querySelectorAll(".view")) v.classList.toggle("active", v.id === `view-${view}`);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function createHousehold(event) {
+  const input = event.target.querySelector("input");
+  const household = await api("/households", { method: "POST", body: JSON.stringify({ name: input.value }) });
+  input.value = "";
+  $("household-form").hidden = true;
+  toast(`${household.name} angelegt`);
+  await loadHouseholds(household.id);
+  show("members");
+}
+
+function requireHousehold() {
+  if (!state.householdId) throw new Error("Lege zuerst einen Haushalt an");
+}
+
+async function settle(t) {
+  await api(`${base()}/settlements`, {
+    method: "POST",
+    body: JSON.stringify({ from_member_id: t.from_member_id, to_member_id: t.to_member_id, amount_cents: t.amount_cents }),
+  });
+  toast(`${t.from_name} hat ${chf(t.amount_cents)} an ${t.to_name} bezahlt`);
   await refresh();
-}));
+}
+
+async function recordExpense(payerId, description, amountCents, method, participants) {
+  await api(`${base()}/expenses`, {
+    method: "POST",
+    body: JSON.stringify({ payer_id: payerId, description, amount_cents: amountCents, method, participants }),
+  });
+  toast(`${description} erfasst · ${chf(amountCents)}`);
+  await refresh();
+}
+
+for (const el of document.querySelectorAll("[data-icon]")) el.replaceWith(svg(el.dataset.icon));
+for (const b of $("nav").querySelectorAll("button")) b.addEventListener("click", () => show(b.dataset.view));
+
+$("household-add").addEventListener("click", () => {
+  $("household-form").hidden = !$("household-form").hidden;
+  if (!$("household-form").hidden) $("household-name").focus();
+});
+$("household-form").addEventListener("submit", guard(createHousehold));
 
 $("member-form").addEventListener("submit", guard(async () => {
-  if (!state.householdId) throw new Error("Zuerst einen Haushalt anlegen");
-  await api(`/households/${state.householdId}/members`, { method: "POST", body: JSON.stringify({ name: $("member-name").value }) });
+  requireHousehold();
+  const name = $("member-name").value;
+  await api(`${base()}/members`, { method: "POST", body: JSON.stringify({ name }) });
   $("member-name").value = "";
+  toast(`${name} ist dabei 👋`);
   await refresh();
 }));
 
-$("expense-method").addEventListener("change", renderParticipants);
+$("quick-form").addEventListener("submit", guard(async () => {
+  requireHousehold();
+  const text = $("quick-text").value.trim();
+  const match = text.match(/^(.*?)[\s:]*(?:CHF\s*)?(\d+(?:[.,]\d{1,2})?)\s*(?:CHF|Fr\.?)?$/i);
+  if (!match || !match[1].trim()) throw new Error("Format: Beschreibung und Betrag, z. B. „Migros 45.50“");
+  const amount = Math.round(Number(match[2].replace(",", ".")) * 100);
+  await recordExpense(Number($("quick-payer").value), match[1].trim(), amount, "equal",
+    state.members.map((m) => ({ member_id: m.id })));
+  $("quick-text").value = "";
+}));
+
+$("expense-method").addEventListener("click", (event) => {
+  const method = event.target.closest("button")?.dataset.method;
+  if (!method) return;
+  state.method = method;
+  renderExpenses();
+});
 
 $("expense-form").addEventListener("submit", guard(async () => {
-  const participants = [...$("expense-participants").querySelectorAll("label")]
-    .filter((label) => label.querySelector("input[type=checkbox]").checked)
-    .map((label) => {
-      const id = Number(label.querySelector("input[type=checkbox]").value);
-      const weight = label.querySelector("input[type=number]");
-      return weight ? { member_id: id, weight: Number(weight.value) } : { member_id: id };
-    });
-  await api(`/households/${state.householdId}/expenses`, {
-    method: "POST",
-    body: JSON.stringify({
-      payer_id: Number($("expense-payer").value),
-      description: $("expense-description").value,
-      amount_cents: Math.round(Number($("expense-amount").value) * 100),
-      method: $("expense-method").value,
-      participants,
-    }),
+  requireHousehold();
+  const participants = [...$("expense-participants").querySelectorAll(".chip:not(.off)")].map((chip) => {
+    const weight = chip.querySelector("input");
+    const id = Number(chip.dataset.member);
+    return weight ? { member_id: id, weight: Number(weight.value) } : { member_id: id };
   });
+  await recordExpense(Number($("expense-payer").value), $("expense-description").value,
+    Math.round(Number($("expense-amount").value) * 100), state.method, participants);
   $("expense-description").value = "";
   $("expense-amount").value = "";
-  await refresh();
 }));
 
 $("chore-form").addEventListener("submit", guard(async () => {
-  await api(`/households/${state.householdId}/chores`, {
-    method: "POST", body: JSON.stringify({ name: $("chore-name").value, effort: Number($("chore-effort").value) }),
-  });
+  requireHousehold();
+  const name = $("chore-name").value;
+  await api(`${base()}/chores`, { method: "POST", body: JSON.stringify({ name, effort: state.effort }) });
   $("chore-name").value = "";
+  toast(`${name} hinzugefügt`);
   await refresh();
 }));
 
-$("plan-form").addEventListener("submit", guard(async () => {
-  await api(`/households/${state.householdId}/chore-plans`, { method: "POST", body: JSON.stringify({ week_start: $("plan-week").value }) });
+$("plan-week").addEventListener("click", guard(async () => {
+  requireHousehold();
+  await api(`${base()}/chore-plans`, { method: "POST", body: JSON.stringify({ week_start: state.week }) });
+  toast("Woche fair verteilt ✨");
   await refresh();
 }));
-$("plan-show").addEventListener("click", guard(showWeek));
+$("week-prev").addEventListener("click", guard(async () => { state.week = addDays(state.week, -7); await refresh(); }));
+$("week-next").addEventListener("click", guard(async () => { state.week = addDays(state.week, 7); await refresh(); }));
 
-$("plan-week").value = new Date().toISOString().slice(0, 10);
-loadHouseholds().catch((error) => toast(error.message));
+loadHouseholds().catch((error) => toast(error.message, true));
 </script>
 </body>
 </html>
