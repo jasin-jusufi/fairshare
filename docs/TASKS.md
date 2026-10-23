@@ -1,6 +1,6 @@
 # TASKS.md
 
-PHASE: 2
+PHASE: 3
 STATUS: done
 
 (0=Bootstrap | 1=Specify | 2=Design | 3=Develop | 4=Validate | 5=Deploy)
@@ -31,3 +31,4 @@ docs/specs/UC-002-RECORD-EXPENSE.md
 | 2026-10-23 | UC-001 | 3 Develop | done | Jasin + Claude Code | TDD: 12 Integration- + 12 Unit-Tests rot → grün, Alembic-Migration |
 | 2026-10-23 | UC-002 | 1 Specify | done | Jasin + Claude Code | AC1–AC8, drei Aufteilungsarten |
 | 2026-10-23 | UC-002 | 2 Design | done | Jasin + Claude Code | ADR-004 präzisiert: API in Rappen |
+| 2026-10-23 | UC-002 | 3 Develop | done | Jasin + Claude Code | TDD: 50 neue Tests rot → grün, Refactor gemeinsamer Validierung |
