@@ -16,6 +16,8 @@ omit = ["src/app/main.py"]
 
 [tool.coverage.report]
 show_missing = true
+fail_under = 90
+exclude_also = ["raise NotImplementedError"]
 skip_covered = true
 
 [tool.ruff]

@@ -2,7 +2,7 @@ import pytest
 
 from app.application.errors import NotFoundError
 from app.application.expense_service import ExpenseService, Participant
-from app.domain.errors import UnknownMemberError
+from app.domain.errors import UnknownMemberError, ValidationError
 from app.domain.expense import SplitMethod
 from app.domain.household import Household
 
@@ -56,3 +56,10 @@ def test_delete_expense(service: ExpenseService) -> None:
     assert service.list_expenses(1) == []
     with pytest.raises(NotFoundError):
         service.delete_expense(1, expense.id or 0)
+
+
+def test_participants_must_be_unique(service: ExpenseService) -> None:
+    with pytest.raises(ValidationError):
+        service.record_expense(
+            1, 1, "Migros", 100, SplitMethod.EQUAL, [Participant(1), Participant(1)]
+        )
