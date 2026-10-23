@@ -17,3 +17,5 @@ Präsentation (Lessons Learned).
 |---|---|---|---|---|---|
 | 2026-10-23 | Jasin | 0 | „Analysiere BAIssue und die Bewertungskriterien, schlage Use Case und Plan vor“ | Rubric-Mapping, drei Use-Case-Ideen | Use Case FairShare gewählt |
 | 2026-10-23 | Jasin | 0 | „Execute phase 0 of AI-SDLC for FairShare (Python/FastAPI, Render)“ | Template übernommen, Skills verlinkt, Struktur, Tooling | Klarstellung durch uns: BAIssue ist nur Referenz für Struktur und Prozess, Domäne ist eigen |
+| 2026-10-23 | Jasin | 2 / Fundament | „Execute phase 2: record ADRs for stack, persistence, money, testing, delivery; add CI quality gates“ | ADR-001..006, CI mit ruff/mypy/import-linter | CI rot: leeres `tests/integration` nicht versioniert → Agent hat Fix aus CI-Log abgeleitet |
+| 2026-10-23 | Jasin | 1–3 / UC-001 | „Execute phase 1/2/3 of AI-SDLC for UC-001 household setup“ | Spec, Design-Tabelle, rote Tests, Implementierung über 4 Layer | Fehlerstatus festgelegt: Duplikat = 409, Validierung = 400 |
