@@ -590,7 +590,7 @@ function renderOverview() {
     const settled = transfers.length === 0;
     g.replaceChildren(
       h("div", { class: "orb" }),
-      h("h1", {}, `${greetingWord()} `, h("b", {}, `${household.name},`), settled ? " everything is settled." : " who owes whom?"),
+      h("h1", {}, `${greetingWord()}, `, h("b", {}, `${household.name},`), settled ? " everything is settled." : " who owes whom?"),
       h("p", {}, state.members.length
         ? `${state.members.length} members · ${expenses.length} expenses · ${plan.assignments.length} chores this week`
         : "Start by adding members."),
