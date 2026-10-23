@@ -1,6 +1,6 @@
 # TASKS.md
 
-PHASE: 2
+PHASE: 3
 STATUS: done
 
 (0=Bootstrap | 1=Specify | 2=Design | 3=Develop | 4=Validate | 5=Deploy)
@@ -33,3 +33,4 @@ docs/specs/UC-003-SETTLE-UP.md
 | 2026-10-23 | UC-002 | 3 Develop | done | Jasin + Claude Code | TDD: 50 neue Tests rot → grün, Refactor gemeinsamer Validierung |
 | 2026-10-23 | UC-003 | 1 Specify | done | Jasin + Claude Code | AC1–AC8 inkl. Kettenschulden und Überzahlung |
 | 2026-10-23 | UC-003 | 2 Design | done | Jasin + Claude Code | ADR-007 Greedy-Ausgleich |
+| 2026-10-23 | UC-003 | 3 Develop | done | Jasin + Claude Code | TDD: 51 neue Tests inkl. 25 Zufallsszenarien, rot → grün |
