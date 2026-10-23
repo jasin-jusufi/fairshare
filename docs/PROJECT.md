@@ -37,6 +37,16 @@ Entscheidungen: siehe `docs/adr/`.
 - Datenbank: SQLite (Entwicklung, CI), PostgreSQL (Produktion auf Render)
 - Geldbeträge: Ganzzahlige Rappen (`int`), keine Floats
 
+## API
+
+| Ressource | Endpunkte | UC |
+|---|---|---|
+| Haushalte | `POST/GET /households`, `GET /households/{id}`, `POST /households/{id}/members` | 001 |
+| Ausgaben | `POST/GET /households/{id}/expenses`, `DELETE …/expenses/{expense_id}` | 002 |
+| Abrechnung | `GET …/balances`, `GET …/settle-up`, `POST/GET …/settlements` | 003 |
+| Ämtli | `POST/GET …/chores`, `POST …/chore-plans`, `GET …/chore-plans/{week}`, `POST …/assignments/{id}/complete`, `GET …/chore-load` | 004 |
+| Betrieb | `GET /health`, `/docs` (OpenAPI), `/ui/` (Web-UI) | — |
+
 ## Structure
 
 ```
@@ -50,6 +60,8 @@ tests/
 ├── unit/              # Domain + Use Cases mit In-Memory-Repositories
 ├── integration/       # API + SQLAlchemy gegen SQLite in-memory
 └── e2e/               # HTTP gegen laufenden Docker-Container
+migrations/            # Alembic-Migrationen (Produktionsschema)
+scripts/               # Setup, Deploy, Smoke-Test, Agent-Hooks
 docs/
 ├── specs/             # Ausführbare Use-Case-Spezifikationen
 └── adr/               # Architecture Decision Records
