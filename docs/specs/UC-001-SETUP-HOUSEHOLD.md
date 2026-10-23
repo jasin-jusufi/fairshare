@@ -43,3 +43,12 @@ Secondary: —
 Unit: Namensvalidierung (`Household`, `Member`), Duplikatprüfung, `HouseholdService` mit In-Memory-Repository
 Integration: AC1–AC7 über `TestClient` + SQLite in-memory
 E2E: Haushalt anlegen und Mitglied hinzufügen gegen den Container
+
+## Design
+
+| Layer | Komponente |
+|---|---|
+| domain | `Household`, `Member` (Entities), `ValidationError`, `DuplicateMemberError` |
+| application | `HouseholdService` (`create_household`, `add_member`, `get_household`, `list_households`), Port `HouseholdRepository`, `NotFoundError` |
+| interfaces | Router `/households`, Schemas `HouseholdCreate`, `MemberCreate`, `HouseholdOut`, `MemberOut`, Fehler-Mapping 400/404/409 |
+| infrastructure | `HouseholdModel`, `MemberModel`, `SqlAlchemyHouseholdRepository`, Alembic-Migration, Wiring in `create_app` |

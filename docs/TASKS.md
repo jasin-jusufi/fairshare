@@ -1,6 +1,6 @@
 # TASKS.md
 
-PHASE: 1
+PHASE: 2
 STATUS: done
 
 (0=Bootstrap | 1=Specify | 2=Design | 3=Develop | 4=Validate | 5=Deploy)
@@ -28,3 +28,4 @@ docs/specs/UC-001-SETUP-HOUSEHOLD.md
 |---|---|---|---|---|---|
 | 2026-10-23 | — | 0 Bootstrap | done | Jasin + Claude Code | Template übernommen, Struktur, Tooling, PROJECT.md |
 | 2026-10-23 | UC-001 | 1 Specify | done | Jasin + Claude Code | Spezifikation mit AC1–AC7 |
+| 2026-10-23 | UC-001 | 2 Design | done | Jasin + Claude Code | Komponenten pro Layer, keine neue ADR nötig |
