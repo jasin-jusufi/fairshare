@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -273,30 +273,30 @@
 <div class="app">
   <aside class="sidebar glass">
     <div class="brand"><div class="orb"></div><b>FairShare</b></div>
-    <div class="nav-label">Allgemein</div>
+    <div class="nav-label">General</div>
     <nav class="nav" id="nav">
-      <button data-view="overview" class="active"><span data-icon="grid"></span>Übersicht</button>
-      <button data-view="expenses"><span data-icon="receipt"></span>Ausgaben</button>
-      <button data-view="settle"><span data-icon="swap"></span>Abrechnen</button>
-      <button data-view="chores"><span data-icon="sparkles"></span>Ämtli</button>
-      <button data-view="members"><span data-icon="users"></span>Mitglieder</button>
-      <a href="/docs" target="_blank" rel="noopener"><span data-icon="code"></span>API-Doku</a>
+      <button data-view="overview" class="active"><span data-icon="grid"></span>Overview</button>
+      <button data-view="expenses"><span data-icon="receipt"></span>Expenses</button>
+      <button data-view="settle"><span data-icon="swap"></span>Settle up</button>
+      <button data-view="chores"><span data-icon="sparkles"></span>Chores</button>
+      <button data-view="members"><span data-icon="users"></span>Members</button>
+      <a href="/docs" target="_blank" rel="noopener"><span data-icon="code"></span>API docs</a>
     </nav>
   </aside>
 
   <div class="content">
     <div class="topbar">
       <div id="households" style="display:contents"></div>
-      <button class="pill add" id="household-add" type="button"><span data-icon="plus"></span>Haushalt</button>
+      <button class="pill add" id="household-add" type="button"><span data-icon="plus"></span>Household</button>
       <form id="household-form" hidden>
-        <input id="household-name" placeholder="Name des Haushalts" aria-label="Name des Haushalts">
-        <button class="btn">Anlegen</button>
+        <input id="household-name" placeholder="Household name" aria-label="Household name">
+        <button class="btn">Create</button>
       </form>
       <div class="spacer"></div>
       <div class="avatars" id="member-stack"></div>
     </div>
 
-    <!-- Übersicht -->
+    <!-- Overview -->
     <section class="view active" id="view-overview">
       <div class="glass greeting s6 r2" id="greeting"></div>
       <div class="art paint-peach s3" id="art-expenses"></div>
@@ -305,119 +305,119 @@
       <div class="glass nextpay wide s3" id="nextpay"></div>
       <form class="glass composer s12" id="quick-form" autocomplete="off">
         <span data-icon="sparkles" style="color:var(--accent)"></span>
-        <input id="quick-text" placeholder="Schnell erfassen … z. B. „Migros 45.50“ (gleich auf alle verteilt)" aria-label="Schnell erfassen">
-        <select id="quick-payer" aria-label="Bezahlt von"></select>
-        <button class="icon-btn" aria-label="Erfassen"><span data-icon="send"></span></button>
+        <input id="quick-text" placeholder="Quick add … e.g. “Groceries 45.50” (split equally between everyone)" aria-label="Quick add">
+        <select id="quick-payer" aria-label="Paid by"></select>
+        <button class="icon-btn" aria-label="Add"><span data-icon="send"></span></button>
       </form>
       <div class="glass card s7">
-        <h2>Letzte Ausgaben</h2>
-        <p class="sub">Was zuletzt in die WG-Kasse ging</p>
+        <h2>Recent expenses</h2>
+        <p class="sub">What the flat spent lately</p>
         <ul class="rows" id="recent-expenses"></ul>
       </div>
       <div class="glass card s5">
-        <h2>Ämtli diese Woche</h2>
+        <h2>Chores this week</h2>
         <p class="sub" id="week-label-overview"></p>
         <ul class="rows" id="week-overview"></ul>
       </div>
     </section>
 
-    <!-- Ausgaben -->
+    <!-- Expenses -->
     <section class="view" id="view-expenses">
       <div class="glass card s5">
-        <h2>Ausgabe erfassen</h2>
-        <p class="sub">Restrappen werden fair verteilt – die Summe stimmt immer.</p>
+        <h2>Add expense</h2>
+        <p class="sub">Leftover cents are shared fairly – the total always adds up.</p>
         <form class="form" id="expense-form" autocomplete="off">
           <div class="row">
-            <input id="expense-description" placeholder="Beschreibung" aria-label="Beschreibung" required>
+            <input id="expense-description" placeholder="Description" aria-label="Description" required>
           </div>
           <div class="row">
-            <input id="expense-amount" type="number" min="0.05" step="0.05" placeholder="Betrag in CHF" aria-label="Betrag in CHF" required>
-            <select id="expense-payer" aria-label="Bezahlt von"></select>
+            <input id="expense-amount" type="number" min="0.05" step="0.05" placeholder="Amount in CHF" aria-label="Amount in CHF" required>
+            <select id="expense-payer" aria-label="Paid by"></select>
           </div>
           <div class="seg" id="expense-method">
-            <button type="button" data-method="equal" class="active">Gleich</button>
-            <button type="button" data-method="percent">Prozent</button>
-            <button type="button" data-method="shares">Anteile</button>
+            <button type="button" data-method="equal" class="active">Equal</button>
+            <button type="button" data-method="percent">Percent</button>
+            <button type="button" data-method="shares">Shares</button>
           </div>
           <div class="chips" id="expense-participants"></div>
-          <div><button class="btn"><span data-icon="plus"></span>Ausgabe erfassen</button></div>
+          <div><button class="btn"><span data-icon="plus"></span>Add expense</button></div>
         </form>
       </div>
       <div class="glass card s7">
-        <h2>Alle Ausgaben</h2>
+        <h2>All expenses</h2>
         <p class="sub" id="expense-total"></p>
         <ul class="rows" id="expenses"></ul>
       </div>
     </section>
 
-    <!-- Abrechnen -->
+    <!-- Settle up -->
     <section class="view" id="view-settle">
       <div class="glass card s6">
-        <h2>Salden</h2>
-        <p class="sub">Grün bekommt Geld, Orange schuldet.</p>
+        <h2>Balances</h2>
+        <p class="sub">Green is owed money, orange owes.</p>
         <ul class="rows" id="balances"></ul>
       </div>
       <div class="glass card s6">
-        <h2>Vorgeschlagene Zahlungen</h2>
-        <p class="sub">So wenige Überweisungen wie möglich (≤ n − 1).</p>
+        <h2>Suggested payments</h2>
+        <p class="sub">As few transfers as possible (≤ n − 1).</p>
         <ul class="rows" id="transfers"></ul>
       </div>
       <div class="glass card s12">
-        <h2>Erfasste Zahlungen</h2>
-        <p class="sub">Verlauf aller Ausgleichszahlungen</p>
+        <h2>Recorded payments</h2>
+        <p class="sub">History of all settlements</p>
         <ul class="rows" id="settlements"></ul>
       </div>
     </section>
 
-    <!-- Ämtli -->
+    <!-- Chores -->
     <section class="view" id="view-chores">
       <div class="glass card s5">
-        <h2>Ämtli</h2>
-        <p class="sub">Aufwand 1–5 bestimmt die faire Verteilung.</p>
+        <h2>Chores</h2>
+        <p class="sub">Effort 1–5 drives the fair distribution.</p>
         <form class="form" id="chore-form" autocomplete="off">
           <div class="row">
-            <input id="chore-name" placeholder="z. B. Bad putzen" aria-label="Ämtli" required>
+            <input id="chore-name" placeholder="e.g. Bathroom" aria-label="Chore" required>
           </div>
           <div class="row" style="align-items:center;justify-content:space-between">
             <div class="effort" id="chore-effort"></div>
-            <button class="btn"><span data-icon="plus"></span>Hinzufügen</button>
+            <button class="btn"><span data-icon="plus"></span>Add</button>
           </div>
         </form>
         <ul class="rows" id="chores" style="margin-top:14px"></ul>
       </div>
       <div class="glass card s7">
-        <h2>Wochenplan</h2>
+        <h2>Week plan</h2>
         <div class="week-nav">
-          <button class="icon-btn" type="button" id="week-prev" aria-label="Vorherige Woche"><span data-icon="left"></span></button>
+          <button class="icon-btn" type="button" id="week-prev" aria-label="Previous week"><span data-icon="left"></span></button>
           <strong id="week-label"></strong>
-          <button class="icon-btn" type="button" id="week-next" aria-label="Nächste Woche"><span data-icon="right"></span></button>
-          <button class="btn" type="button" id="plan-week"><span data-icon="sparkles"></span>Fair planen</button>
+          <button class="icon-btn" type="button" id="week-next" aria-label="Next week"><span data-icon="right"></span></button>
+          <button class="btn" type="button" id="plan-week"><span data-icon="sparkles"></span>Plan fairly</button>
         </div>
         <ul class="rows" id="assignments"></ul>
       </div>
       <div class="glass card s12">
-        <h2>Last pro Person</h2>
-        <p class="sub">Summe der Aufwandpunkte über alle Wochen</p>
+        <h2>Load per person</h2>
+        <p class="sub">Total effort points across all weeks</p>
         <ul class="rows" id="load"></ul>
       </div>
     </section>
 
-    <!-- Mitglieder -->
+    <!-- Members -->
     <section class="view" id="view-members">
       <div class="glass card s6">
-        <h2>Mitglieder</h2>
-        <p class="sub">Wer gehört zum Haushalt?</p>
+        <h2>Members</h2>
+        <p class="sub">Who lives in this household?</p>
         <form class="form" id="member-form" autocomplete="off">
           <div class="row">
             <input id="member-name" placeholder="Name" aria-label="Name" required>
-            <button class="btn"><span data-icon="plus"></span>Hinzufügen</button>
+            <button class="btn"><span data-icon="plus"></span>Add</button>
           </div>
         </form>
         <ul class="rows" id="members" style="margin-top:14px"></ul>
       </div>
       <div class="art paint-sunset s6" style="min-height:260px">
-        <div class="label">So funktioniert FairShare</div>
-        <div class="hint">1. Mitglieder hinzufügen · 2. Ausgaben erfassen · 3. Mit wenigen Zahlungen abrechnen · 4. Ämtli fair planen</div>
+        <div class="label">How FairShare works</div>
+        <div class="hint">1. Add members · 2. Record expenses · 3. Settle up with few payments · 4. Plan chores fairly</div>
       </div>
     </section>
   </div>
@@ -447,7 +447,7 @@ const PALETTE = [
 ];
 
 const $ = (id) => document.getElementById(id);
-const chf = (cents) => `CHF ${(cents / 100).toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const chf = (cents) => `CHF ${(cents / 100).toLocaleString("en-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const signedChf = (cents) => (cents > 0 ? "+ " : cents < 0 ? "− " : "") + chf(Math.abs(cents));
 
 function svg(name) {
@@ -483,7 +483,7 @@ function addDays(isoDate, days) {
   d.setUTCDate(d.getUTCDate() + days);
   return iso(d);
 }
-const fmtDate = (isoDate) => new Date(`${isoDate}T00:00:00Z`).toLocaleDateString("de-CH", { day: "numeric", month: "short", timeZone: "UTC" });
+const fmtDate = (isoDate) => new Date(`${isoDate}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
 const weekLabel = (monday) => `${fmtDate(monday)} – ${fmtDate(addDays(monday, 6))}`;
 
 const EMPTY = { household: null, expenses: [], balances: [], transfers: [], settlements: [], chores: [], load: [], plan: { assignments: [] } };
@@ -571,7 +571,7 @@ function renderTopbar() {
 
 function greetingWord() {
   const hour = new Date().getHours();
-  return hour < 11 ? "Guten Morgen" : hour < 18 ? "Hallo" : "Guten Abend";
+  return hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 }
 
 function renderOverview() {
@@ -580,52 +580,52 @@ function renderOverview() {
   if (!household) {
     g.replaceChildren(
       h("div", { class: "orb" }),
-      h("h1", {}, "Willkommen bei ", h("b", {}, "FairShare")),
-      h("p", {}, "Lege deinen ersten Haushalt an – z. B. eure WG."),
+      h("h1", {}, "Welcome to ", h("b", {}, "FairShare")),
+      h("p", {}, "Create your first household – for example your shared flat."),
       h("form", { onsubmit: guard(createHousehold) },
-        h("input", { name: "name", placeholder: "WG Basel", "aria-label": "Name des Haushalts", required: true }),
-        h("button", { class: "btn" }, "Los geht's")),
+        h("input", { name: "name", placeholder: "Flat Basel", "aria-label": "Household name", required: true }),
+        h("button", { class: "btn" }, "Let's go")),
     );
   } else {
     const settled = transfers.length === 0;
     g.replaceChildren(
       h("div", { class: "orb" }),
-      h("h1", {}, `${greetingWord()} `, h("b", {}, `${household.name},`), settled ? " alles ist ausgeglichen." : " wer schuldet wem?"),
+      h("h1", {}, `${greetingWord()} `, h("b", {}, `${household.name},`), settled ? " everything is settled." : " who owes whom?"),
       h("p", {}, state.members.length
-        ? `${state.members.length} Mitglieder · ${expenses.length} Ausgaben · ${plan.assignments.length} Ämtli diese Woche`
-        : "Füge zuerst Mitglieder hinzu."),
+        ? `${state.members.length} members · ${expenses.length} expenses · ${plan.assignments.length} chores this week`
+        : "Start by adding members."),
     );
   }
 
   const total = expenses.reduce((sum, e) => sum + e.amount_cents, 0);
   const open = balances.reduce((sum, b) => sum + Math.max(0, b.balance_cents), 0);
   const done = plan.assignments.filter((a) => a.completed_at).length;
-  artCard($("art-expenses"), "Ausgaben", chf(total), `${expenses.length} Einträge`, "expenses");
-  artCard($("art-open"), "Offen", chf(open), transfers.length ? `${transfers.length} Zahlung(en) nötig` : "Alles ausgeglichen", "settle");
-  artCard($("art-chores"), "Ämtli", `${done}/${plan.assignments.length}`, "erledigt diese Woche", "chores");
+  artCard($("art-expenses"), "Expenses", chf(total), `${expenses.length} entries`, "expenses");
+  artCard($("art-open"), "Open", chf(open), transfers.length ? `${transfers.length} payment${transfers.length === 1 ? "" : "s"} needed` : "All settled", "settle");
+  artCard($("art-chores"), "Chores", `${done}/${plan.assignments.length}`, "done this week", "chores");
 
   const next = transfers[0];
   $("nextpay").replaceChildren(...(next
     ? [h("div", { class: "foot" },
          h("div", { class: "pair" }, avatar(next.from_member_id), avatar(next.to_member_id)),
-         h("span", { class: "meta" }, "Nächste Zahlung")),
+         h("span", { class: "meta" }, "Next payment")),
        h("div", { class: "grow" },
          h("div", { class: "big" }, chf(next.amount_cents)),
          h("div", { class: "foot" },
            h("div", { class: "title" }, `${next.from_name} → ${next.to_name}`),
-           h("button", { class: "icon-btn", title: "Als bezahlt erfassen", "aria-label": "Als bezahlt erfassen", onclick: guard(() => settle(next)) }, svg("check"))))]
+           h("button", { class: "icon-btn", title: "Mark as paid", "aria-label": "Mark as paid", onclick: guard(() => settle(next)) }, svg("check"))))]
     : [h("div", { class: "orb", style: "width:38px;height:38px" }),
-       h("div", { class: "grow" }, h("div", { class: "title" }, "Keine offenen Zahlungen"), h("div", { class: "meta" }, "Geniesst den Feierabend ✨"))]));
+       h("div", { class: "grow" }, h("div", { class: "title" }, "No open payments"), h("div", { class: "meta" }, "Enjoy your evening ✨"))]));
 
   $("quick-payer").replaceChildren(...state.members.map((m) => new Option(m.name, m.id)));
-  fill($("recent-expenses"), expenses.slice(-5).reverse(), expenseRow, "Noch keine Ausgaben – erfasse oben die erste.");
-  $("week-label-overview").textContent = `Woche ${weekLabel(state.week)}`;
-  fill($("week-overview"), plan.assignments, assignmentRow, "Diese Woche ist noch nicht geplant.");
+  fill($("recent-expenses"), expenses.slice(-5).reverse(), expenseRow, "No expenses yet – add the first one above.");
+  $("week-label-overview").textContent = `Week ${weekLabel(state.week)}`;
+  fill($("week-overview"), plan.assignments, assignmentRow, "This week has not been planned yet.");
 }
 
 function artCard(el, label, value, hint, view) {
   el.replaceChildren(
-    h("button", { class: "go", "aria-label": `${label} öffnen`, onclick: () => show(view) }, svg("arrow")),
+    h("button", { class: "go", "aria-label": `Open ${label}`, onclick: () => show(view) }, svg("arrow")),
     h("div", { class: "value" }, value),
     h("div", { class: "label" }, label),
     h("div", { class: "hint" }, hint),
@@ -639,16 +639,16 @@ function expenseRow(e) {
       h("div", { class: "title" }, e.description),
       h("div", { class: "meta" }, `${nameOf(e.payer_id)} · ${e.shares.map((s) => `${nameOf(s.member_id)} ${chf(s.amount_cents)}`).join(" · ")}`)),
     h("div", { class: "amount" }, chf(e.amount_cents)),
-    h("button", { class: "icon-btn ghost", title: "Löschen", "aria-label": `${e.description} löschen`,
-      onclick: guard(async () => { await api(`${base()}/expenses/${e.id}`, { method: "DELETE" }); toast("Ausgabe gelöscht"); await refresh(); }) },
+    h("button", { class: "icon-btn ghost", title: "Delete", "aria-label": `Delete ${e.description}`,
+      onclick: guard(async () => { await api(`${base()}/expenses/${e.id}`, { method: "DELETE" }); toast("Expense deleted"); await refresh(); }) },
       svg("trash")));
 }
 
 function assignmentRow(a) {
   const done = Boolean(a.completed_at);
   return h("li", { class: done ? "is-done" : "" },
-    h("button", { class: `check${done ? " done" : ""}`, "aria-label": done ? "Erledigt" : `${a.chore_name} erledigt`, disabled: done,
-      onclick: guard(async () => { await api(`${base()}/assignments/${a.id}/complete`, { method: "POST" }); toast(`${a.chore_name} erledigt 🎉`); await refresh(); }) },
+    h("button", { class: `check${done ? " done" : ""}`, "aria-label": done ? "Done" : `Mark ${a.chore_name} as done`, disabled: done,
+      onclick: guard(async () => { await api(`${base()}/assignments/${a.id}/complete`, { method: "POST" }); toast(`${a.chore_name} done 🎉`); await refresh(); }) },
       svg("check")),
     h("div", { class: "grow" }, h("div", { class: "title" }, a.chore_name), h("div", { class: "meta" }, nameOf(a.member_id))),
     dots(a.effort),
@@ -656,17 +656,17 @@ function assignmentRow(a) {
 }
 
 function dots(effort) {
-  return h("span", { class: "dots", title: `Aufwand ${effort}` }, [1, 2, 3, 4, 5].map((i) => h("i", { class: i <= effort ? "on" : "" })));
+  return h("span", { class: "dots", title: `Effort ${effort}` }, [1, 2, 3, 4, 5].map((i) => h("i", { class: i <= effort ? "on" : "" })));
 }
 
 function renderExpenses() {
   const { expenses } = state.data;
-  $("expense-payer").replaceChildren(...state.members.map((m) => new Option(`bezahlt von ${m.name}`, m.id)));
+  $("expense-payer").replaceChildren(...state.members.map((m) => new Option(`paid by ${m.name}`, m.id)));
   for (const b of $("expense-method").children) b.classList.toggle("active", b.dataset.method === state.method);
   renderParticipants();
   const total = expenses.reduce((sum, e) => sum + e.amount_cents, 0);
-  $("expense-total").textContent = `${expenses.length} Ausgaben · total ${chf(total)}`;
-  fill($("expenses"), expenses.slice().reverse(), expenseRow, "Noch keine Ausgaben.");
+  $("expense-total").textContent = `${expenses.length} expenses · total ${chf(total)}`;
+  fill($("expenses"), expenses.slice().reverse(), expenseRow, "No expenses yet.");
 }
 
 function renderParticipants() {
@@ -683,7 +683,7 @@ function renderParticipants() {
     });
     if (state.method !== "equal" && !off) {
       const fallback = state.method === "percent" ? Math.floor(100 / n) + (index < 100 % n ? 1 : 0) : 1;
-      chip.append(h("input", { type: "number", min: 1, value: fallback, "aria-label": `Gewicht ${m.name}` }),
+      chip.append(h("input", { type: "number", min: 1, value: fallback, "aria-label": `Weight for ${m.name}` }),
         state.method === "percent" ? "%" : "×");
     }
     return chip;
@@ -702,47 +702,47 @@ function renderSettle() {
       h("div", { class: "bal" },
         h("span", { class: "l", style: `width:${b.balance_cents < 0 ? (Math.abs(b.balance_cents) / max) * 100 : 0}%` }),
         h("span", { class: "r", style: `width:${b.balance_cents > 0 ? (b.balance_cents / max) * 100 : 0}%` })))),
-    "Noch keine Mitglieder.");
+    "No members yet.");
 
   fill($("transfers"), transfers, (t) => h("li", {},
     h("div", { class: "pair", style: "display:flex" }, avatar(t.from_member_id), avatar(t.to_member_id)),
-    h("div", { class: "grow" }, h("div", { class: "title" }, `${t.from_name} → ${t.to_name}`), h("div", { class: "meta" }, "überweist")),
+    h("div", { class: "grow" }, h("div", { class: "title" }, `${t.from_name} → ${t.to_name}`), h("div", { class: "meta" }, "transfers")),
     h("div", { class: "amount" }, chf(t.amount_cents)),
-    h("button", { class: "btn", onclick: guard(() => settle(t)) }, svg("check"), "Bezahlt")),
-    "Alles ausgeglichen ✨");
+    h("button", { class: "btn", onclick: guard(() => settle(t)) }, svg("check"), "Paid")),
+    "All settled ✨");
 
   fill($("settlements"), settlements.slice().reverse(), (s) => h("li", {},
     avatar(s.from_member_id),
     h("div", { class: "grow" },
       h("div", { class: "title" }, `${nameOf(s.from_member_id)} → ${nameOf(s.to_member_id)}`),
-      h("div", { class: "meta" }, new Date(s.created_at).toLocaleString("de-CH", { dateStyle: "medium", timeStyle: "short" }))),
+      h("div", { class: "meta" }, new Date(s.created_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" }))),
     h("div", { class: "amount pos" }, chf(s.amount_cents))),
-    "Noch keine Zahlungen erfasst.");
+    "No payments recorded yet.");
 }
 
 function renderChores() {
   const { chores, load, plan } = state.data;
   $("chore-effort").replaceChildren(...[1, 2, 3, 4, 5].map((i) => h("button", {
-    type: "button", class: i <= state.effort ? "on" : "", "aria-label": `Aufwand ${i}`,
+    type: "button", class: i <= state.effort ? "on" : "", "aria-label": `Effort ${i}`,
     onclick: () => { state.effort = i; renderChores(); },
   }, i)));
   fill($("chores"), chores, (c) => h("li", {},
-    h("div", { class: "grow" }, h("div", { class: "title" }, c.name)), dots(c.effort)), "Noch keine Ämtli.");
+    h("div", { class: "grow" }, h("div", { class: "title" }, c.name)), dots(c.effort)), "No chores yet.");
   $("week-label").textContent = weekLabel(state.week);
   $("plan-week").hidden = plan.assignments.length > 0;
-  fill($("assignments"), plan.assignments, assignmentRow, "Diese Woche ist noch nicht geplant – „Fair planen“ verteilt nach Aufwand.");
+  fill($("assignments"), plan.assignments, assignmentRow, "This week is not planned yet – “Plan fairly” assigns chores by effort.");
   const max = Math.max(1, ...load.map((l) => l.effort_points));
   fill($("load"), load, (l) => h("li", {},
     avatar(l.member_id),
     h("div", { class: "grow" },
-      h("div", { style: "display:flex;justify-content:space-between" }, h("span", { class: "title" }, l.name), h("span", { class: "meta" }, `${l.effort_points} Punkte`)),
+      h("div", { style: "display:flex;justify-content:space-between" }, h("span", { class: "title" }, l.name), h("span", { class: "meta" }, `${l.effort_points} points`)),
       h("div", { class: "loadbar" }, h("span", { style: `width:${(l.effort_points / max) * 100}%` })))),
-    "Noch keine Mitglieder.");
+    "No members yet.");
 }
 
 function renderMembers() {
   fill($("members"), state.members, (m) => h("li", {}, avatar(m.id), h("div", { class: "grow title" }, m.name)),
-    state.householdId ? "Noch keine Mitglieder." : "Zuerst einen Haushalt anlegen.");
+    state.householdId ? "No members yet." : "Create a household first.");
 }
 
 /* ---------- actions ---------- */
@@ -758,13 +758,13 @@ async function createHousehold(event) {
   const household = await api("/households", { method: "POST", body: JSON.stringify({ name: input.value }) });
   input.value = "";
   $("household-form").hidden = true;
-  toast(`${household.name} angelegt`);
+  toast(`${household.name} created`);
   await loadHouseholds(household.id);
   show("members");
 }
 
 function requireHousehold() {
-  if (!state.householdId) throw new Error("Lege zuerst einen Haushalt an");
+  if (!state.householdId) throw new Error("Create a household first");
 }
 
 async function settle(t) {
@@ -772,7 +772,7 @@ async function settle(t) {
     method: "POST",
     body: JSON.stringify({ from_member_id: t.from_member_id, to_member_id: t.to_member_id, amount_cents: t.amount_cents }),
   });
-  toast(`${t.from_name} hat ${chf(t.amount_cents)} an ${t.to_name} bezahlt`);
+  toast(`${t.from_name} paid ${chf(t.amount_cents)} to ${t.to_name}`);
   await refresh();
 }
 
@@ -781,7 +781,7 @@ async function recordExpense(payerId, description, amountCents, method, particip
     method: "POST",
     body: JSON.stringify({ payer_id: payerId, description, amount_cents: amountCents, method, participants }),
   });
-  toast(`${description} erfasst · ${chf(amountCents)}`);
+  toast(`${description} added · ${chf(amountCents)}`);
   await refresh();
 }
 
@@ -799,7 +799,7 @@ $("member-form").addEventListener("submit", guard(async () => {
   const name = $("member-name").value;
   await api(`${base()}/members`, { method: "POST", body: JSON.stringify({ name }) });
   $("member-name").value = "";
-  toast(`${name} ist dabei 👋`);
+  toast(`${name} joined 👋`);
   await refresh();
 }));
 
@@ -807,7 +807,7 @@ $("quick-form").addEventListener("submit", guard(async () => {
   requireHousehold();
   const text = $("quick-text").value.trim();
   const match = text.match(/^(.*?)[\s:]*(?:CHF\s*)?(\d+(?:[.,]\d{1,2})?)\s*(?:CHF|Fr\.?)?$/i);
-  if (!match || !match[1].trim()) throw new Error("Format: Beschreibung und Betrag, z. B. „Migros 45.50“");
+  if (!match || !match[1].trim()) throw new Error("Format: description and amount, e.g. “Groceries 45.50”");
   const amount = Math.round(Number(match[2].replace(",", ".")) * 100);
   await recordExpense(Number($("quick-payer").value), match[1].trim(), amount, "equal",
     state.members.map((m) => ({ member_id: m.id })));
@@ -839,14 +839,14 @@ $("chore-form").addEventListener("submit", guard(async () => {
   const name = $("chore-name").value;
   await api(`${base()}/chores`, { method: "POST", body: JSON.stringify({ name, effort: state.effort }) });
   $("chore-name").value = "";
-  toast(`${name} hinzugefügt`);
+  toast(`${name} added`);
   await refresh();
 }));
 
 $("plan-week").addEventListener("click", guard(async () => {
   requireHousehold();
   await api(`${base()}/chore-plans`, { method: "POST", body: JSON.stringify({ week_start: state.week }) });
-  toast("Woche fair verteilt ✨");
+  toast("Week planned fairly ✨");
   await refresh();
 }));
 $("week-prev").addEventListener("click", guard(async () => { state.week = addDays(state.week, -7); await refresh(); }));
