@@ -1,7 +1,10 @@
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, Request
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from app.application.chore_service import ChoreService
@@ -20,6 +23,8 @@ from app.infrastructure.persistence.household_repository import SqlAlchemyHouseh
 from app.infrastructure.persistence.settlement_repository import SqlAlchemySettlementRepository
 from app.interfaces.api import chores, dependencies, expenses, households, settlements
 from app.interfaces.api.errors import register_error_handlers
+
+STATIC_DIR = Path(__file__).parent / "static"
 
 
 def get_session(request: Request) -> Iterator[Session]:
@@ -76,5 +81,11 @@ def create_app(database_url: str | None = None, create_schema: bool | None = Non
     @app.get("/health", tags=["ops"])
     def health() -> dict[str, str]:
         return {"status": "healthy"}
+
+    @app.get("/", include_in_schema=False)
+    def root() -> RedirectResponse:
+        return RedirectResponse("/ui/")
+
+    app.mount("/ui", StaticFiles(directory=STATIC_DIR, html=True), name="ui")
 
     return app

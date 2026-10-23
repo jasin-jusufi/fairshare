@@ -37,3 +37,4 @@ docs/specs/UC-004-ROTATE-CHORES.md
 | 2026-10-23 | UC-004 | 2 Design | done | Jasin + Claude Code | LPT-Heuristik, Aufwand-Snapshot, ConflictError-Hierarchie |
 | 2026-10-23 | UC-004 | 3 Develop | done | Jasin + Claude Code | TDD: 38 neue Tests inkl. 12-Wochen-Fairness-Simulation, rot → grün |
 | 2026-10-23 | alle | 4 Validate | done | Jasin + Claude Code | Coverage 99.8 % (Gate 90 %), Docker-Image, E2E lokal gegen SQLite und PostgreSQL 16, Release- und CD-Workflow |
+| 2026-10-23 | UC-001–004 | 3 Develop | done | Jasin + Claude Code | Web-UI unter `/ui` (Test zuerst), im Browser mit Demo-Daten geprüft |
