@@ -5,11 +5,11 @@
 [![AI-SDLC](https://img.shields.io/badge/AI--SDLC-v1.0.0-blue)](https://ai-sdlc.aisl.science)
 ![Coverage](https://img.shields.io/badge/coverage-99%25-brightgreen)
 
-**FairShare** ist eine WG-Verwaltung: gemeinsame Ausgaben fair aufteilen, mit
-möglichst wenigen Überweisungen abrechnen und Ämtli nach Aufwand gerecht
-verteilen. Gebaut als Capstone-Projekt im Modul *AI-assisted Software
-Development* (FHNW, 26H2) mit **Clean Architecture**, **TDD**, **CI/CD** und
-konsequentem Einsatz von **Coding Agents** nach dem
+**FairShare** is an app for shared flats (a "WG" in Swiss German): split shared
+expenses fairly, settle up with as few transfers as possible and distribute
+chores fairly by effort. Built as the capstone project for the module
+*AI-assisted Software Development* (FHNW, 26H2) with **Clean Architecture**,
+**TDD**, **CI/CD** and consistent use of **coding agents** following the
 [AI-SDLC](https://docs.aisl.science/learning-and-resources/ai-sdlc).
 
 ![FairShare UI](docs/assets/ui.png)
@@ -18,102 +18,101 @@ konsequentem Einsatz von **Coding Agents** nach dem
 |---|---|
 | **Team** | Jasin Jusufi, Bajram Kurto Elezi |
 | **Stack** | Python 3.12 · FastAPI · SQLAlchemy 2 · Alembic · PostgreSQL / SQLite · Docker · GitHub Actions · Render |
-| **Agents** | Claude Code (Hauptagent), GitHub Copilot |
-| **Live** | siehe Repository-Variable `APP_URL` / Environment *production* |
+| **Agents** | Claude Code (main agent), GitHub Copilot |
+| **Live** | see repository variable `APP_URL` / environment *production* |
 
 ---
 
-## Inhalt
+## Contents
 
-1. [Problem und Use Cases](#1-problem-und-use-cases)
-2. [Architektur](#2-architektur)
-3. [Domänenmodell](#3-domänenmodell)
-4. [AI-assisted Development](#4-ai-assisted-development)
-5. [Tests und Qualität](#5-tests-und-qualität)
-6. [CI, Release und Deployment](#6-ci-release-und-deployment)
-7. [Lokal starten](#7-lokal-starten)
-8. [Projektstruktur](#8-projektstruktur)
+1. [Problem and use cases](#1-problem-and-use-cases)
+2. [Architecture](#2-architecture)
+3. [Domain model](#3-domain-model)
+4. [AI-assisted development](#4-ai-assisted-development)
+5. [Tests and quality](#5-tests-and-quality)
+6. [CI, release and deployment](#6-ci-release-and-deployment)
+7. [Running locally](#7-running-locally)
+8. [Project structure](#8-project-structure)
 
 ---
 
-## 1. Problem und Use Cases
+## 1. Problem and use cases
 
-In WGs werden Ausgaben meist im Chat oder in Tabellen verwaltet. Das führt zu
-Rundungsdifferenzen („wer bekommt den Rappen?“), zu vielen kleinen
-Überweisungen und zu ungleich verteilter Hausarbeit. FairShare löst drei
-fachlich nicht-triviale Probleme:
+In shared flats, expenses are usually tracked in group chats or spreadsheets.
+This leads to rounding differences ("who gets the extra cent?"), many small
+transfers and an unequal share of the housework. FairShare solves three
+non-trivial domain problems:
 
-| UC | Use Case | Fachlicher Kern | Spezifikation |
+| UC | Use case | Domain core | Specification |
 |---|---|---|---|
-| 001 | Haushalt einrichten | Mitglieder mit eindeutigen Namen | [UC-001](docs/specs/UC-001-SETUP-HOUSEHOLD.md) |
-| 002 | Ausgabe erfassen | Split gleich / Prozent / Anteile, **Largest-Remainder**: die Summe der Anteile stimmt immer exakt | [UC-002](docs/specs/UC-002-RECORD-EXPENSE.md) |
-| 003 | Abrechnen | Salden + **Greedy-Ausgleich mit ≤ n − 1 Überweisungen**, Überzahlungsschutz | [UC-003](docs/specs/UC-003-SETTLE-UP.md) |
-| 004 | Ämtli verteilen | **Fairness nach Aufwand** inkl. Historie (LPT-Heuristik) | [UC-004](docs/specs/UC-004-ROTATE-CHORES.md) |
+| 001 | Set up household | Members with unique names | [UC-001](docs/specs/UC-001-SETUP-HOUSEHOLD.md) |
+| 002 | Record expense | Equal / percent / shares split, **largest remainder**: the shares always add up exactly | [UC-002](docs/specs/UC-002-RECORD-EXPENSE.md) |
+| 003 | Settle up | Balances + **greedy settle-up with ≤ n − 1 transfers**, overpayment protection | [UC-003](docs/specs/UC-003-SETTLE-UP.md) |
+| 004 | Rotate chores | **Fairness by effort** including history (LPT heuristic) | [UC-004](docs/specs/UC-004-ROTATE-CHORES.md) |
 
-**Was ist innovativ?** Die drei Kernalgorithmen sind reine, framework-freie
-Domain-Funktionen und werden mit Eigenschaften getestet, nicht nur mit
-Beispielen: Anteile summieren sich für jeden Betrag und jede Methode exakt,
-zufällige Haushalte werden immer mit höchstens n − 1 Zahlungen ausgeglichen,
-und über 12 simulierte Wochen bleibt die Lastspanne kleiner als das
-aufwändigste Ämtli.
-
----
-
-### API-Referenz
-
-Unter `/docs` liegt eine eigene API-Referenz im FairShare-Design. Sie wird im
-Browser aus `/openapi.json` erzeugt, also direkt aus Routern, Docstrings und
-Pydantic-Schemas. Code und Doku können dadurch nicht auseinanderlaufen; ein
-Integrationstest prüft, dass jeder Endpunkt Summary, Beschreibung und
-dokumentierte Fehler hat.
-
-![API-Referenz](docs/assets/api-docs.png)
+**What is innovative?** The three core algorithms are pure, framework-free
+domain functions and are tested with properties, not just examples: shares add
+up exactly for every amount and every method, random households are always
+settled with at most n − 1 payments, and over 12 simulated weeks the load
+spread stays smaller than the most demanding chore.
 
 ---
 
-## 2. Architektur
+### API reference
 
-Clean Architecture mit vier Layern. Abhängigkeiten zeigen nur nach innen
+`/docs` serves a custom API reference in the FairShare design. It is generated
+in the browser from `/openapi.json`, i.e. directly from the routers, docstrings
+and Pydantic schemas, so code and documentation cannot drift apart. An
+integration test checks that every endpoint has a summary, a description and
+documented errors.
+
+![API reference](docs/assets/api-docs.png)
+
+---
+
+## 2. Architecture
+
+Clean Architecture with four layers. Dependencies point inwards only
 ([ADR-001](docs/adr/ADR-001-clean-architecture.md)):
 
 ```mermaid
 flowchart LR
     subgraph infrastructure["infrastructure"]
-        web["web/app.py<br/>App-Factory, DI-Wiring, UI"]
-        repo["persistence/*<br/>SQLAlchemy-Repositories"]
+        web["web/app.py<br/>App factory, DI wiring, UI"]
+        repo["persistence/*<br/>SQLAlchemy repositories"]
         db[("SQLite / PostgreSQL")]
     end
     subgraph interfaces["interfaces"]
-        api["api/*<br/>FastAPI-Router, Pydantic-Schemas"]
+        api["api/*<br/>FastAPI routers, Pydantic schemas"]
     end
     subgraph application["application"]
-        svc["*_service.py<br/>Use Cases"]
+        svc["*_service.py<br/>Use cases"]
         ports["ports/repositories.py<br/>Protocols"]
     end
     subgraph domain["domain"]
-        ent["Entities + Domain-Funktionen<br/>split_amount · suggest_transfers · plan_week"]
+        ent["Entities + domain functions<br/>split_amount · suggest_transfers · plan_week"]
     end
 
     web --> api
     api --> svc
     svc --> ports
     svc --> ent
-    repo -. implementiert .-> ports
+    repo -. implements .-> ports
     repo --> db
     web --> repo
 ```
 
-**Die Regel wird erzwungen, nicht nur dokumentiert.** `import-linter` prüft
-zwei Verträge in CI und als Unit-Test (`tests/unit/test_architecture.py`):
+**The rule is enforced, not just documented.** `import-linter` checks two
+contracts in CI and as a unit test (`tests/unit/test_architecture.py`):
 
-1. *Layers:* `infrastructure → interfaces → application → domain`, nie umgekehrt.
-2. *Forbidden:* `domain` und `application` importieren weder FastAPI, Pydantic,
-   SQLAlchemy noch Alembic.
+1. *Layers:* `infrastructure → interfaces → application → domain`, never the other way round.
+2. *Forbidden:* `domain` and `application` import neither FastAPI, Pydantic,
+   SQLAlchemy nor Alembic.
 
-Bricht ein Agent die Architektur, wird der Build rot. Das war die wichtigste
-Leitplanke für generierten Code.
+If an agent breaks the architecture, the build turns red. This was the most
+important guardrail for generated code.
 
-**Request-Fluss** am Beispiel „Ausgleich vorschlagen“:
+**Request flow**, using "suggest settle-up" as an example:
 
 ```mermaid
 sequenceDiagram
@@ -124,44 +123,44 @@ sequenceDiagram
     participant P as SqlAlchemy*Repository
     UI->>R: GET /households/1/settle-up
     R->>S: suggest_transfers(1)
-    S->>P: Haushalt, Ausgaben, Zahlungen laden
-    P-->>S: Domain-Entities
+    S->>P: load household, expenses, payments
+    P-->>S: Domain entities
     S->>D: compute_balances() → suggest_transfers()
     D-->>S: [Transfer(Mia → Lea, 3000)]
     S-->>R: Transfers
-    R-->>UI: JSON (Namen + Rappen)
+    R-->>UI: JSON (names + cents)
 ```
 
-### Architekturentscheide (ADRs)
+### Architecture decisions (ADRs)
 
-| ADR | Entscheid |
+| ADR | Decision |
 |---|---|
-| [001](docs/adr/ADR-001-clean-architecture.md) | Clean Architecture, durch import-linter erzwungen |
+| [001](docs/adr/ADR-001-clean-architecture.md) | Clean Architecture, enforced by import-linter |
 | [002](docs/adr/ADR-002-stack.md) | Python 3.12 + FastAPI + SQLAlchemy 2, mypy --strict |
-| [003](docs/adr/ADR-003-persistence.md) | SQLite (Dev/CI), PostgreSQL (Prod), Alembic + Drift-Check |
-| [004](docs/adr/ADR-004-money-as-integer-cents.md) | Geld als ganzzahlige Rappen, Largest-Remainder |
-| [005](docs/adr/ADR-005-testing-strategy.md) | Testpyramide, sichtbarer TDD-Trail in Git |
+| [003](docs/adr/ADR-003-persistence.md) | SQLite (dev/CI), PostgreSQL (prod), Alembic + drift check |
+| [004](docs/adr/ADR-004-money-as-integer-cents.md) | Money as integer cents, largest remainder |
+| [005](docs/adr/ADR-005-testing-strategy.md) | Test pyramid, visible TDD trail in Git |
 | [006](docs/adr/ADR-006-delivery-pipeline.md) | GitHub Actions → GHCR → Render |
-| [007](docs/adr/ADR-007-settle-up-algorithm.md) | Greedy-Ausgleich statt exakter (NP-schwerer) Optimierung |
+| [007](docs/adr/ADR-007-settle-up-algorithm.md) | Greedy settle-up instead of exact (NP-hard) optimization |
 
 ---
 
-## 3. Domänenmodell
+## 3. Domain model
 
-Sieben Entities, zwei Value Objects, vier Use-Case-Services.
+Seven entities, two value objects, four use case services.
 
 ```mermaid
 erDiagram
-    HOUSEHOLD ||--o{ MEMBER : hat
-    HOUSEHOLD ||--o{ EXPENSE : hat
-    HOUSEHOLD ||--o{ SETTLEMENT : hat
-    HOUSEHOLD ||--o{ CHORE : hat
-    EXPENSE ||--|{ EXPENSE_SHARE : "aufgeteilt in"
-    MEMBER ||--o{ EXPENSE : bezahlt
-    MEMBER ||--o{ EXPENSE_SHARE : schuldet
-    MEMBER ||--o{ SETTLEMENT : "sendet / empfängt"
-    CHORE ||--o{ CHORE_ASSIGNMENT : "geplant als"
-    MEMBER ||--o{ CHORE_ASSIGNMENT : erledigt
+    HOUSEHOLD ||--o{ MEMBER : has
+    HOUSEHOLD ||--o{ EXPENSE : has
+    HOUSEHOLD ||--o{ SETTLEMENT : has
+    HOUSEHOLD ||--o{ CHORE : has
+    EXPENSE ||--|{ EXPENSE_SHARE : "split into"
+    MEMBER ||--o{ EXPENSE : pays
+    MEMBER ||--o{ EXPENSE_SHARE : owes
+    MEMBER ||--o{ SETTLEMENT : "sends / receives"
+    CHORE ||--o{ CHORE_ASSIGNMENT : "scheduled as"
+    MEMBER ||--o{ CHORE_ASSIGNMENT : completes
 
     HOUSEHOLD { int id string name string currency }
     MEMBER { int id string name }
@@ -172,48 +171,48 @@ erDiagram
     CHORE_ASSIGNMENT { int id date week_start int effort datetime completed_at }
 ```
 
-| Service | Use Cases | Wichtige Regeln |
+| Service | Use cases | Key rules |
 |---|---|---|
-| `HouseholdService` | UC-001 | Namen 1–80 Zeichen, eindeutig ohne Gross-/Kleinschreibung |
-| `ExpenseService` | UC-002 | Zahler und Beteiligte müssen Mitglieder sein; Summe der Anteile = Betrag |
-| `SettlementService` | UC-003 | Salden summieren sich zu 0; Zahlung ≤ offene Schuld |
-| `ChoreService` | UC-004 | Aufwand 1–5; jede Woche nur einmal planbar; Aufwand als Snapshot |
+| `HouseholdService` | UC-001 | Names 1–80 characters, unique (case-insensitive) |
+| `ExpenseService` | UC-002 | Payer and participants must be members; sum of shares = amount |
+| `SettlementService` | UC-003 | Balances sum to 0; payment ≤ outstanding debt |
+| `ChoreService` | UC-004 | Effort 1–5; each week can be planned only once; effort stored as a snapshot |
 
-Fehler-Mapping an der HTTP-Grenze: `ValidationError` → 400, `NotFoundError` → 404,
-`ConflictError` → 409. Die Domäne kennt keine HTTP-Codes.
+Error mapping at the HTTP boundary: `ValidationError` → 400, `NotFoundError` → 404,
+`ConflictError` → 409. The domain knows nothing about HTTP status codes.
 
 ---
 
-## 4. AI-assisted Development
+## 4. AI-assisted development
 
-Wir haben das Projekt aus dem
-[AI-SDLC-Template](https://github.com/AIaSDev/ai-sdlc-template) gestartet und
-jeden Use Case durch dieselben Phasen geführt:
+We started the project from the
+[AI-SDLC template](https://github.com/AIaSDev/ai-sdlc-template) and took
+every use case through the same phases:
 
 ```mermaid
 flowchart LR
-    S["1 SPECIFY<br/>docs/specs/UC-*.md"] --> D["2 DESIGN<br/>Layer-Tabelle + ADR"]
+    S["1 SPECIFY<br/>docs/specs/UC-*.md"] --> D["2 DESIGN<br/>Layer table + ADR"]
     D --> T["3 DEVELOP<br/>test … (red) → feat … (green)"]
     T --> V["4 VALIDATE<br/>CI · Docker · E2E"]
     V --> P["5 DEPLOY<br/>Release → Render"]
-    V -. nächster UC .-> S
+    V -. next UC .-> S
 ```
 
-| Artefakt | Zweck |
+| Artifact | Purpose |
 |---|---|
-| [`AGENTS.md`](AGENTS.md) | Router für alle Agents: Phasen → Skills, Regeln, **projektspezifische Regeln mit ADR-Links** |
-| `CLAUDE.md` → `@AGENTS.md`, `.github/copilot-instructions.md` | Ein Regelwerk für Claude Code **und** Copilot |
-| [`skills/ai-sdlc-*`](skills) (verlinkt in `.claude/skills`, `.agents/skills`) | Phasen-Anleitungen, die der Agent selbst lädt |
-| [`docs/TASKS.md`](docs/TASKS.md) | Aktueller Zustand + **Log jeder Phase pro Use Case** |
-| [`docs/specs/`](docs/specs) | Ausführbare Spezifikationen; Akzeptanzkriterien AC1…ACn = Integrationstests |
-| [`docs/adr/`](docs/adr) | Von Menschen entschiedene Architekturfragen |
-| [`docs/AI-LOG.md`](docs/AI-LOG.md) | Auftrag an den Agent → Ergebnis → **was wir korrigieren mussten** |
-| `.claude/settings.json` | Hook: Agent-Edits werden sofort mit ruff formatiert und geprüft |
+| [`AGENTS.md`](AGENTS.md) | Router for all agents: phases → skills, rules, **project-specific rules with ADR links** |
+| `CLAUDE.md` → `@AGENTS.md`, `.github/copilot-instructions.md` | One rule set for Claude Code **and** Copilot |
+| [`skills/ai-sdlc-*`](skills) (linked in `.claude/skills`, `.agents/skills`) | Phase instructions that the agent loads by itself |
+| [`docs/TASKS.md`](docs/TASKS.md) | Current state + **log of every phase per use case** |
+| [`docs/specs/`](docs/specs) | Executable specifications; acceptance criteria AC1…ACn = integration tests |
+| [`docs/adr/`](docs/adr) | Architecture questions decided by humans |
+| [`docs/AI-LOG.md`](docs/AI-LOG.md) | Request to the agent → result → **what we had to correct** |
+| `.claude/settings.json` | Hook: agent edits are immediately formatted and checked with ruff |
 
-**Leitplanken statt Vertrauen.** Agent-Code wird erst gemergt, wenn ruff,
-`mypy --strict`, import-linter, `alembic check`, der 90-%-Coverage-Gate und
-E2E gegen PostgreSQL grün sind. Jeder Use Case ist ein eigener Pull Request,
-dessen Commit-Historie den TDD-Zyklus zeigt:
+**Guardrails instead of trust.** Agent code is only merged once ruff,
+`mypy --strict`, import-linter, `alembic check`, the 90 % coverage gate and
+E2E against PostgreSQL are green. Each use case is its own pull request whose
+commit history shows the TDD cycle:
 
 ```text
 docs(uc-003): specify settle-up and record ADR-007 greedy algorithm
@@ -223,22 +222,22 @@ build(uc-003): add migration for settlements
 docs(uc-003): record develop phase
 ```
 
-**Wo der Agent danebenlag** (Auszug aus dem [AI-LOG](docs/AI-LOG.md)):
-CI rot wegen eines nicht versionierten leeren Testordners; eine sinnlose
-Assertion in einem generierten Test; die Annahme, Beträge über die API als
-CHF-Dezimalzahl zu übertragen. Daraus wurde der präzisierte ADR-004.
+**Where the agent got it wrong** (excerpt from the [AI-LOG](docs/AI-LOG.md)):
+CI red because of an empty test folder that was not under version control; a
+meaningless assertion in a generated test; the assumption that amounts are
+sent over the API as CHF decimals. This led to the refined ADR-004.
 
 ---
 
-## 5. Tests und Qualität
+## 5. Tests and quality
 
-| Ebene | Anzahl | Was | Wie |
+| Level | Count | What | How |
 |---|---|---|---|
-| Unit | 131 | Domain-Regeln, Algorithmen (inkl. Property-Tests mit festen Seeds), Use Cases mit In-Memory-Repositories, Architekturverträge | `pytest tests/unit` |
-| Integration | 39 | Jedes Akzeptanzkriterium über HTTP + echte DB (SQLite in-memory) | `pytest tests/integration` |
-| E2E | 3 | Komplette Journey gegen den **laufenden Docker-Container mit PostgreSQL** | `BASE_URL=… pytest tests/e2e` |
+| Unit | 131 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts | `pytest tests/unit` |
+| Integration | 39 | Every acceptance criterion via HTTP + real DB (SQLite in-memory) | `pytest tests/integration` |
+| E2E | 3 | Complete journey against the **running Docker container with PostgreSQL** | `BASE_URL=… pytest tests/e2e` |
 
-Coverage: **99 %** (Gate 90 %). Statische Prüfungen: `ruff`, `mypy --strict`,
+Coverage: **99 %** (gate 90 %). Static checks: `ruff`, `mypy --strict`,
 `lint-imports`, `alembic check`.
 
 ```bash
@@ -248,77 +247,77 @@ pytest tests/unit tests/integration --cov
 
 ---
 
-## 6. CI, Release und Deployment
+## 6. CI, release and deployment
 
 ```mermaid
 flowchart LR
     PR["Pull Request"] --> CI
-    subgraph CI["ci.yml (jeder Push / PR)"]
+    subgraph CI["ci.yml (every push / PR)"]
         st[structure] 
         q["quality<br/>ruff · mypy · import-linter · alembic check"]
         t["test<br/>unit + integration + coverage"]
-        e["e2e<br/>Docker-Image + PostgreSQL 16"]
+        e["e2e<br/>Docker image + PostgreSQL 16"]
         q --> e
         t --> e
     end
     CI --> M["merge → main"]
     M --> Tag["git tag vX.Y.Z"]
     Tag --> R["release.yml<br/>Tests → Image → E2E → GHCR → GitHub Release"]
-    R --> CD["cd.yml (manuell)<br/>Render-Deploy-Hook mit Image-Tag → Smoke-Test"]
+    R --> CD["cd.yml (manual)<br/>Render deploy hook with image tag → smoke test"]
     CD --> Render[("Render Web Service<br/>+ Render PostgreSQL")]
 ```
 
 - **Release:** `git tag v1.0.0 && git push origin v1.0.0` → `ghcr.io/jasin-jusufi/fairshare:v1.0.0`
-- **Deployment:** *Actions → CD → Run workflow* mit Image-Tag. Der Container führt beim Start `alembic upgrade head` aus.
+- **Deployment:** *Actions → CD → Run workflow* with an image tag. On startup the container runs `alembic upgrade head`.
 
-### Render einrichten (einmalig)
+### Setting up Render (one-time)
 
-1. Render: **PostgreSQL** anlegen, *Internal Database URL* kopieren.
+1. Render: create a **PostgreSQL** database, copy the *Internal Database URL*.
 2. Render: **Web Service → Existing Image** `ghcr.io/jasin-jusufi/fairshare:latest`
-   (bei privatem Paket eine GHCR-Credential hinterlegen), Env `DATABASE_URL` = URL aus 1,
+   (for a private package, add a GHCR credential), env `DATABASE_URL` = URL from step 1,
    Health Check Path `/health`.
-3. Render: *Settings → Deploy Hook* kopieren.
-4. GitHub: Environment `production` mit Secret `RENDER_DEPLOY_HOOK_URL`,
-   Variablen `APP_URL` (z. B. `https://fairshare.onrender.com`) und `CD_ENABLED=true`.
+3. Render: copy *Settings → Deploy Hook*.
+4. GitHub: environment `production` with secret `RENDER_DEPLOY_HOOK_URL`,
+   variables `APP_URL` (e.g. `https://fairshare.onrender.com`) and `CD_ENABLED=true`.
 
 ---
 
-## 7. Lokal starten
+## 7. Running locally
 
 ```bash
-bash scripts/setup-python.sh          # .venv + Abhängigkeiten
+bash scripts/setup-python.sh          # .venv + dependencies
 source .venv/bin/activate
 PYTHONPATH=src uvicorn app.main:app --reload
 ```
 
 - UI: <http://localhost:8000/ui/>
-- API-Referenz: <http://localhost:8000/docs> (eigene Seite, live aus OpenAPI generiert, mit „Ausprobieren“)
+- API reference: <http://localhost:8000/docs> (custom page, generated live from OpenAPI, with "Try it")
 - Swagger UI: <http://localhost:8000/swagger>
 - Health: <http://localhost:8000/health>
 
-Mit Docker:
+With Docker:
 
 ```bash
 docker build -t fairshare .
-docker run -p 8000:8000 fairshare                                   # SQLite im Container
+docker run -p 8000:8000 fairshare                                   # SQLite inside the container
 docker run -p 8000:8000 -e DATABASE_URL=postgresql://u:p@host/db fairshare
 ```
 
-Konfiguration nur über Umgebungsvariablen: `DATABASE_URL` (Default
-`sqlite:///./fairshare.db`), `PORT` (Container, Default 8000). Keine Secrets im Repo.
+Configuration via environment variables only: `DATABASE_URL` (default
+`sqlite:///./fairshare.db`), `PORT` (container, default 8000). No secrets in the repo.
 
-### Agent-Setup
+### Agent setup
 
 ```bash
-bash scripts/setup-skills.sh claude    # oder: copilot, all
+bash scripts/setup-skills.sh claude    # or: copilot, all
 ```
 
-Danach z. B. in Claude Code: *„Execute phase 1 of AI-SDLC: …“* – siehe
+Then, for example in Claude Code: *"Execute phase 1 of AI-SDLC: …"* – see
 [`AGENTS.md`](AGENTS.md).
 
 ---
 
-## 8. Projektstruktur
+## 8. Project structure
 
 ```text
 src/app/
@@ -329,13 +328,13 @@ src/app/
 └── main.py
 tests/{unit,integration,e2e}
 migrations/            Alembic
-docs/{specs,adr}       Spezifikationen, Entscheide
+docs/{specs,adr}       Specifications, decisions
 docs/{TASKS,PROJECT,AI-LOG}.md
-skills/                AI-SDLC-Phasen (Template)
+skills/                AI-SDLC phases (template)
 .github/workflows/     ci · release · cd
 ```
 
 ---
 
-Methode: *The AI-SDLC Template and Method* (Martin & Schwander, 2026), siehe
+Method: *The AI-SDLC Template and Method* (Martin & Schwander, 2026), see
 [`CITATION.cff`](CITATION.cff).
