@@ -16,3 +16,12 @@ def client() -> Iterator[TestClient]:
 @pytest.fixture
 def household(client: TestClient) -> dict:
     return client.post("/households", json={"name": "WG Basel"}).json()
+
+
+@pytest.fixture
+def members(client: TestClient, household: dict) -> dict[str, int]:
+    ids = {}
+    for name in ("Lea", "Noah", "Mia"):
+        r = client.post(f"/households/{household['id']}/members", json={"name": name})
+        ids[name] = r.json()["id"]
+    return ids
