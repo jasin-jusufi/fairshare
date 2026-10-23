@@ -3,19 +3,24 @@ name: CD
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: Deployment environment
+      tag:
+        description: Image tag to deploy (e.g. v0.1.0 or latest)
         required: true
-        default: production
-  workflow_call:
+        default: latest
 
 permissions:
   contents: read
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 jobs:
-  preflight:
+  deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment || 'production' }}
+    environment:
+      name: production
+      url: ${{ vars.APP_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,27 +28,19 @@ jobs:
       - name: Check deployment configuration
         env:
           CD_ENABLED: ${{ vars.CD_ENABLED }}
-        shell: bash
         run: |
-          set -euo pipefail
           if [ "$CD_ENABLED" != "true" ]; then
-            echo "CD template is present but inactive. Set CD_ENABLED=true after adding the project deployment and smoke-test commands."
-            exit 0
+            echo "::error::Set repository variable CD_ENABLED=true after configuring Render (see README)."
+            exit 1
           fi
-          test -x scripts/deploy.sh
-          test -x scripts/smoke-test.sh
 
-  deploy:
-    if: vars.CD_ENABLED == 'true'
-    needs: preflight
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment || 'production' }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Deploy validated artifact
+      - name: Deploy image to Render
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          IMAGE: ghcr.io/${{ github.repository }}:${{ inputs.tag }}
         run: ./scripts/deploy.sh
 
-      - name: Run post-deployment smoke test
+      - name: Post-deployment smoke test
+        env:
+          APP_URL: ${{ vars.APP_URL }}
         run: ./scripts/smoke-test.sh

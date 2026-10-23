@@ -85,5 +85,62 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
 
-      - name: Unit and integration tests
-        run: pytest tests/unit tests/integration
+      - name: Unit and integration tests with coverage gate
+        run: pytest tests/unit tests/integration --cov --cov-report=term --cov-report=xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+
+  e2e:
+    needs: [quality, test]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fairshare
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install test dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Build Docker image
+        run: docker build -t fairshare:ci .
+
+      - name: Run container against PostgreSQL
+        run: |
+          docker run -d --name fairshare-e2e --network host \
+            -e PORT=8001 \
+            -e DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/fairshare \
+            fairshare:ci
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8001/health && exit 0
+            sleep 1
+          done
+          docker logs fairshare-e2e
+          exit 1
+
+      - name: E2E tests against container
+        env:
+          BASE_URL: http://127.0.0.1:8001
+        run: pytest tests/e2e
+
+      - name: Container logs
+        if: always()
+        run: docker logs fairshare-e2e || true
