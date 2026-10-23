@@ -1,7 +1,6 @@
 from copy import deepcopy
 
 from app.domain.expense import Expense
-
 from app.domain.household import Household
 
 

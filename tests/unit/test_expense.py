@@ -1,7 +1,7 @@
 import pytest
-from app.domain.expense import Expense, ExpenseShare, SplitMethod
 
 from app.domain.errors import ValidationError
+from app.domain.expense import Expense, ExpenseShare, SplitMethod
 
 
 def make(**overrides: object) -> Expense:

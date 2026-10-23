@@ -1,9 +1,9 @@
 import pytest
-from app.application.expense_service import ExpenseService, Participant
-from app.domain.expense import SplitMethod
 
 from app.application.errors import NotFoundError
+from app.application.expense_service import ExpenseService, Participant
 from app.domain.errors import UnknownMemberError
+from app.domain.expense import SplitMethod
 from app.domain.household import Household
 
 from .fakes import InMemoryExpenseRepository, InMemoryHouseholdRepository

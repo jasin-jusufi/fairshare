@@ -1,7 +1,7 @@
 import pytest
-from app.domain.expense import SplitMethod, split_amount
 
 from app.domain.errors import ValidationError
+from app.domain.expense import SplitMethod, split_amount
 
 
 def amounts(shares: list) -> list[int]:
