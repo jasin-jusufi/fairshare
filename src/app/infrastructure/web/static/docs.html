@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FairShare API – Referenz</title>
+  <title>FairShare API – Reference</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -221,28 +221,28 @@
   </style>
 </head>
 <body>
-<button class="menu" id="menu" aria-label="Navigation öffnen"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+<button class="menu" id="menu" aria-label="Open navigation"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
 
 <aside class="sidebar" id="sidebar">
   <div class="workspace">
     <div class="orb"></div>
-    <div><b>FairShare API</b><span id="version">Referenz</span></div>
+    <div><b>FairShare API</b><span id="version">Reference</span></div>
   </div>
   <label class="search">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-    <input id="search" placeholder="Endpunkte suchen…" aria-label="Endpunkte suchen">
+    <input id="search" placeholder="Search endpoints…" aria-label="Search endpoints">
     <kbd>/</kbd>
   </label>
   <nav class="toc" id="toc">
-    <h6>Erste Schritte</h6>
-    <a href="#einfuehrung"><span class="emoji">👋</span>Einführung</a>
-    <a href="#grundlagen"><span class="emoji">🧭</span>Grundlagen</a>
-    <a href="#fehler"><span class="emoji">🚦</span>Fehler</a>
-    <a href="#schnellstart"><span class="emoji">⚡</span>Schnellstart</a>
+    <h6>Getting started</h6>
+    <a href="#introduction"><span class="emoji">👋</span>Introduction</a>
+    <a href="#basics"><span class="emoji">🧭</span>Basics</a>
+    <a href="#errors"><span class="emoji">🚦</span>Errors</a>
+    <a href="#quickstart"><span class="emoji">⚡</span>Quickstart</a>
     <div id="toc-endpoints"></div>
   </nav>
   <footer>
-    <a href="/ui/"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Zur App</a>
+    <a href="/ui/"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Open the app</a>
     <a href="/swagger"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Swagger UI</a>
     <a href="/openapi.json" download="fairshare-openapi.json"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>openapi.json</a>
   </footer>
@@ -253,57 +253,57 @@
     <div class="cover"></div>
     <div class="page-icon"></div>
     <article class="doc">
-      <h1 id="einfuehrung">FairShare API</h1>
-      <p class="lead">REST-API für WG-Finanzen und Ämtli: Ausgaben fair aufteilen, mit möglichst wenigen Überweisungen abrechnen und Hausarbeit nach Aufwand verteilen.</p>
+      <h1 id="introduction">FairShare API</h1>
+      <p class="lead">REST API for shared-flat finances and chores: split expenses fairly, settle up with as few transfers as possible and share housework by effort.</p>
 
       <div class="props">
         <div class="k"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>Version</div>
         <div><span class="tag peach" id="prop-version">–</span></div>
-        <div class="k"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>Basis-URL</div>
+        <div class="k"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>Base URL</div>
         <div><code id="prop-base">–</code></div>
         <div class="k"><svg viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Format</div>
         <div><span class="tag lilac">JSON</span><span class="tag lilac">OpenAPI 3.1</span></div>
-        <div class="k"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Authentifizierung</div>
-        <div><span class="tag">keine (Demo)</span></div>
-        <div class="k"><svg viewBox="0 0 24 24"><path d="M4 12h4l3 7 4-14 3 7h2"/></svg>Endpunkte</div>
+        <div class="k"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Authentication</div>
+        <div><span class="tag">none (demo)</span></div>
+        <div class="k"><svg viewBox="0 0 24 24"><path d="M4 12h4l3 7 4-14 3 7h2"/></svg>Endpoints</div>
         <div><span class="tag green" id="prop-count">–</span></div>
-        <div class="k"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg>Architektur</div>
+        <div class="k"><svg viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/></svg>Architecture</div>
         <div><span class="tag pink">Clean Architecture</span><span class="tag pink">ADR-001…007</span></div>
       </div>
 
       <div class="callout">
         <div class="icon">💡</div>
-        <div><b>Diese Seite schreibt sich selbst.</b> Sie wird beim Laden aus <code>/openapi.json</code> erzeugt. Diese Datei entsteht direkt aus den FastAPI-Routern und Pydantic-Schemas. Code und Doku können also nicht auseinanderlaufen.</div>
+        <div><b>This page writes itself.</b> It is generated on load from <code>/openapi.json</code>, which FastAPI builds directly from the routers and Pydantic schemas. Code and docs cannot drift apart.</div>
       </div>
 
-      <h2 id="grundlagen"><span class="emoji">🧭</span>Grundlagen</h2>
-      <p>Alles hängt an einem <b>Haushalt</b>. Mitglieder, Ausgaben, Zahlungen und Ämtli sind über <code>/households/{household_id}/…</code> erreichbar.</p>
+      <h2 id="basics"><span class="emoji">🧭</span>Basics</h2>
+      <p>Everything belongs to a <b>household</b>. Members, expenses, settlements and chores live under <code>/households/{household_id}/…</code>.</p>
       <div class="cards" id="resource-cards"></div>
       <div class="callout green">
         <div class="icon">🪙</div>
-        <div><b>Geld ist immer in Rappen.</b> <code>amount_cents: 9000</code> entspricht CHF 90.00. Es gibt keine Fliesskommazahlen. Beim Aufteilen gehen übrige Rappen an die Beteiligten mit dem grössten Bruchteil, die Summe stimmt also immer exakt (ADR-004).</div>
+        <div><b>Money is always in cents.</b> <code>amount_cents: 9000</code> means CHF 90.00. There are no floating-point amounts. When splitting, leftover cents go to the participants with the largest fractional part, so the total always adds up exactly (ADR-004).</div>
       </div>
 
-      <h2 id="fehler"><span class="emoji">🚦</span>Fehler</h2>
-      <p>Fehler haben immer dieselbe Form. Die Domäne kennt keine HTTP-Codes; die Übersetzung passiert ausschliesslich an der API-Grenze.</p>
+      <h2 id="errors"><span class="emoji">🚦</span>Errors</h2>
+      <p>Errors always have the same shape. The domain knows nothing about HTTP status codes; the mapping happens only at the API boundary.</p>
       <div class="table-wrap"><table>
-        <thead><tr><th>Status</th><th>Bedeutung</th><th>Beispiel</th></tr></thead>
+        <thead><tr><th>Status</th><th>Meaning</th><th>Example</th></tr></thead>
         <tbody>
-          <tr><td><span class="status s4">400</span></td><td>Verletzte Geschäftsregel</td><td>Prozente ergeben nicht 100, Zahlung übersteigt Schuld</td></tr>
-          <tr><td><span class="status s4">404</span></td><td>Ressource existiert nicht</td><td>Unbekannte Haushalt- oder Ausgaben-ID</td></tr>
-          <tr><td><span class="status s4">409</span></td><td>Konflikt mit aktuellem Zustand</td><td>Mitglied „Lea“ existiert schon, Woche schon geplant</td></tr>
-          <tr><td><span class="status s4">422</span></td><td>Ungültiges JSON-Format</td><td>Pflichtfeld fehlt, falscher Datentyp</td></tr>
+          <tr><td><span class="status s4">400</span></td><td>Business rule violated</td><td>Percentages do not add up to 100, payment exceeds the debt</td></tr>
+          <tr><td><span class="status s4">404</span></td><td>Resource does not exist</td><td>Unknown household or expense ID</td></tr>
+          <tr><td><span class="status s4">409</span></td><td>Conflicts with the current state</td><td>Member “Lea” already exists, week already planned</td></tr>
+          <tr><td><span class="status s4">422</span></td><td>Invalid request format</td><td>Missing required field, wrong data type</td></tr>
         </tbody>
       </table></div>
       <div id="error-example"></div>
 
-      <h2 id="schnellstart"><span class="emoji">⚡</span>Schnellstart</h2>
-      <p>In vier Aufrufen von der leeren WG zum Ausgleichsvorschlag:</p>
+      <h2 id="quickstart"><span class="emoji">⚡</span>Quickstart</h2>
+      <p>Four calls from an empty flat to a settle-up suggestion:</p>
       <ol id="quickstart"></ol>
 
       <div id="endpoints"></div>
 
-      <div class="page-footer"><div class="orb" style="width:22px;height:22px"></div>FairShare · FHNW AI-assisted Software Development 26H2 · generiert aus OpenAPI</div>
+      <div class="page-footer"><div class="orb" style="width:22px;height:22px"></div>FairShare · FHNW AI-assisted Software Development 26H2 · generated from OpenAPI</div>
     </article>
   </div>
 </main>
@@ -311,7 +311,7 @@
 <script>
 const $ = (id) => document.getElementById(id);
 const BASE = location.origin;
-const TAG_EMOJI = { Haushalte: "🏠", Ausgaben: "🧾", Abrechnen: "⚖️", "Ämtli": "🧹", Betrieb: "🩺" };
+const TAG_EMOJI = { Households: "🏠", Expenses: "🧾", "Settle-up": "⚖️", Chores: "🧹", Operations: "🩺" };
 const slug = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 function icon(paths, className = "") {
@@ -360,11 +360,11 @@ function highlightCurl(cmd) {
 
 function codeBlock(label, text, kind) {
   const pre = h("pre", { html: kind === "json" ? highlightJson(text) : kind === "curl" ? highlightCurl(text) : esc(text) });
-  const copy = h("button", { class: "copy", type: "button" }, "Kopieren");
+  const copy = h("button", { class: "copy", type: "button" }, "Copy");
   copy.addEventListener("click", async () => {
     await navigator.clipboard?.writeText(text).catch(() => {});
-    copy.textContent = "Kopiert ✓";
-    setTimeout(() => (copy.textContent = "Kopieren"), 1400);
+    copy.textContent = "Copied ✓";
+    setTimeout(() => (copy.textContent = "Copy"), 1400);
   });
   return h("div", { class: "code" }, h("header", {}, h("span", {}, label), copy), pre);
 }
@@ -418,9 +418,9 @@ function schemaRows(raw, depth = 0) {
     const enumTarget = inner.$ref ? resolve(inner) : null;
     const desc = h("td", { html: markdown(prop.description ?? enumTarget?.description ?? "") || '<span class="muted">—</span>' });
     if (enumTarget?.enum) desc.append(h("div", { class: "enum" }, enumTarget.enum.map((v) => h("code", {}, v))));
-    if (prop.default !== undefined && !inner.$ref) desc.append(h("div", { class: "muted", style: "font-size:13px" }, "Standard: ", h("code", {}, JSON.stringify(prop.default))));
+    if (prop.default !== undefined && !inner.$ref) desc.append(h("div", { class: "muted", style: "font-size:13px" }, "Default: ", h("code", {}, JSON.stringify(prop.default))));
     rows.push(h("tr", { class: depth ? "nested" : "" },
-      h("td", {}, h("span", { class: "field", style: `padding-left:${depth * 18}px` }, name), required.has(name) ? h("span", { class: "req" }, "Pflicht") : null),
+      h("td", {}, h("span", { class: "field", style: `padding-left:${depth * 18}px` }, name), required.has(name) ? h("span", { class: "req" }, "Required") : null),
       h("td", {}, h("span", { class: "type" }, typeLabel(prop))),
       desc));
     const child = inner.type === "array" ? inner.items : inner;
@@ -432,9 +432,9 @@ function schemaRows(raw, depth = 0) {
 
 function schemaTable(raw) {
   const rows = schemaRows(raw);
-  if (!rows.length) return h("p", { class: "muted" }, "Kein strukturierter Inhalt.");
+  if (!rows.length) return h("p", { class: "muted" }, "No structured content.");
   return h("div", { class: "table-wrap" }, h("table", {},
-    h("thead", {}, h("tr", {}, h("th", {}, "Feld"), h("th", {}, "Typ"), h("th", {}, "Beschreibung"))),
+    h("thead", {}, h("tr", {}, h("th", {}, "Field"), h("th", {}, "Type"), h("th", {}, "Description"))),
     h("tbody", {}, rows)));
 }
 
@@ -471,48 +471,48 @@ function endpointBlock(path, method, op) {
     h("div", { class: "route" },
       h("span", { class: `method ${method}` }, method.toUpperCase()),
       h("span", { class: "path", html: pathHtml(path) }),
-      h("a", { class: "anchor", href: `#${id}`, title: "Link zu diesem Abschnitt" }, "#")),
+      h("a", { class: "anchor", href: `#${id}`, title: "Link to this section" }, "#")),
     h("h3", {}, op.summary ?? op.operationId),
     h("div", { class: "desc", html: markdown(op.description) }));
 
   if (params.length) {
-    block.append(toggle("Pfad-Parameter", params.length, h("div", { class: "table-wrap" }, h("table", {},
-      h("thead", {}, h("tr", {}, h("th", {}, "Name"), h("th", {}, "Typ"), h("th", {}, "Beschreibung"))),
+    block.append(toggle("Path parameters", params.length, h("div", { class: "table-wrap" }, h("table", {},
+      h("thead", {}, h("tr", {}, h("th", {}, "Name"), h("th", {}, "Type"), h("th", {}, "Description"))),
       h("tbody", {}, params.map((p) => h("tr", {},
-        h("td", {}, h("span", { class: "field" }, p.name), h("span", { class: "req" }, "Pflicht")),
+        h("td", {}, h("span", { class: "field" }, p.name), h("span", { class: "req" }, "Required")),
         h("td", {}, h("span", { class: "type" }, typeLabel(p.schema))),
-        h("td", { class: "muted" }, p.name === "week_start" ? "Beliebiges Datum der Woche (YYYY-MM-DD)" : "Numerische ID"))))))));
+        h("td", { class: "muted" }, p.name === "week_start" ? "Any date in the week (YYYY-MM-DD)" : "Numeric ID"))))))));
   }
   if (bodySchema) {
-    block.append(toggle("Request-Body", refName(bodySchema), [schemaTable(bodySchema), codeBlock("Beispiel", JSON.stringify(bodyExample, null, 2), "json")], true));
+    block.append(toggle("Request body", refName(bodySchema), [schemaTable(bodySchema), codeBlock("Example", JSON.stringify(bodyExample, null, 2), "json")], true));
   }
 
   const responses = Object.entries(op.responses ?? {});
-  block.append(toggle("Antworten", responses.length, responses.map(([status, response]) => {
+  block.append(toggle("Responses", responses.length, responses.map(([status, response]) => {
     const schema = response.content?.["application/json"]?.schema;
     const meaningful = schema && (schema.$ref || schema.type === "array" || Object.keys(schema.properties ?? {}).length);
     const body = [h("p", { class: "muted", style: "margin:2px 0 6px" }, response.description ?? "")];
-    if (meaningful && status !== "422") body.push(codeBlock(`Beispiel ${status}`, JSON.stringify(example(schema), null, 2), "json"));
+    if (meaningful && status !== "422") body.push(codeBlock(`Example ${status}`, JSON.stringify(example(schema), null, 2), "json"));
     return toggle(h("span", { class: `status s${status[0]}` }, status), null, body, status.startsWith("2"));
   })));
 
   block.append(toggle("curl", null, codeBlock("Terminal", curlFor(method, path, bodyExample), "curl")));
-  block.append(toggle("Ausprobieren", null, tryPanel(path, method, params, bodyExample)));
+  block.append(toggle("Try it", null, tryPanel(path, method, params, bodyExample)));
   return block;
 }
 
 function tryPanel(path, method, params, bodyExample) {
   const inputs = Object.fromEntries(params.map((p) => [p.name, h("input", { value: p.name === "week_start" ? "2026-10-26" : "1", "aria-label": p.name })]));
-  const textarea = bodyExample !== undefined ? h("textarea", { spellcheck: "false", "aria-label": "Request-Body" }) : null;
+  const textarea = bodyExample !== undefined ? h("textarea", { spellcheck: "false", "aria-label": "Request body" }) : null;
   if (textarea) textarea.value = JSON.stringify(bodyExample, null, 2);
   const out = h("div");
   const send = h("button", { class: "btn", type: "button" },
-    icon('<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/>'), "Senden");
+    icon('<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/>'), "Send");
   send.addEventListener("click", async () => {
     const values = Object.fromEntries(Object.entries(inputs).map(([k, el]) => [k, el.value]));
     const url = concretePath(path, values);
     const started = performance.now();
-    out.replaceChildren(h("p", { class: "muted" }, "Sende …"));
+    out.replaceChildren(h("p", { class: "muted" }, "Sending …"));
     try {
       const res = await fetch(url, {
         method: method.toUpperCase(),
@@ -524,15 +524,15 @@ function tryPanel(path, method, params, bodyExample) {
       try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch { /* not JSON */ }
       out.replaceChildren(
         h("div", { class: "result-meta" }, h("span", { class: `status s${String(res.status)[0]}` }, res.status), `${Math.round(performance.now() - started)} ms`, h("code", {}, `${method.toUpperCase()} ${url}`)),
-        pretty ? codeBlock("Antwort", pretty, "json") : h("p", { class: "muted" }, "Kein Inhalt (204)."));
+        pretty ? codeBlock("Response", pretty, "json") : h("p", { class: "muted" }, "No content (204)."));
     } catch (error) {
-      out.replaceChildren(h("p", { class: "muted" }, `Fehler: ${error.message}`));
+      out.replaceChildren(h("p", { class: "muted" }, `Error: ${error.message}`));
     }
   });
   return h("div", { class: "try" },
     params.length ? h("div", { class: "row" }, params.map((p) => h("label", {}, p.name, inputs[p.name]))) : null,
     textarea,
-    h("div", { class: "row", style: "margin:12px 0 0" }, send, h("span", { class: "muted", style: "font-size:13px" }, "Ruft die echte API auf diesem Server auf.")),
+    h("div", { class: "row", style: "margin:12px 0 0" }, send, h("span", { class: "muted", style: "font-size:13px" }, "Calls the real API on this server.")),
     out);
 }
 
@@ -547,20 +547,20 @@ function render() {
     for (const [method, op] of Object.entries(ops)) byTag.get(op.tags?.[0])?.ops.push({ path, method, op });
   }
   const total = [...byTag.values()].reduce((sum, t) => sum + t.ops.length, 0);
-  $("prop-count").textContent = `${total} Endpunkte`;
+  $("prop-count").textContent = `${total} endpoints`;
 
   $("resource-cards").replaceChildren(...[...byTag.values()].map((t) =>
     h("a", { class: "mini", href: `#${slug(t.name)}` }, h("div", { class: "emoji" }, TAG_EMOJI[t.name] ?? "📄"),
-      h("b", {}, t.name), h("span", {}, `${t.ops.length} Endpunkt${t.ops.length === 1 ? "" : "e"}`))));
+      h("b", {}, t.name), h("span", {}, `${t.ops.length} endpoint${t.ops.length === 1 ? "" : "s"}`))));
 
-  $("error-example").replaceChildren(codeBlock("Fehler-Antwort", JSON.stringify({ detail: "Percentages must sum to 100" }, null, 2), "json"));
+  $("error-example").replaceChildren(codeBlock("Error response", JSON.stringify({ detail: "Percentages must sum to 100" }, null, 2), "json"));
 
   const steps = [
-    ["Haushalt anlegen", "POST", "/households", { name: "WG Basel" }],
-    ["Mitglieder hinzufügen (für Lea, Noah, Mia wiederholen)", "POST", "/households/1/members", { name: "Lea" }],
-    ["Ausgabe erfassen: Lea zahlt CHF 90 für alle", "POST", "/households/1/expenses",
-      { payer_id: 1, description: "Migros", amount_cents: 9000, method: "equal", participants: [{ member_id: 1 }, { member_id: 2 }, { member_id: 3 }] }],
-    ["Ausgleich abfragen → Noah und Mia überweisen je CHF 30 an Lea", "GET", "/households/1/settle-up"],
+    ["Create a household", "POST", "/households", { name: "Flat Basel" }],
+    ["Add members (repeat for Lea, Noah, Mia)", "POST", "/households/1/members", { name: "Lea" }],
+    ["Record an expense: Lea pays CHF 90 for everyone", "POST", "/households/1/expenses",
+      { payer_id: 1, description: "Groceries", amount_cents: 9000, method: "equal", participants: [{ member_id: 1 }, { member_id: 2 }, { member_id: 3 }] }],
+    ["Get the settle-up → Noah and Mia each transfer CHF 30 to Lea", "GET", "/households/1/settle-up"],
   ];
   $("quickstart").replaceChildren(...steps.map(([title, method, path, body]) =>
     h("li", {}, title, codeBlock(`${method} ${path}`, curlFor(method.toLowerCase(), path, body), "curl"))));
@@ -616,7 +616,7 @@ $("menu").addEventListener("click", () => document.body.classList.toggle("nav-op
 $("toc").addEventListener("click", (event) => { if (event.target.closest("a")) document.body.classList.remove("nav-open"); });
 
 fetch("/openapi.json").then((r) => r.json()).then((json) => { spec = json; render(); })
-  .catch((error) => $("endpoints").replaceChildren(h("div", { class: "callout" }, h("div", { class: "icon" }, "⚠️"), `OpenAPI konnte nicht geladen werden: ${error.message}`)));
+  .catch((error) => $("endpoints").replaceChildren(h("div", { class: "callout" }, h("div", { class: "icon" }, "⚠️"), `Could not load OpenAPI: ${error.message}`)));
 </script>
 </body>
 </html>

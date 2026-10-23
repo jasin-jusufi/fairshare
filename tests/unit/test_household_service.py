@@ -13,20 +13,20 @@ def service() -> HouseholdService:
 
 
 def test_create_household_assigns_id(service: HouseholdService) -> None:
-    household = service.create_household("WG Basel")
+    household = service.create_household("Flat Basel")
     assert household.id == 1
-    assert service.get_household(1).name == "WG Basel"
+    assert service.get_household(1).name == "Flat Basel"
 
 
 def test_add_member_persists_member(service: HouseholdService) -> None:
-    household = service.create_household("WG")
+    household = service.create_household("Flat")
     member = service.add_member(household.id or 0, "Lea")
     assert member.id is not None
     assert [m.name for m in service.get_household(household.id or 0).members] == ["Lea"]
 
 
 def test_add_duplicate_member_is_rejected(service: HouseholdService) -> None:
-    household = service.create_household("WG")
+    household = service.create_household("Flat")
     service.add_member(household.id or 0, "Lea")
     with pytest.raises(DuplicateMemberError):
         service.add_member(household.id or 0, "lea")

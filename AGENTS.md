@@ -63,9 +63,10 @@ before the project context has been completed.
 
 ## Rules
 
-- Use the language of the current user prompt for all communication and all
-  natural-language artifacts. Do not default to the language of earlier
-  messages.
+- Use the language of the current user prompt for communication. All
+  repository artifacts (docs, specs, ADRs, UI texts, API descriptions,
+  commits, pull requests) are written in **English**, regardless of the
+  prompt language (team decision, see Project Rules).
 - Update existing artifacts; create only what is missing.
 - Keep artifacts **minimal**.
 - Avoid unnecessary comments in code.
@@ -84,6 +85,8 @@ If requirements or architecture are unclear → ask the user.
 
 Human-approved durable rules derived from the ADRs in `docs/adr/`:
 
+- Project language is English for every artifact, including user-facing UI
+  and OpenAPI texts (team decision 2026-10-23).
 - Layer boundaries are enforced by `lint-imports`; never weaken a contract to
   make a change pass ([ADR-001](docs/adr/ADR-001-clean-architecture.md)).
 - Domain and application code must not import FastAPI, Pydantic, SQLAlchemy or

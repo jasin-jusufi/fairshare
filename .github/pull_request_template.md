@@ -1,15 +1,15 @@
-## Use Case / Aufgabe
+## Use case / task
 
-docs/specs/UC-NNN-NAME.md (oder Fast-Track-Eintrag in docs/TASKS.md)
+docs/specs/UC-NNN-NAME.md (or Fast Track entry in docs/TASKS.md)
 
 ## AI-SDLC
 
-- [ ] SPECIFY: Akzeptanzkriterien in der Spec
-- [ ] DESIGN: Komponenten pro Layer, ADR bei wichtigen Entscheiden
-- [ ] DEVELOP: Tests zuerst committet (`test(...): ... (red)`), dann Implementierung
-- [ ] VALIDATE: CI grün (ruff, mypy, import-linter, alembic check, Coverage, E2E)
-- [ ] `docs/TASKS.md` und `docs/AI-LOG.md` nachgeführt
+- [ ] SPECIFY: acceptance criteria in the spec
+- [ ] DESIGN: components per layer, ADR for significant decisions
+- [ ] DEVELOP: tests committed first (`test(...): ... (red)`), then the implementation
+- [ ] VALIDATE: CI green (ruff, mypy, import-linter, alembic check, coverage, E2E)
+- [ ] `docs/TASKS.md` and `docs/AI-LOG.md` updated
 
-## Agent-Einsatz
+## Agent usage
 
-Welcher Agent, welcher Auftrag, was musste korrigiert werden?
+Which agent, which request, what had to be corrected?

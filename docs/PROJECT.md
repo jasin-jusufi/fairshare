@@ -2,91 +2,91 @@
 
 ## Purpose
 
-- **Projektname:** FairShare
-- **Problem:** In Wohngemeinschaften (WGs) entstehen laufend gemeinsame Ausgaben
-  und Haushaltsaufgaben. Wer wem wie viel schuldet und wer welches Ämtli
-  übernimmt, wird meist in Chats oder Tabellen verwaltet. Das führt zu
-  Rundungsfehlern, vielen Einzelüberweisungen und ungleich verteilter Arbeit.
-- **Nutzende:** Mitglieder eines gemeinsamen Haushalts (WG, Familie, Reisegruppe).
-- **In Scope:** Haushalt und Mitglieder verwalten, Ausgaben erfassen und
-  aufteilen (gleich, prozentual, nach Anteilen), Salden berechnen, minimale
-  Ausgleichszahlungen vorschlagen und erfassen, Ämtli fair nach Aufwand
-  verteilen, Belege per KI vorerfassen (Port/Adapter).
-- **Out of Scope:** Echte Zahlungsabwicklung, Authentifizierung/Benutzerkonten,
-  Mehrwährungsfähigkeit, Mobile App.
+- **Project name:** FairShare
+- **Problem:** Shared flats constantly generate shared expenses and household
+  tasks. Who owes whom how much, and who takes on which chore, is usually
+  tracked in group chats or spreadsheets. This leads to rounding errors, many
+  individual transfers and an unequal distribution of work.
+- **Users:** Members of a shared household (shared flat, family, travel group).
+- **In scope:** Manage households and members, record and split expenses
+  (equally, by percentage, by shares), compute balances, suggest and record
+  minimal settle-up transfers, distribute chores fairly by effort, pre-fill
+  receipts using AI (port/adapter).
+- **Out of scope:** Real payment processing, authentication/user accounts,
+  multi-currency support, mobile app.
 
 ## Architecture
 
-Clean Architecture, Abhängigkeiten zeigen nach innen:
+Clean Architecture, dependencies point inwards:
 
 `domain ← application ← interfaces ← infrastructure`
 
-| Layer | Inhalt | Darf importieren |
+| Layer | Contents | May import |
 |---|---|---|
-| `domain` | Entities, Value Objects, reine Domänenlogik (Split, Saldo, Ausgleich, Rotation) | nur Standardbibliothek |
-| `application` | Use-Case-Services, Repository-Ports, DTOs, Fehler | `domain` |
-| `interfaces` | HTTP-Grenze (FastAPI-Router, Pydantic-Schemas) | `application`, `domain` |
-| `infrastructure` | Konfiguration, SQLAlchemy-Modelle und Repositories, Alembic, App-Wiring, statisches UI | alle |
+| `domain` | Entities, value objects, pure domain logic (split, balance, settle-up, rotation) | standard library only |
+| `application` | Use case services, repository ports, DTOs, errors | `domain` |
+| `interfaces` | HTTP boundary (FastAPI routers, Pydantic schemas) | `application`, `domain` |
+| `infrastructure` | Configuration, SQLAlchemy models and repositories, Alembic, app wiring, static UI | all |
 
-Die Regel wird nicht nur dokumentiert, sondern mit **import-linter** in CI
-erzwungen (`lint-imports`, Verträge in `pyproject.toml`).
+The rule is not just documented but enforced in CI with **import-linter**
+(`lint-imports`, contracts in `pyproject.toml`).
 
-Entscheidungen: siehe `docs/adr/`.
+Decisions: see `docs/adr/`.
 
 - Stack: Python 3.12, FastAPI, SQLAlchemy 2, Alembic, pytest
-- Datenbank: SQLite (Entwicklung, CI), PostgreSQL (Produktion auf Render)
-- Geldbeträge: Ganzzahlige Rappen (`int`), keine Floats
+- Database: SQLite (development, CI), PostgreSQL (production on Render)
+- Money amounts: integer cents (`int`), no floats
 
 ## API
 
-| Ressource | Endpunkte | UC |
+| Resource (OpenAPI tag) | Endpoints | UC |
 |---|---|---|
-| Haushalte | `POST/GET /households`, `GET /households/{id}`, `POST /households/{id}/members` | 001 |
-| Ausgaben | `POST/GET /households/{id}/expenses`, `DELETE …/expenses/{expense_id}` | 002 |
-| Abrechnung | `GET …/balances`, `GET …/settle-up`, `POST/GET …/settlements` | 003 |
-| Ämtli | `POST/GET …/chores`, `POST …/chore-plans`, `GET …/chore-plans/{week}`, `POST …/assignments/{id}/complete`, `GET …/chore-load` | 004 |
-| Betrieb | `GET /health`, `/docs` (API-Referenz), `/swagger`, `/openapi.json`, `/ui/` (Web-UI) | — |
+| Households | `POST/GET /households`, `GET /households/{id}`, `POST /households/{id}/members` | 001 |
+| Expenses | `POST/GET /households/{id}/expenses`, `DELETE …/expenses/{expense_id}` | 002 |
+| Settle-up | `GET …/balances`, `GET …/settle-up`, `POST/GET …/settlements` | 003 |
+| Chores | `POST/GET …/chores`, `POST …/chore-plans`, `GET …/chore-plans/{week}`, `POST …/assignments/{id}/complete`, `GET …/chore-load` | 004 |
+| Operations | `GET /health`, `/docs` (API reference), `/swagger`, `/openapi.json`, `/ui/` (web UI) | — |
 
 ## Structure
 
 ```
 src/app/
-├── domain/            # Entities + Domänenservices (framework-frei)
-├── application/       # Use Cases + Ports (Repository-Interfaces)
-├── interfaces/api/    # FastAPI-Router + Schemas
-├── infrastructure/    # DB, ORM, Repositories, Web-Wiring, UI
-└── main.py            # Entry Point
+├── domain/            # Entities + domain services (framework-free)
+├── application/       # Use cases + ports (repository interfaces)
+├── interfaces/api/    # FastAPI routers + schemas
+├── infrastructure/    # DB, ORM, repositories, web wiring, UI
+└── main.py            # Entry point
 tests/
-├── unit/              # Domain + Use Cases mit In-Memory-Repositories
-├── integration/       # API + SQLAlchemy gegen SQLite in-memory
-└── e2e/               # HTTP gegen laufenden Docker-Container
-migrations/            # Alembic-Migrationen (Produktionsschema)
-scripts/               # Setup, Deploy, Smoke-Test, Agent-Hooks
+├── unit/              # Domain + use cases with in-memory repositories
+├── integration/       # API + SQLAlchemy against SQLite in-memory
+└── e2e/               # HTTP against the running Docker container
+migrations/            # Alembic migrations (production schema)
+scripts/               # Setup, deploy, smoke test, agent hooks
 docs/
-├── specs/             # Ausführbare Use-Case-Spezifikationen
+├── specs/             # Executable use case specifications
 └── adr/               # Architecture Decision Records
 ```
 
 ## Commands
 
-| Aktivität | Befehl |
+| Activity | Command |
 |---|---|
 | Install | `bash scripts/setup-python.sh` |
-| Unit-Tests | `pytest tests/unit` |
-| Integrationstests | `pytest tests/integration` |
-| Alle Tests + Coverage | `pytest tests/unit tests/integration --cov` |
-| Lint / Format | `ruff check . && ruff format --check .` |
-| Typecheck | `mypy` |
-| Architekturregeln | `lint-imports` |
-| Lokal starten | `PYTHONPATH=src uvicorn app.main:app --reload` |
+| Unit tests | `pytest tests/unit` |
+| Integration tests | `pytest tests/integration` |
+| All tests + coverage | `pytest tests/unit tests/integration --cov` |
+| Lint / format | `ruff check . && ruff format --check .` |
+| Type check | `mypy` |
+| Architecture rules | `lint-imports` |
+| Run locally | `PYTHONPATH=src uvicorn app.main:app --reload` |
 | Container | `docker build -t fairshare . && docker run -p 8000:8000 fairshare` |
 | E2E | `BASE_URL=http://127.0.0.1:8000 pytest tests/e2e` |
 | Release | `git tag vX.Y.Z && git push origin vX.Y.Z` |
 
 ## Dependencies
 
-- Laufzeit: `requirements.txt`; Entwicklung/Tests: `requirements-dev.txt`
-- Python-Version: `.python-version` (3.12)
-- Konfiguration nur über Umgebungsvariablen:
-  - `DATABASE_URL` (Default `sqlite:///./fairshare.db`)
-- Secrets (nur in GitHub/Render, nie im Repo): `RENDER_API_KEY`, `RENDER_SERVICE_ID`
+- Runtime: `requirements.txt`; development/tests: `requirements-dev.txt`
+- Python version: `.python-version` (3.12)
+- Configuration via environment variables only:
+  - `DATABASE_URL` (default `sqlite:///./fairshare.db`)
+- Secrets (only in GitHub/Render, never in the repo): `RENDER_API_KEY`, `RENDER_SERVICE_ID`

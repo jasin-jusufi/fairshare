@@ -15,7 +15,7 @@ def client() -> Iterator[TestClient]:
 
 @pytest.fixture
 def household(client: TestClient) -> dict:
-    return client.post("/households", json={"name": "WG Basel"}).json()
+    return client.post("/households", json={"name": "Flat Basel"}).json()
 
 
 @pytest.fixture

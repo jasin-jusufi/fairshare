@@ -1,63 +1,63 @@
 # UC-002-RECORD-EXPENSE
 
 ## Intent
-Ein Mitglied erfasst eine gemeinsame Ausgabe (z. B. Einkauf, Internet) und
-legt fest, wer daran beteiligt ist und wie sie aufgeteilt wird. Die Anteile
-sind die Grundlage für Salden und Ausgleichszahlungen (UC-003).
+A member records a shared expense (e.g. groceries, internet) and specifies who
+takes part and how it is split. The shares are the basis for balances and
+settlements (UC-003).
 
 ## Actors
 
-Primary: WG-Mitglied (zahlt und erfasst)
-Secondary: übrige Mitglieder (Beteiligte)
+Primary: Flatmate (pays and records the expense)
+Secondary: other members (participants)
 
 ## Preconditions
 
-- Haushalt existiert (UC-001).
-- Zahler und Beteiligte sind Mitglieder dieses Haushalts.
+- The household exists (UC-001).
+- Payer and participants are members of this household.
 
 ## Flow
 
-1. Mitglied gibt Zahler, Beschreibung, Betrag in Rappen, Aufteilungsart und Beteiligte an.
-2. System prüft Mitgliedschaften und Eingaben.
-3. System berechnet die Anteile:
-   - `equal`: gleich verteilt
-   - `percent`: nach Prozent (Summe muss 100 sein)
-   - `shares`: nach Gewichten (z. B. 2 : 1 : 1)
-4. Restrappen werden nach Largest-Remainder verteilt, die Summe der Anteile entspricht exakt dem Betrag (ADR-004).
-5. System speichert Ausgabe und Anteile und gibt sie zurück.
-6. Mitglieder listen die Ausgaben des Haushalts oder löschen eine Fehlerfassung.
+1. The member enters payer, description, amount in cents, split method and participants.
+2. The system checks memberships and input.
+3. The system computes the shares:
+   - `equal`: split equally
+   - `percent`: by percentage (must add up to 100)
+   - `shares`: by weights (e.g. 2 : 1 : 1)
+4. Remaining cents are distributed using the largest remainder method; the sum of the shares equals the amount exactly (ADR-004).
+5. The system stores the expense and its shares and returns them.
+6. Members list the household's expenses or delete an erroneous entry.
 
 ## Errors
 
-- invalid input: Betrag ≤ 0, leere Beschreibung, keine Beteiligten, doppelte Beteiligte, Gewicht ≤ 0, Prozentsumme ≠ 100 → 400
-- unknown member: Zahler oder Beteiligte:r gehört nicht zum Haushalt → 400
-- not found: Haushalt oder Ausgabe existiert nicht → 404
+- invalid input: amount ≤ 0, empty description, no participants, duplicate participants, weight ≤ 0, percentage sum ≠ 100 → 400
+- unknown member: payer or participant does not belong to the household → 400
+- not found: household or expense does not exist → 404
 
 ## Acceptance
 
-- AC1 Given Lea, Noah, Mia, When Lea zahlt 10000 Rappen `equal` für alle drei, Then 201 und Anteile 3334/3333/3333 (Summe 10000).
-- AC2 Given zwei Mitglieder, When `percent` mit 70/30 auf 5000, Then Anteile 3500/1500.
-- AC3 Given drei Mitglieder, When `shares` mit 2/1/1 auf 1000, Then Anteile 500/250/250.
-- AC4 Given `percent` mit Summe 90, When erfasst, Then 400.
-- AC5 Given Zahler oder Beteiligte:r aus anderem Haushalt, When erfasst, Then 400.
-- AC6 Given Betrag 0 oder leere Beschreibung, When erfasst, Then 400.
-- AC7 Given zwei Ausgaben, When `GET /households/{id}/expenses`, Then beide mit Anteilen in Erfassungsreihenfolge.
-- AC8 Given eine Ausgabe, When `DELETE …/expenses/{expense_id}`, Then 204 und sie fehlt in der Liste; unbekannte ID → 404.
+- AC1 Given Lea, Noah, Mia, When Lea pays 10000 cents `equal` for all three, Then 201 and shares 3334/3333/3333 (sum 10000).
+- AC2 Given two members, When `percent` with 70/30 on 5000, Then shares 3500/1500.
+- AC3 Given three members, When `shares` with 2/1/1 on 1000, Then shares 500/250/250.
+- AC4 Given `percent` with a sum of 90, When recorded, Then 400.
+- AC5 Given a payer or participant from another household, When recorded, Then 400.
+- AC6 Given amount 0 or an empty description, When recorded, Then 400.
+- AC7 Given two expenses, When `GET /households/{id}/expenses`, Then both with their shares in recording order.
+- AC8 Given an expense, When `DELETE …/expenses/{expense_id}`, Then 204 and it is no longer in the list; unknown ID → 404.
 
 ## Tests
 
-Unit: `split_amount` (alle Methoden, Restverteilung, Summeninvariante), `Expense`-Invarianten, `ExpenseService` mit In-Memory-Repositories
-Integration: AC1–AC8 über `TestClient` + SQLite in-memory
-E2E: Ausgabe erfassen und auflisten gegen den Container
+Unit: `split_amount` (all methods, remainder distribution, sum invariant), `Expense` invariants, `ExpenseService` with in-memory repositories
+Integration: AC1–AC8 via `TestClient` + SQLite in-memory
+E2E: record and list an expense against the container
 
 ## Design
 
-| Layer | Komponente |
+| Layer | Component |
 |---|---|
-| domain | `Expense`, `ExpenseShare` (Entities), `SplitMethod`, `split_amount()` (Largest-Remainder), `UnknownMemberError` |
-| application | `ExpenseService` (`record_expense`, `list_expenses`, `delete_expense`), Port `ExpenseRepository` |
-| interfaces | Router `/households/{id}/expenses`, Schemas `ExpenseCreate`, `ParticipantIn`, `ExpenseOut`, `ShareOut` |
-| infrastructure | `ExpenseModel`, `ExpenseShareModel`, `SqlAlchemyExpenseRepository`, Migration |
+| domain | `Expense`, `ExpenseShare` (entities), `SplitMethod`, `split_amount()` (largest remainder), `UnknownMemberError` |
+| application | `ExpenseService` (`record_expense`, `list_expenses`, `delete_expense`), port `ExpenseRepository` |
+| interfaces | Router `/households/{id}/expenses`, schemas `ExpenseCreate`, `ParticipantIn`, `ExpenseOut`, `ShareOut` |
+| infrastructure | `ExpenseModel`, `ExpenseShareModel`, `SqlAlchemyExpenseRepository`, migration |
 
-Die API arbeitet mit `amount_cents` (exakt, keine Rundung über HTTP); die
-Umrechnung CHF ↔ Rappen macht nur das UI (Präzisierung zu ADR-004).
+The API works with `amount_cents` (exact, no rounding over HTTP); only the UI
+converts between CHF and cents (refinement of ADR-004).

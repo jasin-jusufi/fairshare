@@ -73,7 +73,7 @@ def test_ac4_percent_must_sum_to_100(client: TestClient, household: dict, member
 def test_ac5_members_must_belong_to_household(
     client: TestClient, household: dict, members: dict
 ) -> None:
-    other = client.post("/households", json={"name": "Andere WG"}).json()
+    other = client.post("/households", json={"name": "Other Flat"}).json()
     stranger = client.post(f"/households/{other['id']}/members", json={"name": "Max"}).json()
     url = f"/households/{household['id']}/expenses"
     as_payer = expense(stranger["id"], 1000, "equal", [{"member_id": members["Lea"]}])

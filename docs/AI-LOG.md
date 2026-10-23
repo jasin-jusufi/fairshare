@@ -1,28 +1,28 @@
-# AI-LOG.md — Einsatz von Coding Agents
+# AI-LOG.md — Use of coding agents
 
-Kurzes Protokoll, wie wir Coding Agents eingesetzt haben: Prompt, Ergebnis und
-was wir als Menschen korrigieren oder entscheiden mussten. Grundlage für die
-Präsentation (Lessons Learned).
+A short log of how we used coding agents: prompt, result and what we as humans
+had to correct or decide. Basis for the presentation (lessons learned).
 
 ## Tools
 
-| Tool | Einsatz | Warum |
+| Tool | Use | Why |
 |---|---|---|
-| Claude Code (Opus) | Hauptagent im Terminal: Phasen 0–5, TDD, Refactoring, Workflows | Liest `AGENTS.md` via `CLAUDE.md`, nutzt die AI-SDLC-Skills in `.claude/skills`, kann Tests selbst ausführen |
-| GitHub Copilot | Inline-Vervollständigung und Chat in VS Code / Codespaces | Liest `.github/copilot-instructions.md` → `AGENTS.md`, Skills in `.agents/skills` |
+| Claude Code (Opus) | Main agent in the terminal: phases 0–5, TDD, refactoring, workflows | Reads `AGENTS.md` via `CLAUDE.md`, uses the AI-SDLC skills in `.claude/skills`, can run tests itself |
+| GitHub Copilot | Inline completion and chat in VS Code / Codespaces | Reads `.github/copilot-instructions.md` → `AGENTS.md`, skills in `.agents/skills` |
 
-## Einträge
+## Entries
 
-| Datum | Wer | Phase / UC | Auftrag an Agent (sinngemäss) | Ergebnis | Menschliche Korrektur / Entscheid |
+| Date | Who | Phase / UC | Request to agent (paraphrased) | Result | Human correction / decision |
 |---|---|---|---|---|---|
-| 2026-10-23 | Jasin | 0 | „Analysiere BAIssue und die Bewertungskriterien, schlage Use Case und Plan vor“ | Rubric-Mapping, drei Use-Case-Ideen | Use Case FairShare gewählt |
-| 2026-10-23 | Jasin | 0 | „Execute phase 0 of AI-SDLC for FairShare (Python/FastAPI, Render)“ | Template übernommen, Skills verlinkt, Struktur, Tooling | Klarstellung durch uns: BAIssue ist nur Referenz für Struktur und Prozess, Domäne ist eigen |
-| 2026-10-23 | Jasin | 2 / Fundament | „Execute phase 2: record ADRs for stack, persistence, money, testing, delivery; add CI quality gates“ | ADR-001..006, CI mit ruff/mypy/import-linter | CI rot: leeres `tests/integration` nicht versioniert → Agent hat Fix aus CI-Log abgeleitet |
-| 2026-10-23 | Jasin | 1–3 / UC-001 | „Execute phase 1/2/3 of AI-SDLC for UC-001 household setup“ | Spec, Design-Tabelle, rote Tests, Implementierung über 4 Layer | Fehlerstatus festgelegt: Duplikat = 409, Validierung = 400 |
-| 2026-10-23 | Jasin | 1–3 / UC-002 | „Execute phase 1/2/3 for UC-002: expenses with equal/percent/weighted split“ | Largest-Remainder-Split, parametrisierte Summen-Invariante über alle Methoden | API-Entscheid: Beträge in Rappen statt CHF-Dezimal (ADR-004 präzisiert) |
-| 2026-10-23 | Jasin | 1–3 / UC-003 | „Execute phase 1/2/3 for UC-003 settle-up with minimal transfers“ | Greedy-Algorithmus als reine Domain-Funktion, Property-Tests mit festen Seeds | Entscheid Greedy statt exakter Optimierung (NP-schwer) → ADR-007; Überzahlungsregel ergänzt |
-| 2026-10-23 | Jasin | 1–3 / UC-004 | „Execute phase 1/2/3 for UC-004 fair chore rotation by effort“ | LPT-Heuristik, Aufwand-Snapshot, ConflictError-Basisklasse | Agent-Test enthielt sinnlose Assertion (`assert week >= 0`) → im Review entfernt; Fairness-Schranke mathematisch begründet |
-| 2026-10-23 | Jasin | 4 / Validate | „Execute phase 4: Dockerfile, E2E against container, release to GHCR, Render CD“ | Image, E2E-Journey, CI-Job mit Postgres-Service | Zusätzlich lokal gegen echtes PostgreSQL getestet, weil SQLite in CI Postgres-Fehler verdecken könnte |
-| 2026-10-23 | Jasin | 3 / UI | „Build a minimal single-page UI over the REST API, verify in the browser“ | HTML/JS-UI, Agent hat UI selbst im Browser-Pane geklickt und Salden gegen die API geprüft | Erster Klick des Agents traf wegen Viewport-Skalierung daneben → über Element-Referenz wiederholt; kein Bug im UI |
-| 2026-10-23 | Jasin | Fast Track / UI | Referenz-Screenshot (Glassmorphism, Pastell) + „freundlicher, heller, UX on fire“ | Neues UI mit Sidebar, Übersicht-Dashboard, Schnellerfassung „Migros 45.50“, fairer Wochenplan mit Navigation | Agent hat Mobile-Overflow (786 px statt 375 px) selbst per DOM-Messung gefunden und behoben; Formular-`hidden` wurde von CSS überschrieben → `[hidden]`-Regel |
-| 2026-10-23 | Jasin | 3 / API-Doku | „Mach /docs professionell wie Notion, aber in unserem Design“ | OpenAPI angereichert, Notion-artige Referenz mit Cover, Properties, Callouts, Toggles, curl, „Ausprobieren“ | Agent-Bug: SVG per `createElement` → Pfeile unsichtbar; im Browser entdeckt und auf Template-Parsing umgestellt. Entscheid: Seite aus OpenAPI generieren statt Handpflege |
+| 2026-10-23 | Jasin | 0 | "Analyze BAIssue and the grading criteria, propose a use case and a plan" | Rubric mapping, three use case ideas | Chose the FairShare use case |
+| 2026-10-23 | Jasin | 0 | "Execute phase 0 of AI-SDLC for FairShare (Python/FastAPI, Render)" | Adopted template, linked skills, structure, tooling | Our clarification: BAIssue is only a reference for structure and process; the domain is our own |
+| 2026-10-23 | Jasin | 2 / Foundation | "Execute phase 2: record ADRs for stack, persistence, money, testing, delivery; add CI quality gates" | ADR-001..006, CI with ruff/mypy/import-linter | CI red: empty `tests/integration` not under version control → agent derived the fix from the CI log |
+| 2026-10-23 | Jasin | 1–3 / UC-001 | "Execute phase 1/2/3 of AI-SDLC for UC-001 household setup" | Spec, design table, red tests, implementation across 4 layers | Defined error status codes: duplicate = 409, validation = 400 |
+| 2026-10-23 | Jasin | 1–3 / UC-002 | "Execute phase 1/2/3 for UC-002: expenses with equal/percent/weighted split" | Largest-remainder split, parametrized sum invariant across all methods | API decision: amounts in cents instead of CHF decimals (ADR-004 refined) |
+| 2026-10-23 | Jasin | 1–3 / UC-003 | "Execute phase 1/2/3 for UC-003 settle-up with minimal transfers" | Greedy algorithm as a pure domain function, property tests with fixed seeds | Decided on greedy instead of exact optimization (NP-hard) → ADR-007; added the overpayment rule |
+| 2026-10-23 | Jasin | 1–3 / UC-004 | "Execute phase 1/2/3 for UC-004 fair chore rotation by effort" | LPT heuristic, effort snapshot, ConflictError base class | Agent test contained a meaningless assertion (`assert week >= 0`) → removed in review; justified the fairness bound mathematically |
+| 2026-10-23 | Jasin | 4 / Validate | "Execute phase 4: Dockerfile, E2E against container, release to GHCR, Render CD" | Image, E2E journey, CI job with Postgres service | Additionally tested locally against real PostgreSQL, because SQLite in CI could hide Postgres errors |
+| 2026-10-23 | Jasin | 3 / UI | "Build a minimal single-page UI over the REST API, verify in the browser" | HTML/JS UI; the agent clicked through the UI itself in the browser pane and checked balances against the API | The agent's first click missed because of viewport scaling → retried via element reference; no bug in the UI |
+| 2026-10-23 | Jasin | Fast Track / UI | Reference screenshot (glassmorphism, pastel) + "make it friendlier and brighter, with great UX" | New UI with sidebar, overview dashboard, quick add "Groceries 45.50", fair weekly plan with navigation | Agent found the mobile overflow (786 px instead of 375 px) itself via DOM measurement and fixed it; the form's `hidden` attribute was overridden by CSS → `[hidden]` rule |
+| 2026-10-23 | Jasin | 3 / API docs | "Make /docs look as professional as Notion, but in our design" | Enriched OpenAPI, Notion-style reference with cover, properties, callouts, toggles, curl, "Try it" | Agent bug: SVG created via `createElement` → arrows invisible; found in the browser and switched to template parsing. Decision: generate the page from OpenAPI instead of maintaining it by hand |
+| 2026-10-23 | Jasin | Fast Track / language | "Everything in the project must be in English" | Main agent translated code-facing texts (OpenAPI, UI, test data); a parallel sub-agent translated 19 Markdown files | Sub-agent flagged labels it had to guess ("Paid", "Try it") and an outdated statement in ADR-002 → checked against the UI and added an update note instead of rewriting the ADR |

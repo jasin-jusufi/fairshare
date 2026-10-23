@@ -62,7 +62,7 @@ def test_long_run_fairness(seed: int) -> None:
     assert max(load.values()) - min(load.values()) <= max(c.effort for c in chores)
 
 
-@pytest.mark.parametrize(("name", "effort"), [("", 3), ("Bad", 0), ("Bad", 6)])
+@pytest.mark.parametrize(("name", "effort"), [("", 3), ("Bathroom", 0), ("Bathroom", 6)])
 def test_chore_invariants(name: str, effort: int) -> None:
     with pytest.raises(ValidationError):
         Chore(household_id=1, name=name, effort=effort)

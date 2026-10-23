@@ -1,37 +1,37 @@
-# ADR-001: Clean Architecture mit erzwungenen Layer-Grenzen
+# ADR-001: Clean Architecture with enforced layer boundaries
 
-- **Status:** akzeptiert
-- **Datum:** 2026-10-23
+- **Status:** accepted
+- **Date:** 2026-10-23
 
-## Kontext
+## Context
 
-Die Anwendung soll Enterprise-tauglich und gut testbar sein. Die Geschäftslogik
-(Aufteilen, Saldieren, Ausgleichen, Ämtli verteilen) ist der eigentliche Wert und
-soll unabhängig von Web-Framework und Datenbank testbar bleiben. Coding Agents
-neigen dazu, Framework-Code in die Domäne zu ziehen, wenn die Grenze nur
-dokumentiert ist.
+The application should be enterprise-ready and easy to test. The business
+logic (splitting, computing balances, settling up, rotating chores) is the
+actual value and must remain testable independently of the web framework and
+the database. Coding agents tend to pull framework code into the domain when
+the boundary is only documented.
 
-## Alternativen
+## Alternatives
 
-1. Schichtenmodell „Router → Service → ORM-Model“ (typisches FastAPI-Tutorial)
-2. Clean Architecture nur als Konvention in `AGENTS.md`
-3. Clean Architecture **plus** automatische Prüfung in CI
+1. Layered model "router → service → ORM model" (typical FastAPI tutorial)
+2. Clean Architecture only as a convention in `AGENTS.md`
+3. Clean Architecture **plus** automated checks in CI
 
-## Entscheid
+## Decision
 
-Variante 3. Vier Layer `domain ← application ← interfaces ← infrastructure`.
-`import-linter` prüft in CI zwei Verträge:
+Option 3. Four layers `domain ← application ← interfaces ← infrastructure`.
+`import-linter` checks two contracts in CI:
 
-- Layer-Vertrag: Kein Layer importiert einen äusseren Layer.
-- Verbots-Vertrag: `domain` und `application` importieren weder FastAPI,
-  Pydantic, SQLAlchemy noch Alembic.
+- Layers contract: no layer imports an outer layer.
+- Forbidden contract: `domain` and `application` import neither FastAPI,
+  Pydantic, SQLAlchemy nor Alembic.
 
-Repositories sind Ports (`typing.Protocol`) im Application-Layer; Adapter
-liegen in `infrastructure/persistence`. Die Verdrahtung erfolgt nur in
+Repositories are ports (`typing.Protocol`) in the application layer; adapters
+live in `infrastructure/persistence`. Wiring happens only in
 `infrastructure/web/app.py` via FastAPI `dependency_overrides`.
 
-## Konsequenzen
+## Consequences
 
-- Domäne und Use Cases sind mit In-Memory-Repositories in Millisekunden testbar.
-- Agenten erhalten sofortiges Feedback, wenn sie die Regel verletzen (CI rot).
-- Mehr Boilerplate: ORM-Modelle und Domänen-Entities werden explizit gemappt.
+- Domain and use cases can be tested in milliseconds with in-memory repositories.
+- Agents get immediate feedback when they violate the rule (CI red).
+- More boilerplate: ORM models and domain entities are mapped explicitly.

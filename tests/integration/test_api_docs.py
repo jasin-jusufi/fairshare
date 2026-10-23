@@ -18,7 +18,7 @@ def test_swagger_ui_remains_available(client: TestClient) -> None:
 def test_openapi_is_documented_for_humans(client: TestClient) -> None:
     spec = client.get("/openapi.json").json()
     tags = {t["name"]: t for t in spec["tags"]}
-    assert set(tags) == {"Haushalte", "Ausgaben", "Abrechnen", "Ämtli", "Betrieb"}
+    assert set(tags) == {"Households", "Expenses", "Settle-up", "Chores", "Operations"}
     assert all(t["description"] for t in tags.values())
     for path, operations in spec["paths"].items():
         for method, operation in operations.items():

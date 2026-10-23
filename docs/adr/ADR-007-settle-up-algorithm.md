@@ -1,32 +1,32 @@
-# ADR-007: Greedy-Algorithmus für Ausgleichszahlungen
+# ADR-007: Greedy algorithm for settle-up transfers
 
-- **Status:** akzeptiert
-- **Datum:** 2026-10-23
+- **Status:** accepted
+- **Date:** 2026-10-23
 
-## Kontext
+## Context
 
-Aus den Salden sollen Überweisungen abgeleitet werden. Naiv überweist jede
-Person pro Ausgabe an die zahlende Person (viele kleine Zahlungen). Die
-minimale Anzahl Überweisungen zu finden ist NP-schwer (Partitionsproblem).
-Haushalte haben typischerweise 2–8 Mitglieder.
+Transfers are to be derived from the balances. Naively, every person pays the
+payer back for each expense (many small payments). Finding the minimum number
+of transfers is NP-hard (partition problem). Households typically have 2–8
+members.
 
-## Alternativen
+## Alternatives
 
-1. Pro Ausgabe und Person eine Überweisung (einfach, aber bis zu O(Ausgaben × n))
-2. Exakte Optimierung über Teilmengen-Suche (exponentiell)
-3. Greedy: grösste Schuld gegen grösstes Guthaben verrechnen, wiederholen
+1. One transfer per expense and person (simple, but up to O(expenses × n))
+2. Exact optimization via subset search (exponential)
+3. Greedy: match the largest debt against the largest credit, repeat
 
-## Entscheid
+## Decision
 
-Variante 3. Jeder Schritt gleicht mindestens eine Person vollständig aus,
-daher entstehen höchstens n − 1 Überweisungen. Gleichstände werden nach
-Mitglied-ID aufgelöst, damit das Ergebnis deterministisch und testbar ist.
-Der Algorithmus ist eine reine Funktion im Domain-Layer.
+Option 3. Each step settles at least one person completely, so there are at
+most n − 1 transfers. Ties are broken by member ID so that the result is
+deterministic and testable. The algorithm is a pure function in the domain
+layer.
 
-## Konsequenzen
+## Consequences
 
-- Laufzeit O(n²), für Haushaltsgrössen vernachlässigbar.
-- Nicht immer global minimal, aber garantiert ≤ n − 1 und in Tests als
-  Eigenschaft geprüft (Summe 0, Obergrenze, alle Salden danach 0).
-- Ausgleichszahlungen dürfen offene Schulden nicht übersteigen, damit keine
-  neuen Schulden durch Tippfehler entstehen.
+- Runtime O(n²), negligible for household sizes.
+- Not always globally minimal, but guaranteed ≤ n − 1 and checked as a
+  property in tests (sum 0, upper bound, all balances 0 afterwards).
+- Settlements must not exceed outstanding debts, so that typos cannot create
+  new debts.

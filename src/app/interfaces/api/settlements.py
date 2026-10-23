@@ -8,28 +8,28 @@ from app.interfaces.api.dependencies import settlement_service
 from app.interfaces.api.openapi import INVALID, NOT_FOUND
 from app.interfaces.api.schemas import BalanceOut, SettlementCreate, SettlementOut, TransferOut
 
-router = APIRouter(prefix="/households/{household_id}", tags=["Abrechnen"])
+router = APIRouter(prefix="/households/{household_id}", tags=["Settle-up"])
 Service = Annotated[SettlementService, Depends(settlement_service)]
 
 
 @router.get(
-    "/balances", response_model=list[BalanceOut], summary="Salden abrufen", responses=NOT_FOUND
+    "/balances", response_model=list[BalanceOut], summary="Get balances", responses=NOT_FOUND
 )
 def balances(household_id: int, service: Service) -> list[MemberBalance]:
-    """Saldo pro Mitglied: bezahlt − eigene Anteile + gesendete − empfangene Zahlungen.
-    Die Summe aller Salden ist immer 0."""
+    """Balance per member: paid − own shares + settlements sent − settlements received.
+    All balances always add up to 0."""
     return service.balances(household_id)
 
 
 @router.get(
     "/settle-up",
     response_model=list[TransferOut],
-    summary="Ausgleich vorschlagen",
+    summary="Suggest settle-up",
     responses=NOT_FOUND,
 )
 def settle_up(household_id: int, service: Service) -> list[TransferOut]:
-    """Schlägt Überweisungen vor, die alle Salden auf 0 bringen. Greedy: grösste Schuld
-    gegen grösstes Guthaben, höchstens n − 1 Überweisungen (ADR-007)."""
+    """Suggests transfers that bring every balance to 0. Greedy: largest debt against
+    largest credit, at most n − 1 transfers (ADR-007)."""
     names = {b.member_id: b.name for b in service.balances(household_id)}
     return [
         TransferOut(
@@ -47,12 +47,12 @@ def settle_up(household_id: int, service: Service) -> list[TransferOut]:
     "/settlements",
     response_model=SettlementOut,
     status_code=201,
-    summary="Zahlung erfassen",
+    summary="Record settlement",
     responses={**INVALID, **NOT_FOUND},
 )
 def record_settlement(household_id: int, payload: SettlementCreate, service: Service) -> Settlement:
-    """Erfasst eine ausserhalb der App getätigte Überweisung. Der Betrag darf weder die
-    offene Schuld des Zahlers noch das Guthaben des Empfängers übersteigen."""
+    """Records a transfer made outside the app. The amount may exceed neither the
+    payer's open debt nor the recipient's credit."""
     return service.record_settlement(
         household_id, payload.from_member_id, payload.to_member_id, payload.amount_cents
     )
@@ -61,9 +61,9 @@ def record_settlement(household_id: int, payload: SettlementCreate, service: Ser
 @router.get(
     "/settlements",
     response_model=list[SettlementOut],
-    summary="Zahlungen auflisten",
+    summary="List settlements",
     responses=NOT_FOUND,
 )
 def list_settlements(household_id: int, service: Service) -> list[Settlement]:
-    """Alle erfassten Ausgleichszahlungen in Erfassungsreihenfolge."""
+    """All recorded settlements in the order they were recorded."""
     return service.list_settlements(household_id)

@@ -84,9 +84,9 @@ def create_app(database_url: str | None = None, create_schema: bool | None = Non
     app.include_router(chores.router)
     register_error_handlers(app)
 
-    @app.get("/health", tags=["Betrieb"], summary="Health-Check")
+    @app.get("/health", tags=["Operations"], summary="Health check")
     def health() -> dict[str, str]:
-        """Antwortet mit `healthy`, sobald App und Konfiguration geladen sind."""
+        """Responds with `healthy` once the app and its configuration are loaded."""
         return {"status": "healthy"}
 
     @app.get("/docs", include_in_schema=False)

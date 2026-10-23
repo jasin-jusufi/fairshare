@@ -1,30 +1,30 @@
-# Präsentation – 29.10.2026 (10 min + 5 min Fragen)
+# Presentation – 2026-10-29 (10 min + 5 min Q&A)
 
-Fokus laut Auftrag: **Vorgehen und Learnings**, nicht die App.
+Focus according to the assignment: **approach and learnings**, not the app.
 
-| # | Min | Wer | Folie | Kernaussage / Beleg |
+| # | Min | Who | Slide | Key message / evidence |
 |---|---|---|---|---|
-| 1 | 0:30 | Jasin | Titel + Problem | WG-Geld und Ämtli: Rappen-Rundung, viele Überweisungen, unfaire Verteilung |
-| 2 | 1:00 | Jasin | Use Cases + 30-s-Demo | UI: Ausgabe → Settle-up → „Bezahlt“ → Wochenplan (oder GIF) |
-| 3 | 1:30 | Jasin | Architektur | Layer-Diagramm aus dem README; **import-linter macht die Regel ausführbar** |
-| 4 | 1:00 | Jasin | ADRs | 7 ADRs; Beispiel ADR-004 (Rappen) und ADR-007 (Greedy statt NP-schwer) |
-| 5 | 2:00 | Bajram | Coding Agents | AGENTS.md als Router, Skills, Phasen pro UC, TASKS-Log, Hook; Prompt → Spec → rote Tests → grün |
-| 6 | 1:00 | Bajram | Tool-Wahl | Claude Code (Terminal-Agent, führt Tests selbst aus) vs. Copilot (Inline) → beide über dieselbe AGENTS.md |
-| 7 | 1:30 | Bajram | Tests + Deployment | Pyramide 131/39/3, Property-Tests, E2E gegen Postgres in CI, Tag → GHCR → Render |
-| 8 | 1:30 | beide | Challenges & Learnings | siehe unten |
+| 1 | 0:30 | Jasin | Title + problem | Shared-flat money and chores: rounding to the cent, many transfers, unfair distribution |
+| 2 | 1:00 | Jasin | Use cases + 30-s demo | UI: expense → Settle up → "Paid" → weekly plan (or GIF) |
+| 3 | 1:30 | Jasin | Architecture | Layer diagram from the README; **import-linter makes the rule executable** |
+| 4 | 1:00 | Jasin | ADRs | 7 ADRs; examples ADR-004 (cents) and ADR-007 (greedy instead of NP-hard) |
+| 5 | 2:00 | Bajram | Coding agents | AGENTS.md as router, skills, phases per UC, TASKS log, hook; prompt → spec → red tests → green |
+| 6 | 1:00 | Bajram | Tool choice | Claude Code (terminal agent, runs tests itself) vs. Copilot (inline) → both use the same AGENTS.md |
+| 7 | 1:30 | Bajram | Tests + deployment | Pyramid 131/39/3, property tests, E2E against Postgres in CI, tag → GHCR → Render |
+| 8 | 1:30 | both | Challenges & learnings | see below |
 
-## Learnings (Kandidaten, aus docs/AI-LOG.md)
+## Learnings (candidates, from docs/AI-LOG.md)
 
-- **Agents brauchen ausführbare Leitplanken.** Regeln in Markdown allein reichen nicht; erst CI-Verträge (import-linter, mypy --strict, alembic check) halten generierten Code sauber.
-- **Spec zuerst lohnt sich.** Akzeptanzkriterien wurden 1:1 zu Integrationstests; der Agent hatte ein klares Ziel.
-- **Agent-Tests reviewen.** Generierte Tests enthielten eine sinnlose Assertion; Tests sind nicht automatisch gut, nur weil sie grün sind.
-- **Fachentscheide bleiben beim Menschen.** Rappen statt CHF-Dezimal, Überzahlungsschutz und Greedy-Algorithmus wurden von uns entschieden und als ADR festgehalten.
-- **Kleine PRs pro Use Case** machen Agent-Output überprüfbar und den TDD-Trail sichtbar.
-- **CI-Fehler als Feedbackschleife.** Der Agent hat CI-Logs gelesen und selbst korrigiert (leerer Testordner).
+- **Agents need executable guardrails.** Rules in Markdown alone are not enough; only CI contracts (import-linter, mypy --strict, alembic check) keep generated code clean.
+- **Spec first pays off.** Acceptance criteria became integration tests 1:1; the agent had a clear target.
+- **Review agent tests.** Generated tests contained a meaningless assertion; tests are not automatically good just because they are green.
+- **Domain decisions stay with humans.** Cents instead of CHF decimals, overpayment protection and the greedy algorithm were decided by us and recorded as ADRs.
+- **Small PRs per use case** make agent output reviewable and the TDD trail visible.
+- **CI failures as a feedback loop.** The agent read CI logs and corrected itself (empty test folder).
 
-## Mögliche Fragen
+## Possible questions
 
-- *Warum nicht Java/Spring?* → ADR-002 (Agent-Tempo, Testzyklus, Team-Know-how)
-- *Wie viel Code ist vom Agent?* → Ehrlich beantworten; Commits tragen `Co-Authored-By`, AI-LOG zeigt Korrekturen.
-- *Ist der Greedy-Ausgleich optimal?* → Nein, aber ≤ n − 1 garantiert und property-getestet (ADR-007).
-- *Warum SQLite in CI?* → Schnell; zusätzlich E2E gegen echtes PostgreSQL im CI-Job `e2e`.
+- *Why not Java/Spring?* → ADR-002 (agent speed, test cycle, team know-how)
+- *How much of the code is from the agent?* → Answer honestly; commits carry `Co-Authored-By`, the AI-LOG shows corrections.
+- *Is the greedy settle-up optimal?* → No, but ≤ n − 1 is guaranteed and property-tested (ADR-007).
+- *Why SQLite in CI?* → Fast; in addition, E2E against real PostgreSQL in the CI job `e2e`.

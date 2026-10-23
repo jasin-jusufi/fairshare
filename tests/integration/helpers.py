@@ -8,7 +8,7 @@ def pay(
         f"/households/{household_id}/expenses",
         json={
             "payer_id": payer,
-            "description": "Einkauf",
+            "description": "Groceries",
             "amount_cents": amount,
             "method": "equal",
             "participants": [{"member_id": m} for m in participants],
