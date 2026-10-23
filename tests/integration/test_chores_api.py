@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-CHORES = [("Bad", 5), ("Küche", 3), ("Müll", 1), ("Staubsaugen", 3)]
+CHORES = [("Bathroom", 5), ("Kitchen", 3), ("Trash", 1), ("Vacuuming", 3)]
 
 
 @pytest.fixture
@@ -26,11 +26,11 @@ def by_chore(client: TestClient, plan_body: dict, members: dict) -> dict[str, st
 
 
 def test_ac1_add_chore(client: TestClient, household: dict) -> None:
-    r = client.post(f"/households/{household['id']}/chores", json={"name": "Bad", "effort": 5})
+    r = client.post(f"/households/{household['id']}/chores", json={"name": "Bathroom", "effort": 5})
     assert r.status_code == 201
     body = r.json()
     assert isinstance(body["id"], int)
-    assert (body["name"], body["effort"]) == ("Bad", 5)
+    assert (body["name"], body["effort"]) == ("Bathroom", 5)
     assert client.get(f"/households/{household['id']}/chores").json() == [body]
 
 
@@ -49,10 +49,10 @@ def test_ac3_heaviest_chore_goes_to_least_loaded_member(
     status, body = plan(client, household["id"], "2026-10-26")
     assert status == 201
     assert by_chore(client, body, members) == {
-        "Bad": "Lea",
-        "Küche": "Noah",
-        "Staubsaugen": "Mia",
-        "Müll": "Noah",
+        "Bathroom": "Lea",
+        "Kitchen": "Noah",
+        "Vacuuming": "Mia",
+        "Trash": "Noah",
     }
 
 

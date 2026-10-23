@@ -29,7 +29,7 @@ def test_ui_and_openapi_are_served(http: httpx.Client) -> None:
 
 
 def test_household_journey(http: httpx.Client) -> None:
-    household = http.post("/households", json={"name": "E2E WG"}).json()
+    household = http.post("/households", json={"name": "E2E Flat"}).json()
     base = f"/households/{household['id']}"
     lea, noah = (
         http.post(f"{base}/members", json={"name": name}).json()["id"] for name in ("Lea", "Noah")
@@ -59,8 +59,8 @@ def test_household_journey(http: httpx.Client) -> None:
     assert r.status_code == 201
     assert http.get(f"{base}/settle-up").json() == []
 
-    http.post(f"{base}/chores", json={"name": "Bad", "effort": 5})
-    http.post(f"{base}/chores", json={"name": "Müll", "effort": 1})
+    http.post(f"{base}/chores", json={"name": "Bathroom", "effort": 5})
+    http.post(f"{base}/chores", json={"name": "Trash", "effort": 1})
     plan = http.post(f"{base}/chore-plans", json={"week_start": "2026-10-26"})
     assert plan.status_code == 201
     assert {a["member_id"] for a in plan.json()["assignments"]} == {lea, noah}

@@ -12,7 +12,7 @@ from .fakes import InMemoryExpenseRepository, InMemoryHouseholdRepository
 @pytest.fixture
 def households() -> InMemoryHouseholdRepository:
     repo = InMemoryHouseholdRepository()
-    household = repo.add(Household(name="WG"))
+    household = repo.add(Household(name="Flat"))
     for name in ("Lea", "Noah"):
         household.add_member(name)
     repo.save(household)

@@ -19,7 +19,7 @@ MONDAY = date(2026, 10, 26)
 @pytest.fixture
 def service() -> ChoreService:
     households = InMemoryHouseholdRepository()
-    household = households.add(Household(name="WG"))
+    household = households.add(Household(name="Flat"))
     for name in ("Lea", "Noah"):
         household.add_member(name)
     households.save(household)
@@ -27,28 +27,28 @@ def service() -> ChoreService:
 
 
 def test_add_and_list_chores(service: ChoreService) -> None:
-    chore = service.add_chore(1, "Bad", 5)
+    chore = service.add_chore(1, "Bathroom", 5)
     assert chore.id is not None
     assert service.list_chores(1) == [chore]
 
 
 def test_plan_week_and_read_plan(service: ChoreService) -> None:
-    service.add_chore(1, "Bad", 5)
-    service.add_chore(1, "Müll", 1)
+    service.add_chore(1, "Bathroom", 5)
+    service.add_chore(1, "Trash", 1)
     planned = service.plan_week(1, date(2026, 10, 28))
     assert [a.member_id for a in planned] == [1, 2]
     assert service.week_plan(1, MONDAY) == planned
 
 
 def test_plan_week_twice_conflicts(service: ChoreService) -> None:
-    service.add_chore(1, "Bad", 5)
+    service.add_chore(1, "Bathroom", 5)
     service.plan_week(1, MONDAY)
     with pytest.raises(ConflictError):
         service.plan_week(1, MONDAY)
 
 
 def test_complete_assignment(service: ChoreService) -> None:
-    service.add_chore(1, "Bad", 5)
+    service.add_chore(1, "Bathroom", 5)
     [assignment] = service.plan_week(1, MONDAY)
     done = service.complete_assignment(1, assignment.id or 0)
     assert done.completed_at is not None
@@ -57,7 +57,7 @@ def test_complete_assignment(service: ChoreService) -> None:
 
 
 def test_load_by_member(service: ChoreService) -> None:
-    service.add_chore(1, "Bad", 5)
+    service.add_chore(1, "Bathroom", 5)
     service.plan_week(1, MONDAY)
     assert [(m.name, m.effort_points) for m in service.load_by_member(1)] == [
         ("Lea", 5),

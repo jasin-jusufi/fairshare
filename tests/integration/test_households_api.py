@@ -8,11 +8,11 @@ def test_health(client: TestClient) -> None:
 
 
 def test_ac1_create_household(client: TestClient) -> None:
-    r = client.post("/households", json={"name": "WG Basel"})
+    r = client.post("/households", json={"name": "Flat Basel"})
     assert r.status_code == 201
     body = r.json()
     assert isinstance(body["id"], int)
-    assert body["name"] == "WG Basel"
+    assert body["name"] == "Flat Basel"
     assert body["currency"] == "CHF"
     assert body["members"] == []
 
@@ -43,10 +43,10 @@ def test_ac5_unknown_household(client: TestClient) -> None:
 
 
 def test_ac6_list_households_in_creation_order(client: TestClient) -> None:
-    client.post("/households", json={"name": "WG Basel"})
-    client.post("/households", json={"name": "WG Olten"})
+    client.post("/households", json={"name": "Flat Basel"})
+    client.post("/households", json={"name": "Flat Olten"})
     names = [h["name"] for h in client.get("/households").json()]
-    assert names == ["WG Basel", "WG Olten"]
+    assert names == ["Flat Basel", "Flat Olten"]
 
 
 def test_ac7_get_household_with_members(client: TestClient, household: dict) -> None:
