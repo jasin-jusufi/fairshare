@@ -38,7 +38,11 @@ if [ ! -x "$VENV_DIR/bin/python" ]; then
 fi
 
 "$VENV_DIR/bin/python" -m pip install --upgrade pip
-"$VENV_DIR/bin/python" -m pip install -r "$ROOT_DIR/requirements.txt"
+if [ -f "$ROOT_DIR/requirements-dev.txt" ]; then
+  "$VENV_DIR/bin/python" -m pip install -r "$ROOT_DIR/requirements-dev.txt"
+else
+  "$VENV_DIR/bin/python" -m pip install -r "$ROOT_DIR/requirements.txt"
+fi
 
 echo ""
 echo "Python setup complete."

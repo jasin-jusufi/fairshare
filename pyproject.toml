@@ -1,0 +1,56 @@
+[project]
+name = "fairshare"
+version = "0.1.0"
+description = "Shared-household expenses, fair settle-up and chore rotation"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["src/app"]
+omit = ["src/app/main.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+packages = ["app"]
+strict = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["app.infrastructure.*", "app.interfaces.*"]
+disallow_untyped_decorators = false
+
+[tool.importlinter]
+root_package = "app"
+
+[[tool.importlinter.contracts]]
+name = "Clean Architecture layers (dependencies point inward)"
+type = "layers"
+layers = [
+    "app.infrastructure",
+    "app.interfaces",
+    "app.application",
+    "app.domain",
+]
+
+[[tool.importlinter.contracts]]
+name = "Domain and application are framework-free"
+type = "forbidden"
+source_modules = ["app.domain", "app.application"]
+forbidden_modules = ["fastapi", "sqlalchemy", "pydantic", "starlette", "alembic"]
