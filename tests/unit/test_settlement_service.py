@@ -1,12 +1,12 @@
 import pytest
-from app.application.settlement_service import SettlementService
-from app.domain.settlement import Transfer
 
 from app.application.errors import NotFoundError
 from app.application.expense_service import ExpenseService, Participant
+from app.application.settlement_service import SettlementService
 from app.domain.errors import OverpaymentError, UnknownMemberError
 from app.domain.expense import SplitMethod
 from app.domain.household import Household
+from app.domain.settlement import Transfer
 
 from .fakes import (
     InMemoryExpenseRepository,

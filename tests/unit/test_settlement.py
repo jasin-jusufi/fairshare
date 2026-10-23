@@ -1,10 +1,10 @@
 import random
 
 import pytest
-from app.domain.settlement import Settlement, Transfer, compute_balances, suggest_transfers
 
 from app.domain.errors import ValidationError
 from app.domain.expense import Expense, ExpenseShare, SplitMethod
+from app.domain.settlement import Settlement, Transfer, compute_balances, suggest_transfers
 
 
 def expense(payer: int, shares: dict[int, int]) -> Expense:
