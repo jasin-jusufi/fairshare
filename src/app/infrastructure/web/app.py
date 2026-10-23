@@ -4,12 +4,14 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, Request
 from sqlalchemy.orm import Session
 
+from app.application.expense_service import ExpenseService
 from app.application.household_service import HouseholdService
 from app.infrastructure import config
 from app.infrastructure.database import create_schema as create_db_schema
 from app.infrastructure.database import make_engine, make_session_factory
+from app.infrastructure.persistence.expense_repository import SqlAlchemyExpenseRepository
 from app.infrastructure.persistence.household_repository import SqlAlchemyHouseholdRepository
-from app.interfaces.api import dependencies, households
+from app.interfaces.api import dependencies, expenses, households
 from app.interfaces.api.errors import register_error_handlers
 
 
@@ -35,8 +37,15 @@ def create_app(database_url: str | None = None, create_schema: bool | None = Non
     def household_service(session: DbSession) -> HouseholdService:
         return HouseholdService(SqlAlchemyHouseholdRepository(session))
 
+    def expense_service(session: DbSession) -> ExpenseService:
+        return ExpenseService(
+            SqlAlchemyHouseholdRepository(session), SqlAlchemyExpenseRepository(session)
+        )
+
     app.dependency_overrides[dependencies.household_service] = household_service
+    app.dependency_overrides[dependencies.expense_service] = expense_service
     app.include_router(households.router)
+    app.include_router(expenses.router)
     register_error_handlers(app)
 
     @app.get("/health", tags=["ops"])
