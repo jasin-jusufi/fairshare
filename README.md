@@ -267,6 +267,7 @@ flowchart LR
     CD --> Render[("Render Web Service<br/>+ Render PostgreSQL")]
 ```
 
+- **Branch protection on `main`:** changes only via pull request; `structure`, `quality`, `test` and `e2e` must pass on an up-to-date branch; no force pushes or deletions, enforced for admins too.
 - **Release:** `git tag v1.0.0 && git push origin v1.0.0` → `ghcr.io/jasin-jusufi/fairshare:v1.0.0`
 - **Deployment:** *Actions → CD → Run workflow* with an image tag. On startup the container runs `alembic upgrade head`.
 
