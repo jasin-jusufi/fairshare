@@ -1,5 +1,7 @@
 from copy import deepcopy
+from datetime import date
 
+from app.domain.chore import Chore, ChoreAssignment
 from app.domain.expense import Expense
 from app.domain.household import Household
 from app.domain.settlement import Settlement
@@ -65,3 +67,45 @@ class InMemorySettlementRepository:
 
     def list_by_household(self, household_id: int) -> list[Settlement]:
         return [deepcopy(s) for s in self._items if s.household_id == household_id]
+
+
+class InMemoryChoreRepository:
+    def __init__(self) -> None:
+        self._items: list[Chore] = []
+
+    def add(self, chore: Chore) -> Chore:
+        chore.id = len(self._items) + 1
+        self._items.append(deepcopy(chore))
+        return chore
+
+    def list_by_household(self, household_id: int) -> list[Chore]:
+        return [deepcopy(c) for c in self._items if c.household_id == household_id]
+
+
+class InMemoryChoreAssignmentRepository:
+    def __init__(self) -> None:
+        self._items: dict[int, ChoreAssignment] = {}
+
+    def add_all(self, assignments: list[ChoreAssignment]) -> list[ChoreAssignment]:
+        for assignment in assignments:
+            assignment.id = len(self._items) + 1
+            self._items[assignment.id] = deepcopy(assignment)
+        return assignments
+
+    def get(self, assignment_id: int) -> ChoreAssignment | None:
+        stored = self._items.get(assignment_id)
+        return deepcopy(stored) if stored else None
+
+    def list_by_household(
+        self, household_id: int, week_start: date | None = None
+    ) -> list[ChoreAssignment]:
+        return [
+            deepcopy(a)
+            for a in self._items.values()
+            if a.household_id == household_id and week_start in (None, a.week_start)
+        ]
+
+    def save(self, assignment: ChoreAssignment) -> ChoreAssignment:
+        assert assignment.id is not None
+        self._items[assignment.id] = deepcopy(assignment)
+        return assignment
