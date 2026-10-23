@@ -11,6 +11,9 @@ docs/specs/UC-004-ROTATE-CHORES.md
 
 ## Backlog
 
+- docs/specs/UC-005-SCAN-RECEIPT.md — Owner: Bajram (Phase 2 → 3, ADR-008)
+- UI-E2E mit Playwright (Owner: Bajram)
+- Phase 5: Render-Deployment einrichten und `cd.yml` ausführen (Jasin + Bajram)
 
 ## Working agreement
 
