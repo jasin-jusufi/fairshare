@@ -12,7 +12,7 @@ Development* (FHNW, 26H2) mit **Clean Architecture**, **TDD**, **CI/CD** und
 konsequentem Einsatz von **Coding Agents** nach dem
 [AI-SDLC](https://docs.aisl.science/learning-and-resources/ai-sdlc).
 
-![FairShare UI](docs/assets/ui.jpg)
+![FairShare UI](docs/assets/ui.png)
 
 | | |
 |---|---|
