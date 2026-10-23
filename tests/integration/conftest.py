@@ -1,8 +1,9 @@
 from collections.abc import Iterator
 
 import pytest
-from app.infrastructure.web.app import create_app
 from fastapi.testclient import TestClient
+
+from app.infrastructure.web.app import create_app
 
 
 @pytest.fixture

@@ -1,4 +1,5 @@
 import pytest
+
 from app.domain.errors import DuplicateMemberError, ValidationError
 from app.domain.household import Household, Member
 

@@ -1,4 +1,5 @@
 import pytest
+
 from app.application.errors import NotFoundError
 from app.application.household_service import HouseholdService
 from app.domain.errors import DuplicateMemberError

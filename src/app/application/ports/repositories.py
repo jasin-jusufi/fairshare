@@ -1,0 +1,13 @@
+from typing import Protocol
+
+from app.domain.household import Household
+
+
+class HouseholdRepository(Protocol):
+    def add(self, household: Household) -> Household: ...
+
+    def get(self, household_id: int) -> Household | None: ...
+
+    def list(self) -> list[Household]: ...
+
+    def save(self, household: Household) -> Household: ...
