@@ -24,5 +24,5 @@ grössten Bruchteil verteilt (bei Gleichstand nach Reihenfolge).
 ## Konsequenzen
 
 - Invariante „Summe der Anteile = Betrag“ ist exakt prüfbar und getestet.
-- API und UI rechnen CHF ↔ Rappen an der Grenze um.
+- Die API arbeitet mit `amount_cents`; nur das UI rechnet CHF ↔ Rappen um.
 - Einwährungssystem (CHF) — Mehrwährung ist Out of Scope.
