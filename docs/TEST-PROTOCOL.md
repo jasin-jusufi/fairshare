@@ -5,7 +5,7 @@
 | **Date** | 2026-10-25 |
 | **Tester** | Bajram Kurto Elezi (testing role), assisted by Claude Code |
 | **Branch / base** | `test/edge-case-tests`, based on `main` @ `491ab82` |
-| **Environment** | Windows 11, Python 3.12.10, pytest 9.1.1, FastAPI 0.162.0, Pydantic 2.14.1, SQLAlchemy 2.1.6, SQLite in-memory |
+| **Environment** | Windows 11, Python 3.12.10, pytest 9.1.1, FastAPI 0.162.0, Pydantic 2.14.1, SQLAlchemy 2.1.6, SQLite in-memory; PostgreSQL 16.15 in Docker for the [PostgreSQL check](#postgresql-check) |
 | **Command** | `pytest tests/unit tests/integration --cov -rx` |
 
 ## Summary
@@ -97,9 +97,9 @@ they are fixed. Parametrized tests are one row each; the count is in brackets.
 | I-15 IDs 0 and −1 (2) | `GET /households/0`, `/households/-1` | 404 | 404 | ✅ Pass |
 | I-16 Delete expense via another household | `DELETE /households/{other}/expenses/{id}` | 404, expense still exists | As expected | ✅ Pass |
 | I-17 Complete chore via another household | `POST /households/{other}/assignments/{id}/complete` | 404, still not completed | As expected | ✅ Pass |
-| I-18 Amount beyond the database range (2) | 2³¹ and 2⁶³ cents | 400 or 422 | 2³¹: 201 on SQLite (integer overflow on PostgreSQL, see BUG-1); 2⁶³: **500** | ❌ Fail – BUG-1 |
-| I-19 IDs beyond 64 bit (4) | 2⁶³ as household, expense or assignment ID on 4 endpoints | 404 or 422 | **500** | ❌ Fail – BUG-2 |
-| I-20 Invisible names over HTTP (2) | U+200B, `Lea\x00` | 400 | 201 | ❌ Fail – BUG-4 |
+| I-18 Amount beyond the database range (2) | 2³¹ and 2⁶³ cents | 400 or 422 | 2³¹: 201 on SQLite, **500** on PostgreSQL; 2⁶³: **500** on both | ❌ Fail – BUG-1 |
+| I-19 IDs beyond 64 bit (4) | 2⁶³ as household, expense or assignment ID on 4 endpoints | 404 or 422 | **500** (on PostgreSQL already from 2³¹) | ❌ Fail – BUG-2 |
+| I-20 Invisible names over HTTP (2) | U+200B, `Lea\x00` | 400 | 201 on SQLite; on PostgreSQL `Lea\x00` gives **500** | ❌ Fail – BUG-4 |
 
 ### Integration tests – consistency (`tests/integration/edge_cases/test_consistency_api.py`)
 
@@ -116,10 +116,10 @@ be removed from `tests/known_bugs.py`.
 
 | ID | Severity | Where | Problem | Suggested fix |
 |---|---|---|---|---|
-| BUG-1 | Medium | `domain/expense.py`, `interfaces/api/schemas.py`, `infrastructure/persistence/models.py` | `amount_cents` is only checked for `> 0`, there is no upper limit. The column is `Integer`: 64 bit in SQLite, **32 bit in PostgreSQL** (max CHF 21,474,836.47). 2⁶³ cents gives HTTP 500 (verified on SQLite). Above 2³¹ − 1, PostgreSQL rejects the insert with "integer out of range" → HTTP 500 in production (derived from the column type; not run locally because Docker was not running). A typo with a few extra zeros is enough. | Add a domain constant, e.g. `MAX_AMOUNT_CENTS`, check it in `Expense.__post_init__` (→ 400) and document it with `Field(le=…)` in the schema and in UC-002. Alternatively `BigInteger` + migration, but a business limit is still advisable. |
-| BUG-2 | Low | `interfaces/api/*.py` (path parameters), repositories (`session.get`) | IDs in the URL are unbounded `int`. From 2⁶³ upward, SQLite raises `OverflowError` → HTTP 500 instead of 404 on every endpoint with an ID (verified on SQLite; PostgreSQL probably answers 404, not verified). | Shared type `Id = Annotated[int, Path(ge=1, le=2**63 - 1)]` for all path IDs (→ 422), or catch `OverflowError` in the repositories and return `None` (→ 404). |
+| BUG-1 | Medium | `domain/expense.py`, `interfaces/api/schemas.py`, `infrastructure/persistence/models.py` | `amount_cents` is only checked for `> 0`, there is no upper limit. The column is `Integer`: 64 bit in SQLite, **32 bit in PostgreSQL** (max CHF 21,474,836.47). On PostgreSQL every amount from 2,147,483,648 cents gives HTTP 500 (`NumericValueOutOfRange: integer out of range`), on SQLite from 2⁶³ (both verified). A typo with a few extra zeros is enough. | Add a domain constant, e.g. `MAX_AMOUNT_CENTS`, check it in `Expense.__post_init__` (→ 400) and document it with `Field(le=…)` in the schema and in UC-002. Alternatively `BigInteger` + migration, but a business limit is still advisable. |
+| BUG-2 | Medium | `interfaces/api/*.py` (path parameters), repositories (`session.get`) | IDs in the URL are unbounded `int`, but the ID columns are `Integer`. On PostgreSQL any ID from 2,147,483,648 (a 10-digit number) gives HTTP 500 (`integer out of range`) instead of 404; on SQLite from 2⁶³ (`OverflowError`). Both verified. The automated test uses 2⁶³, because CI runs on SQLite. | Shared type `Id = Annotated[int, Path(ge=1, le=2**31 - 1)]` for all path IDs (→ 422), matching the `Integer` ID columns. |
 | BUG-3 | Medium | `interfaces/api/schemas.py` (all input models) | Pydantic runs in lax mode: JSON `true` becomes the integer 1. `"amount_cents": true` records a 1-cent expense, `"payer_id": true` makes member 1 the payer, `"effort": true` gives effort 1, without any error. Lax mode also turns `"9000"` into 9000 and `90.0` into 90. | `model_config = ConfigDict(strict=True)` on the input models (or `StrictInt` fields). In JSON mode, strict still accepts ISO date strings and enum values. Then decide as a team whether numeric strings should stay allowed. |
-| BUG-4 | Low–Medium | `domain/validation.py` (`clean_text`) | `strip()` only removes whitespace. A name made of a zero-width space (U+200B) is accepted and shows up as an empty name in the UI. NUL (`\x00`) is accepted too, but PostgreSQL cannot store NUL in text columns → HTTP 500 in production (not verified locally). | Reject control characters (Unicode category `Cc`), and treat a name made only of whitespace and invisible format characters (U+200B, U+200C, U+200D, U+2060, U+FEFF) as empty. Do not reject all `Cf` characters: U+200D is needed for emoji such as 👨‍👩‍👧. |
+| BUG-4 | Low–Medium | `domain/validation.py` (`clean_text`) | `strip()` only removes whitespace. A name made of a zero-width space (U+200B) is accepted and shows up as an empty name in the UI. NUL (`\x00`) is accepted too; PostgreSQL then refuses the insert (`DataError: PostgreSQL text fields cannot contain NUL (0x00) bytes`) → HTTP 500 (verified). | Reject control characters (Unicode category `Cc`), and treat a name made only of whitespace and invisible format characters (U+200B, U+200C, U+200D, U+2060, U+FEFF) as empty. Do not reject all `Cf` characters: U+200D is needed for emoji such as 👨‍👩‍👧. |
 | BUG-5 | Low | `domain/validation.py`, `domain/household.py` (`add_member`) | The duplicate check compares `casefold()` without Unicode normalization. `José` typed as é (NFC) and as e + combining accent (NFD, common on macOS) count as two different members although they look identical. | `unicodedata.normalize("NFC", text)` in `clean_text` before trimming and checking the length. |
 
 ### Observations (no bug, team decision)
@@ -129,8 +129,31 @@ be removed from `tests/known_bugs.py`.
 - Type errors return **422** (Pydantic), rule violations return **400** (domain). That is consistent and documented, but clients have to handle both codes.
 - The README listed 39 integration tests; 44 were actually collected before this suite was added. The numbers are now updated.
 
+### PostgreSQL check
+
+CI runs the edge-case suite on SQLite only. Because production uses PostgreSQL, the
+database-related bugs were checked once by hand against the same image as the CI `e2e`
+job, with the schema created by the Alembic migrations as in production:
+
+```bash
+docker run -d --rm --name fairshare-pg-verify -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=fairshare -p 55432:5432 postgres:16-alpine
+DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:55432/fairshare alembic upgrade head
+```
+
+The requests were then sent through FastAPI's `TestClient` against that database.
+
+| Request | Result on PostgreSQL 16.15 | Bug |
+|---|---|---|
+| Expense of 2,147,483,647 cents | 201 | – |
+| Expense of 2,147,483,648 / 2⁶³ − 1 / 2⁶³ cents | 500, `NumericValueOutOfRange: integer out of range` | BUG-1 confirmed |
+| Member name `Lea\x00` | 500, `DataError: PostgreSQL text fields cannot contain NUL (0x00) bytes` | BUG-4 confirmed |
+| Member name U+200B | 201 | BUG-4 confirmed |
+| `GET /households/2147483648` and `/households/2⁶³` | 500, `NumericValueOutOfRange: integer out of range` | BUG-2, worse than on SQLite |
+| Expense with `amount_cents: true` | 201 | BUG-3, same as SQLite |
+| `José` in NFC, then in NFD | 201, 201 | BUG-5, same as SQLite |
+
 ### Not covered
 
-- E2E tests against PostgreSQL (`tests/e2e`) were not run, because the Docker daemon was not running. That is why the PostgreSQL parts of BUG-1 and BUG-4 are derived from the code and still need a check against PostgreSQL.
+- The E2E suite (`tests/e2e`) was not run locally; it runs in CI against the Docker image with PostgreSQL.
 - UC-005 (scan receipt) is only specified, there is no code to test yet.
 - The web UI (`/ui`) is not covered by automated tests.
