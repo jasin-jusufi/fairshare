@@ -233,8 +233,8 @@ sent over the API as CHF decimals. This led to the refined ADR-004.
 
 | Level | Count | What | How |
 |---|---|---|---|
-| Unit | 131 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts | `pytest tests/unit` |
-| Integration | 39 | Every acceptance criterion via HTTP + real DB (SQLite in-memory) | `pytest tests/integration` |
+| Unit | 238 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts, edge cases | `pytest tests/unit` |
+| Integration | 95 | Every acceptance criterion via HTTP + real DB (SQLite in-memory), edge cases | `pytest tests/integration` |
 | E2E | 3 | Complete journey against the **running Docker container with PostgreSQL** | `BASE_URL=… pytest tests/e2e` |
 
 Coverage: **99 %** (gate 90 %). Static checks: `ruff`, `mypy --strict`,
@@ -244,6 +244,46 @@ Coverage: **99 %** (gate 90 %). Static checks: `ruff`, `mypy --strict`,
 ruff check . && ruff format --check . && mypy && lint-imports
 pytest tests/unit tests/integration --cov
 ```
+
+### Testing
+
+**Install** (once): pytest, coverage and the linters come from `requirements-dev.txt`.
+
+```bash
+bash scripts/setup-python.sh && source .venv/bin/activate     # Linux / macOS
+```
+
+```powershell
+py -3.12 -m venv .venv; .venv\Scripts\Activate.ps1            # Windows
+python -m pip install -r requirements-dev.txt
+```
+
+**Run**: `pyproject.toml` already puts `src` on the path, so no `PYTHONPATH` is needed.
+
+```bash
+pytest tests/unit tests/integration                           # what CI runs
+pytest tests/unit/edge_cases tests/integration/edge_cases -rx  # edge cases + list of known bugs
+pytest tests/unit tests/integration --cov                     # with coverage report
+pytest -k boundary -v                                         # select tests by name
+```
+
+**Edge-case suite.** Besides the acceptance criteria, `tests/*/edge_cases/` checks
+empty input, boundary values, wrong data types, very large numbers and Unicode:
+
+| File | Tests | Focus |
+|---|---|---|
+| `unit/edge_cases/test_split_edge_cases.py` | 77 | 1 cent, single participant, 99/100/101 %, property: every share within 1 cent of the exact value |
+| `unit/edge_cases/test_text_edge_cases.py` | 13 | Name length 80/81, Unicode whitespace, umlauts and emoji, ß/ss, invisible characters, NFC/NFD |
+| `unit/edge_cases/test_settlement_edge_cases.py` | 6 | Empty household, 1-cent debt, no side effects, 50 members, balances always sum to 0 |
+| `unit/edge_cases/test_chore_edge_cases.py` | 11 | Effort 1 and 5, first/last calendar date, leap day, ties, new and former members |
+| `integration/edge_cases/test_input_types_api.py` | 30 | Wrong types, missing fields and malformed JSON → 422; booleans as numbers |
+| `integration/edge_cases/test_limits_api.py` | 19 | Length and amount boundaries, data isolation between households, huge IDs and amounts |
+| `integration/edge_cases/test_consistency_api.py` | 2 | 40 random expenses settled via the suggested transfers; deleting a settled expense |
+
+**Known bugs** are marked as strict `xfail` in [`tests/known_bugs.py`](tests/known_bugs.py):
+the build stays green while a bug is open and turns red once it is fixed, as a reminder
+to remove the marker. Every test case, its input and its result are listed in
+[`TESTPROTOKOLL.md`](TESTPROTOKOLL.md).
 
 ---
 
