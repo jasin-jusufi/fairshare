@@ -283,7 +283,7 @@ empty input, boundary values, wrong data types, very large numbers and Unicode:
 **Known bugs** are marked as strict `xfail` in [`tests/known_bugs.py`](tests/known_bugs.py):
 the build stays green while a bug is open and turns red once it is fixed, as a reminder
 to remove the marker. Every test case, its input and its result are listed in
-[`TESTPROTOKOLL.md`](TESTPROTOKOLL.md).
+[`docs/TEST-PROTOCOL.md`](docs/TEST-PROTOCOL.md).
 
 ---
 

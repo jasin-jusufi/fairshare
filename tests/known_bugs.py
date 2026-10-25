@@ -1,4 +1,4 @@
-"""Bugs found by the edge-case tests; details in TESTPROTOKOLL.md.
+"""Bugs found by the edge-case tests; details in docs/TEST-PROTOCOL.md.
 
 Every marker is a strict xfail: the suite stays green while a bug is open, and the
 test turns red as soon as the bug is fixed, as a reminder to remove the marker.
