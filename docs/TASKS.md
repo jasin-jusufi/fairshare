@@ -1,17 +1,17 @@
 # TASKS.md
 
-PHASE: 4
+PHASE: 1
 STATUS: done
 
 (0=Bootstrap | 1=Specify | 2=Design | 3=Develop | 4=Validate | 5=Deploy)
 
 ## Current Use Case
 
-docs/specs/UC-004-ROTATE-CHORES.md
+docs/specs/UC-005-SCAN-RECEIPT.md (Owner: Bajram)
 
 ## Backlog
 
-- docs/specs/UC-005-SCAN-RECEIPT.md — Owner: Bajram (Phase 2 → 3, ADR-008)
+- UC-005: real vision-LLM adapter behind `ReceiptParser` (needs its own ADR: model, key handling, cost)
 - UI E2E with Playwright (Owner: Bajram)
 - Phase 5: set up Render deployment and run `cd.yml` (Jasin + Bajram)
 
@@ -46,3 +46,4 @@ docs/specs/UC-004-ROTATE-CHORES.md
 | 2026-10-23 | all | Fast Track | done | Jasin + Claude Code | Scope: translate every artifact to English (docs, specs, ADRs, UI, OpenAPI texts, test data). Reason: team decision, recorded in AGENTS.md. No behaviour change → DESIGN skipped. Checks: 175 tests green, UI and /docs verified, no German left (grep) |
 | 2026-10-23 | — | 4 Validate | done | Jasin + Claude Code | Repository made public; branch protection on `main`: PR required, 4 required checks, strict, enforced for admins |
 | 2026-10-25 | UC-001–004 | 4 Validate | done | Bajram + Claude Code | Edge-case suite: 158 tests in `tests/*/edge_cases/` (143 green, 15 strict `xfail`), 5 bugs documented in `docs/TEST-PROTOCOL.md`, application code unchanged; BUG-1, BUG-2 and BUG-4 checked against PostgreSQL 16 in Docker |
+| 2026-10-26 | UC-005 | 1 Specify | done | Bajram + Claude Code | Change: no API key. `RECEIPT_PARSER` = `none` (default, 503) or `fake` (demo, fixed suggestion); real Claude adapter out of scope. AC1–AC6 (AC6: unknown household → 404) |
