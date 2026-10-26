@@ -1,6 +1,6 @@
 # TASKS.md
 
-PHASE: 3
+PHASE: 4
 STATUS: done
 
 (0=Bootstrap | 1=Specify | 2=Design | 3=Develop | 4=Validate | 5=Deploy)
@@ -49,3 +49,4 @@ docs/specs/UC-005-SCAN-RECEIPT.md (Owner: Bajram)
 | 2026-10-26 | UC-005 | 1 Specify | done | Bajram + Claude Code | Change: no API key. `RECEIPT_PARSER` = `none` (default, 503) or `fake` (demo, fixed suggestion); real Claude adapter out of scope. AC1–AC6 (AC6: unknown household → 404) |
 | 2026-10-26 | UC-005 | 2 Design | done | Bajram + Claude Code | ADR-008: `ReceiptParser` port with fake and unavailable adapters instead of a real LLM. Image checks in `ReceiptService` (framework-free, unit-testable). No persistence, no migration; new dependency `python-multipart`. PROJECT.md: API row and `RECEIPT_PARSER` |
 | 2026-10-26 | UC-005 | 3 Develop | done | Bajram + Claude Code | TDD: 41 new tests red → green (AC1–AC6, 5 MB boundary, `ReceiptService`, `ReceiptSuggestion`, parsers, config). UI: "Scan receipt" pre-fills the expense form (test first); checked in the browser with `fake` and `none`, mobile 375 px without horizontal scrolling |
+| 2026-10-26 | UC-005 | 4 Validate | done | Bajram + Claude Code | ruff, mypy, import-linter, `alembic check` (no drift) green; 360 passed + 15 known-bug xfails, coverage 99.79 %. Docker image built, E2E 4/4 against PostgreSQL 16 (new: receipts answer 503 by default, which also proves `python-multipart` is in the image). README: UC table, ADR-008, `RECEIPT_PARSER`, test counts |
