@@ -49,6 +49,7 @@ non-trivial domain problems:
 | 002 | Record expense | Equal / percent / shares split, **largest remainder**: the shares always add up exactly | [UC-002](docs/specs/UC-002-RECORD-EXPENSE.md) |
 | 003 | Settle up | Balances + **greedy settle-up with ≤ n − 1 transfers**, overpayment protection | [UC-003](docs/specs/UC-003-SETTLE-UP.md) |
 | 004 | Rotate chores | **Fairness by effort** including history (LPT heuristic) | [UC-004](docs/specs/UC-004-ROTATE-CHORES.md) |
+| 005 | Scan receipt | Suggestion from a receipt photo behind the **`ReceiptParser` port**; fake or switched-off adapter, no API key, nothing stored | [UC-005](docs/specs/UC-005-SCAN-RECEIPT.md) |
 
 **What is innovative?** The three core algorithms are pure, framework-free
 domain functions and are tested with properties, not just examples: shares add
@@ -142,12 +143,13 @@ sequenceDiagram
 | [005](docs/adr/ADR-005-testing-strategy.md) | Test pyramid, visible TDD trail in Git |
 | [006](docs/adr/ADR-006-delivery-pipeline.md) | GitHub Actions → GHCR → Render |
 | [007](docs/adr/ADR-007-settle-up-algorithm.md) | Greedy settle-up instead of exact (NP-hard) optimization |
+| [008](docs/adr/ADR-008-receipt-parser-port.md) | Receipt parsing behind a port, fake adapter instead of a real LLM |
 
 ---
 
 ## 3. Domain model
 
-Seven entities, two value objects, four use case services.
+Seven entities, three value objects, five use case services.
 
 ```mermaid
 erDiagram
@@ -177,9 +179,11 @@ erDiagram
 | `ExpenseService` | UC-002 | Payer and participants must be members; sum of shares = amount |
 | `SettlementService` | UC-003 | Balances sum to 0; payment ≤ outstanding debt |
 | `ChoreService` | UC-004 | Effort 1–5; each week can be planned only once; effort stored as a snapshot |
+| `ReceiptService` | UC-005 | JPEG/PNG by file signature, ≤ 5 MB; suggestion: description 1–120 characters, amount > 0; nothing stored |
 
 Error mapping at the HTTP boundary: `ValidationError` → 400, `NotFoundError` → 404,
-`ConflictError` → 409. The domain knows nothing about HTTP status codes.
+`ConflictError` → 409, `ReceiptUnreadableError` → 422, `ParserUnavailableError` → 503.
+The domain knows nothing about HTTP status codes.
 
 ---
 
@@ -233,9 +237,9 @@ sent over the API as CHF decimals. This led to the refined ADR-004.
 
 | Level | Count | What | How |
 |---|---|---|---|
-| Unit | 238 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts, edge cases | `pytest tests/unit` |
-| Integration | 95 | Every acceptance criterion via HTTP + real DB (SQLite in-memory), edge cases | `pytest tests/integration` |
-| E2E | 3 | Complete journey against the **running Docker container with PostgreSQL** | `BASE_URL=… pytest tests/e2e` |
+| Unit | 265 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts, edge cases | `pytest tests/unit` |
+| Integration | 110 | Every acceptance criterion via HTTP + real DB (SQLite in-memory), edge cases | `pytest tests/integration` |
+| E2E | 4 | Complete journey against the **running Docker container with PostgreSQL** | `BASE_URL=… pytest tests/e2e` |
 
 Coverage: **99 %** (gate 90 %). Static checks: `ruff`, `mypy --strict`,
 `lint-imports`, `alembic check`.
@@ -329,6 +333,7 @@ flowchart LR
 bash scripts/setup-python.sh          # .venv + dependencies
 source .venv/bin/activate
 PYTHONPATH=src uvicorn app.main:app --reload
+RECEIPT_PARSER=fake PYTHONPATH=src uvicorn app.main:app --reload   # with the receipt demo (UC-005)
 ```
 
 - UI: <http://localhost:8000/ui/>
@@ -345,7 +350,17 @@ docker run -p 8000:8000 -e DATABASE_URL=postgresql://u:p@host/db fairshare
 ```
 
 Configuration via environment variables only: `DATABASE_URL` (default
-`sqlite:///./fairshare.db`), `PORT` (container, default 8000). No secrets in the repo.
+`sqlite:///./fairshare.db`), `PORT` (container, default 8000) and `RECEIPT_PARSER`.
+No secrets in the repo.
+
+| `RECEIPT_PARSER` | Behaviour of "Scan receipt" (`POST /households/{id}/receipts`) |
+|---|---|
+| `none` (default) | Switched off, answers 503 |
+| `fake` | Demo without an API key: suggests "Migros", CHF 23.50 for every JPEG/PNG |
+
+A real vision-LLM adapter is not part of the project yet; it would be one more
+value here (see [ADR-008](docs/adr/ADR-008-receipt-parser-port.md)). With Docker:
+`docker run -p 8000:8000 -e RECEIPT_PARSER=fake fairshare`.
 
 ### Agent setup
 

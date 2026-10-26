@@ -64,3 +64,12 @@ def test_household_journey(http: httpx.Client) -> None:
     plan = http.post(f"{base}/chore-plans", json={"week_start": "2026-10-26"})
     assert plan.status_code == 201
     assert {a["member_id"] for a in plan.json()["assignments"]} == {lea, noah}
+
+
+def test_receipt_scanning_is_off_by_default(http: httpx.Client) -> None:
+    household = http.post("/households", json={"name": "E2E Receipts"}).json()
+    png = b"\x89PNG\r\n\x1a\n" + bytes(16)
+    r = http.post(
+        f"/households/{household['id']}/receipts", files={"file": ("receipt.png", png, "image/png")}
+    )
+    assert r.status_code == 503

@@ -12,3 +12,10 @@ def test_ui_is_served(client: TestClient) -> None:
     assert r.status_code == 200
     assert "text/html" in r.headers["content-type"]
     assert "FairShare" in r.text
+
+
+def test_expense_form_offers_receipt_scan(client: TestClient) -> None:
+    html = client.get("/ui/").text
+    assert 'id="receipt-scan"' in html
+    assert 'accept="image/jpeg,image/png"' in html
+    assert "/receipts" in html

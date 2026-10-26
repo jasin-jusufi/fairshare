@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from app.application.errors import NotFoundError
+from app.application.errors import NotFoundError, ParserUnavailableError, ReceiptUnreadableError
 from app.domain.errors import ConflictError, DomainError
 
 STATUS_BY_ERROR: list[tuple[type[Exception], int]] = [
     (NotFoundError, 404),
+    (ReceiptUnreadableError, 422),
+    (ParserUnavailableError, 503),
     (ConflictError, 409),
     (DomainError, 400),
 ]

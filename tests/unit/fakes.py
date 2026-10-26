@@ -1,6 +1,7 @@
 from copy import deepcopy
 from datetime import date
 
+from app.application.ports.receipt_parser import ReceiptReading
 from app.domain.chore import Chore, ChoreAssignment
 from app.domain.expense import Expense
 from app.domain.household import Household
@@ -109,3 +110,15 @@ class InMemoryChoreAssignmentRepository:
         assert assignment.id is not None
         self._items[assignment.id] = deepcopy(assignment)
         return assignment
+
+
+class StubReceiptParser:
+    def __init__(self, result: ReceiptReading | Exception) -> None:
+        self._result = result
+        self.calls: list[tuple[bytes, str]] = []
+
+    def parse(self, image: bytes, media_type: str) -> ReceiptReading:
+        self.calls.append((image, media_type))
+        if isinstance(self._result, Exception):
+            raise self._result
+        return self._result
