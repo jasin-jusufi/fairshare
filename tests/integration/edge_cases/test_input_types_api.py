@@ -1,8 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from tests.known_bugs import BOOLEAN_AS_NUMBER
-
 
 def expense_body(members: dict[str, int], **overrides: object) -> dict:
     body: dict = {
@@ -106,7 +104,6 @@ def test_non_numeric_ids_in_the_url_are_rejected_with_422(client: TestClient, pa
     assert client.get(path).status_code == 422
 
 
-@BOOLEAN_AS_NUMBER
 @pytest.mark.parametrize("field", ["amount_cents", "payer_id"])
 def test_boolean_is_not_accepted_as_a_number_in_expenses(
     client: TestClient, household: dict, members: dict, field: str
@@ -119,7 +116,6 @@ def test_boolean_is_not_accepted_as_a_number_in_expenses(
     assert r.status_code == 422
 
 
-@BOOLEAN_AS_NUMBER
 def test_boolean_is_not_accepted_as_chore_effort(client: TestClient, household: dict) -> None:
     """Same root cause for chores: `true` becomes effort 1."""
     r = client.post(f"/households/{household['id']}/chores", json={"name": "X", "effort": True})
