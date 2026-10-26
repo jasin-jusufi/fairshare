@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tests.integration.helpers import pay
-from tests.known_bugs import AMOUNT_OVERFLOW, ID_OVERFLOW, INVISIBLE_NAMES
+from tests.known_bugs import AMOUNT_OVERFLOW, ID_OVERFLOW
 
 POSTGRES_INTEGER_MAX = 2**31 - 1
 SQLITE_INTEGER_MAX = 2**63 - 1
@@ -126,7 +126,6 @@ def test_ids_beyond_64_bit_are_not_found_instead_of_crashing(
     assert client.request(method, url).status_code in (404, 422)
 
 
-@INVISIBLE_NAMES
 @pytest.mark.parametrize("name", ["​", "Lea\x00"], ids=["zero-width-space", "nul-inside"])
 def test_member_names_with_invisible_characters_are_rejected(
     client: TestClient, household: dict, name: str

@@ -2,7 +2,6 @@ import pytest
 
 from app.domain.errors import DuplicateMemberError, ValidationError
 from app.domain.household import Household, Member
-from tests.known_bugs import INVISIBLE_NAMES
 
 
 @pytest.mark.parametrize(
@@ -42,7 +41,6 @@ def test_duplicate_check_uses_full_unicode_case_folding() -> None:
         household.add_member("STRAUß")
 
 
-@INVISIBLE_NAMES
 @pytest.mark.parametrize(
     "name", ["​", "\x00", "Lea\x00"], ids=["zero-width-space", "nul", "nul-inside"]
 )
