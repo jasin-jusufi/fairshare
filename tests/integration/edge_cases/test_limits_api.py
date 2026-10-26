@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tests.integration.helpers import pay
-from tests.known_bugs import AMOUNT_OVERFLOW, ID_OVERFLOW
+from tests.known_bugs import AMOUNT_OVERFLOW
 
 POSTGRES_INTEGER_MAX = 2**31 - 1
 SQLITE_INTEGER_MAX = 2**63 - 1
@@ -107,7 +107,6 @@ def test_amount_beyond_the_database_range_is_rejected(
     assert record(client, household["id"], members["Lea"], amount) in (400, 422)
 
 
-@ID_OVERFLOW
 @pytest.mark.parametrize(
     ("method", "path"),
     [
