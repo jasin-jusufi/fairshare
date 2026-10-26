@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from app.domain.errors import ValidationError
-from app.domain.expense import Expense
+from app.domain.expense import Expense, check_amount
 
 
 @dataclass
@@ -18,8 +18,7 @@ class Settlement:
     def __post_init__(self) -> None:
         if self.from_member_id == self.to_member_id:
             raise ValidationError("A member cannot pay themselves")
-        if self.amount_cents <= 0:
-            raise ValidationError("Amount must be positive")
+        check_amount(self.amount_cents)
 
 
 @dataclass(frozen=True)

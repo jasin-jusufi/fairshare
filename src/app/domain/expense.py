@@ -6,6 +6,16 @@ from app.domain.errors import ValidationError
 from app.domain.validation import clean_text
 
 MAX_DESCRIPTION_LENGTH = 120
+# Largest amount every supported database can store: amounts live in 32-bit
+# integer columns in PostgreSQL (CHF 21,474,836.47, ADR-004).
+MAX_AMOUNT_CENTS = 2**31 - 1
+
+
+def check_amount(amount_cents: int) -> None:
+    if amount_cents <= 0:
+        raise ValidationError("Amount must be positive")
+    if amount_cents > MAX_AMOUNT_CENTS:
+        raise ValidationError(f"Amount must be at most {MAX_AMOUNT_CENTS} cents")
 
 
 class SplitMethod(StrEnum):
@@ -58,8 +68,7 @@ class Expense:
 
     def __post_init__(self) -> None:
         self.description = clean_text(self.description, "Description", MAX_DESCRIPTION_LENGTH)
-        if self.amount_cents <= 0:
-            raise ValidationError("Amount must be positive")
+        check_amount(self.amount_cents)
         if not self.shares:
             raise ValidationError("At least one participant is required")
         if len(self.participant_ids()) != len(self.shares):
