@@ -22,3 +22,11 @@ def database_url() -> str:
 
 def receipt_parser_mode() -> str:
     return os.getenv("RECEIPT_PARSER", "none").strip().lower() or "none"
+
+
+def ollama_url() -> str:
+    return os.getenv("OLLAMA_URL", "http://localhost:11434").strip().rstrip("/")
+
+
+def ollama_model() -> str:
+    return os.getenv("OLLAMA_MODEL", "qwen2.5vl:7b").strip()

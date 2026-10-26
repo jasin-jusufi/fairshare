@@ -18,13 +18,16 @@ class StubOllama:
     """Minimal stand-in for Ollama's /api/chat endpoint."""
 
     def __init__(self) -> None:
+        self.reset()
+
+    def reset(self) -> None:
         self.status = 200
         self.content: Any = {"merchant": "Coop", "total_chf": 23.5}
         self.requests: list[dict[str, Any]] = []
 
 
-@pytest.fixture
-def ollama() -> Iterator[tuple[StubOllama, str]]:
+@pytest.fixture(scope="module")
+def server() -> Iterator[tuple[StubOllama, str]]:
     stub = StubOllama()
 
     class Handler(BaseHTTPRequestHandler):
@@ -41,10 +44,18 @@ def ollama() -> Iterator[tuple[StubOllama, str]]:
         def log_message(self, *args: object) -> None:
             pass
 
-    server = HTTPServer(("127.0.0.1", 0), Handler)
-    threading.Thread(target=server.serve_forever, daemon=True).start()
-    yield stub, f"http://127.0.0.1:{server.server_port}"
-    server.shutdown()
+    httpd = HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    yield stub, f"http://127.0.0.1:{httpd.server_port}"
+    httpd.shutdown()
+    httpd.server_close()
+
+
+@pytest.fixture
+def ollama(server: tuple[StubOllama, str]) -> tuple[StubOllama, str]:
+    stub, url = server
+    stub.reset()
+    return stub, url
 
 
 def test_reads_merchant_and_total_in_cents(ollama: tuple[StubOllama, str]) -> None:
