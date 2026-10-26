@@ -18,3 +18,7 @@ def normalize_database_url(url: str) -> str:
 
 def database_url() -> str:
     return normalize_database_url(os.getenv("DATABASE_URL", "sqlite:///./fairshare.db"))
+
+
+def receipt_parser_mode() -> str:
+    return os.getenv("RECEIPT_PARSER", "none").strip().lower() or "none"

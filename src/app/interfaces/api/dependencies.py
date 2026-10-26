@@ -1,6 +1,8 @@
 from app.application.chore_service import ChoreService
 from app.application.expense_service import ExpenseService
 from app.application.household_service import HouseholdService
+from app.application.ports.receipt_parser import ReceiptParser
+from app.application.receipt_service import ReceiptService
 from app.application.settlement_service import SettlementService
 
 PROVIDED_BY_INFRASTRUCTURE = "Provided by infrastructure via dependency_overrides"
@@ -19,4 +21,12 @@ def settlement_service() -> SettlementService:
 
 
 def chore_service() -> ChoreService:
+    raise NotImplementedError(PROVIDED_BY_INFRASTRUCTURE)
+
+
+def receipt_service() -> ReceiptService:
+    raise NotImplementedError(PROVIDED_BY_INFRASTRUCTURE)
+
+
+def receipt_parser() -> ReceiptParser:
     raise NotImplementedError(PROVIDED_BY_INFRASTRUCTURE)

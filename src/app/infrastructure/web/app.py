@@ -11,6 +11,8 @@ from sqlalchemy.orm import Session
 from app.application.chore_service import ChoreService
 from app.application.expense_service import ExpenseService
 from app.application.household_service import HouseholdService
+from app.application.ports.receipt_parser import ReceiptParser
+from app.application.receipt_service import ReceiptService
 from app.application.settlement_service import SettlementService
 from app.infrastructure import config
 from app.infrastructure.database import create_schema as create_db_schema
@@ -22,7 +24,8 @@ from app.infrastructure.persistence.chore_repository import (
 from app.infrastructure.persistence.expense_repository import SqlAlchemyExpenseRepository
 from app.infrastructure.persistence.household_repository import SqlAlchemyHouseholdRepository
 from app.infrastructure.persistence.settlement_repository import SqlAlchemySettlementRepository
-from app.interfaces.api import chores, dependencies, expenses, households, settlements
+from app.infrastructure.receipt_parsers import make_receipt_parser
+from app.interfaces.api import chores, dependencies, expenses, households, receipts, settlements
 from app.interfaces.api.errors import register_error_handlers
 from app.interfaces.api.openapi import TAGS
 
@@ -39,6 +42,7 @@ DbSession = Annotated[Session, Depends(get_session)]
 
 def create_app(database_url: str | None = None, create_schema: bool | None = None) -> FastAPI:
     url = database_url or config.database_url()
+    parser = make_receipt_parser(config.receipt_parser_mode())
     engine = make_engine(url)
     if create_schema if create_schema is not None else url.startswith("sqlite"):
         create_db_schema(engine)
@@ -74,14 +78,23 @@ def create_app(database_url: str | None = None, create_schema: bool | None = Non
             SqlAlchemyChoreAssignmentRepository(session),
         )
 
+    def receipt_service(
+        session: DbSession,
+        receipt_parser: Annotated[ReceiptParser, Depends(dependencies.receipt_parser)],
+    ) -> ReceiptService:
+        return ReceiptService(SqlAlchemyHouseholdRepository(session), receipt_parser)
+
     app.dependency_overrides[dependencies.household_service] = household_service
     app.dependency_overrides[dependencies.expense_service] = expense_service
     app.dependency_overrides[dependencies.settlement_service] = settlement_service
     app.dependency_overrides[dependencies.chore_service] = chore_service
+    app.dependency_overrides[dependencies.receipt_parser] = lambda: parser
+    app.dependency_overrides[dependencies.receipt_service] = receipt_service
     app.include_router(households.router)
     app.include_router(expenses.router)
     app.include_router(settlements.router)
     app.include_router(chores.router)
+    app.include_router(receipts.router)
     register_error_handlers(app)
 
     @app.get("/health", tags=["Operations"], summary="Health check")

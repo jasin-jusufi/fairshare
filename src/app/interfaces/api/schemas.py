@@ -139,6 +139,13 @@ class WeekPlanOut(OutModel):
     assignments: list[AssignmentOut]
 
 
+class ReceiptSuggestionOut(OutModel):
+    description: str = Field(
+        description="Suggested description, 1–120 characters", examples=["Migros"]
+    )
+    amount_cents: int = Field(description="Suggested amount in cents (Rappen)", examples=[2350])
+
+
 class MemberLoadOut(OutModel):
     member_id: int = Field(examples=[1])
     name: str = Field(examples=["Lea"])
