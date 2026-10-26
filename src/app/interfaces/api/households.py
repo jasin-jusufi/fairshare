@@ -6,6 +6,7 @@ from app.application.household_service import HouseholdService
 from app.domain.household import Household, Member
 from app.interfaces.api.dependencies import household_service
 from app.interfaces.api.openapi import CONFLICT, INVALID, NOT_FOUND
+from app.interfaces.api.params import Id
 from app.interfaces.api.schemas import HouseholdCreate, HouseholdOut, MemberCreate, MemberOut
 
 router = APIRouter(prefix="/households", tags=["Households"])
@@ -29,7 +30,7 @@ def list_households(service: Service) -> list[Household]:
 @router.get(
     "/{household_id}", response_model=HouseholdOut, summary="Get household", responses=NOT_FOUND
 )
-def get_household(household_id: int, service: Service) -> Household:
+def get_household(household_id: Id, service: Service) -> Household:
     """A single household with all its members."""
     return service.get_household(household_id)
 
@@ -41,7 +42,7 @@ def get_household(household_id: int, service: Service) -> Household:
     summary="Add member",
     responses={**INVALID, **NOT_FOUND, **CONFLICT},
 )
-def add_member(household_id: int, payload: MemberCreate, service: Service) -> Member:
+def add_member(household_id: Id, payload: MemberCreate, service: Service) -> Member:
     """Adds a member. Names are unique per household, ignoring case
     (`Lea` and `lea` → 409)."""
     return service.add_member(household_id, payload.name)
