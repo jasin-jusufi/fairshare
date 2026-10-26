@@ -1,6 +1,6 @@
 # TASKS.md
 
-PHASE: 1
+PHASE: 2
 STATUS: done
 
 (0=Bootstrap | 1=Specify | 2=Design | 3=Develop | 4=Validate | 5=Deploy)
@@ -47,3 +47,4 @@ docs/specs/UC-005-SCAN-RECEIPT.md (Owner: Bajram)
 | 2026-10-23 | — | 4 Validate | done | Jasin + Claude Code | Repository made public; branch protection on `main`: PR required, 4 required checks, strict, enforced for admins |
 | 2026-10-25 | UC-001–004 | 4 Validate | done | Bajram + Claude Code | Edge-case suite: 158 tests in `tests/*/edge_cases/` (143 green, 15 strict `xfail`), 5 bugs documented in `docs/TEST-PROTOCOL.md`, application code unchanged; BUG-1, BUG-2 and BUG-4 checked against PostgreSQL 16 in Docker |
 | 2026-10-26 | UC-005 | 1 Specify | done | Bajram + Claude Code | Change: no API key. `RECEIPT_PARSER` = `none` (default, 503) or `fake` (demo, fixed suggestion); real Claude adapter out of scope. AC1–AC6 (AC6: unknown household → 404) |
+| 2026-10-26 | UC-005 | 2 Design | done | Bajram + Claude Code | ADR-008: `ReceiptParser` port with fake and unavailable adapters instead of a real LLM. Image checks in `ReceiptService` (framework-free, unit-testable). No persistence, no migration; new dependency `python-multipart`. PROJECT.md: API row and `RECEIPT_PARSER` |

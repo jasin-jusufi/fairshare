@@ -45,6 +45,7 @@ Decisions: see `docs/adr/`.
 | Expenses | `POST/GET /households/{id}/expenses`, `DELETE …/expenses/{expense_id}` | 002 |
 | Settle-up | `GET …/balances`, `GET …/settle-up`, `POST/GET …/settlements` | 003 |
 | Chores | `POST/GET …/chores`, `POST …/chore-plans`, `GET …/chore-plans/{week}`, `POST …/assignments/{id}/complete`, `GET …/chore-load` | 004 |
+| Receipts | `POST …/receipts` (suggestion only, nothing is stored) | 005 |
 | Operations | `GET /health`, `/docs` (API reference), `/swagger`, `/openapi.json`, `/ui/` (web UI) | — |
 
 ## Structure
@@ -89,4 +90,6 @@ docs/
 - Python version: `.python-version` (3.12)
 - Configuration via environment variables only:
   - `DATABASE_URL` (default `sqlite:///./fairshare.db`)
+  - `RECEIPT_PARSER`: `none` (default, receipt scanning answers 503) or `fake`
+    (demo, fixed suggestion); see ADR-008
 - Secrets (only in GitHub/Render, never in the repo): `RENDER_API_KEY`, `RENDER_SERVICE_ID`

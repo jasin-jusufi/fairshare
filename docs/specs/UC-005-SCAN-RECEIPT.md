@@ -55,11 +55,11 @@ Manual: with `RECEIPT_PARSER=fake`, "Scan receipt" in the UI pre-fills the expen
 
 | Layer | Component |
 |---|---|
-| domain | `ReceiptSuggestion` (value object, validation) |
-| application | `ReceiptService`, port `ReceiptParser` (`Protocol`), `ReceiptUnreadableError`, `ParserUnavailableError` |
-| interfaces | Router `POST /households/{id}/receipts` (`UploadFile`), schema `ReceiptSuggestionOut` |
-| infrastructure | `AnthropicReceiptParser` (Anthropic SDK, vision), selected via env in `create_app`; fallback without key → 503 |
+| domain | `ReceiptSuggestion` (value object: description 1–120 characters, `amount_cents` > 0) |
+| application | Port `ReceiptParser` (`Protocol`, returns `ReceiptReading`); `ReceiptService` (household check, JPEG/PNG by file signature, ≤ 5 MB → 400, builds the suggestion); `ReceiptUnreadableError` (422), `ParserUnavailableError` (503) |
+| interfaces | `POST /households/{id}/receipts` (`UploadFile`), schema `ReceiptSuggestionOut`, tag `Receipts`, error mapping 422/503, dependencies `receipt_service` and `receipt_parser` |
+| infrastructure | `FakeReceiptParser`, `UnavailableReceiptParser`; `create_app` selects one from `RECEIPT_PARSER`, an unknown value stops the app at startup |
 
-New dependencies (`anthropic`, `python-multipart`) and the choice of model
-→ ADR-008. The port ensures that domain and application know nothing about the
-LLM and that all tests run without network access.
+Nothing is stored, so there is no migration. New dependency `python-multipart`
+(FastAPI needs it for uploads). Why a port with a fake adapter instead of a
+real LLM → ADR-008.
