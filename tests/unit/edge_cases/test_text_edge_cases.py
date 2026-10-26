@@ -2,7 +2,7 @@ import pytest
 
 from app.domain.errors import DuplicateMemberError, ValidationError
 from app.domain.household import Household, Member
-from tests.known_bugs import INVISIBLE_NAMES, UNICODE_DUPLICATES
+from tests.known_bugs import INVISIBLE_NAMES
 
 
 @pytest.mark.parametrize(
@@ -53,7 +53,6 @@ def test_invisible_and_control_characters_are_rejected(name: str) -> None:
         Member(name=name)
 
 
-@UNICODE_DUPLICATES
 def test_composed_and_decomposed_names_are_duplicates() -> None:
     """'José' can be typed as one character é (NFC) or e + combining accent (NFD, e.g. on
     macOS). Both look identical, so the second one should be rejected as a duplicate."""
