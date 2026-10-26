@@ -237,7 +237,7 @@ sent over the API as CHF decimals. This led to the refined ADR-004.
 
 | Level | Count | What | How |
 |---|---|---|---|
-| Unit | 265 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts, edge cases | `pytest tests/unit` |
+| Unit | 267 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts, edge cases | `pytest tests/unit` |
 | Integration | 110 | Every acceptance criterion via HTTP + real DB (SQLite in-memory), edge cases | `pytest tests/integration` |
 | E2E | 4 | Complete journey against the **running Docker container with PostgreSQL** | `BASE_URL=… pytest tests/e2e` |
 
@@ -286,7 +286,8 @@ empty input, boundary values, wrong data types, very large numbers and Unicode:
 
 **Known bugs** are marked as strict `xfail` in [`tests/known_bugs.py`](tests/known_bugs.py):
 the build stays green while a bug is open and turns red once it is fixed, as a reminder
-to remove the marker. Every test case, its input and its result are listed in
+to remove the marker. The suite found five bugs (BUG-1 … BUG-5); all are fixed with
+red → green commits, so no marker is in use. Every test case, its input and its result are listed in
 [`docs/TEST-PROTOCOL.md`](docs/TEST-PROTOCOL.md).
 
 ---

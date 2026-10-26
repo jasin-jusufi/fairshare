@@ -110,7 +110,9 @@ they are fixed. Parametrized tests are one row each; the count is in brackets.
 
 ## Findings
 
-The application code was **not changed**. Each finding below can be filed as a GitHub
+**Status 2026-10-26: all five bugs are fixed** on branch `fix/edge-case-bugs`, each in
+TDD style: first the `xfail` marker was removed (red), then the fix made the test pass
+(green). See the *Resolution* table below. Original analysis, as found: each finding below can be filed as a GitHub
 issue; the matching test turns red once the fix is in and its `xfail` marker must then
 be removed from `tests/known_bugs.py`.
 
@@ -157,3 +159,16 @@ The requests were then sent through FastAPI's `TestClient` against that database
 - The E2E suite (`tests/e2e`) was not run locally; it runs in CI against the Docker image with PostgreSQL.
 - UC-005 (scan receipt) is only specified, there is no code to test yet.
 - The web UI (`/ui`) is not covered by automated tests.
+
+## Resolution
+
+| ID | Fix | Where |
+|---|---|---|
+| BUG-1 | Amounts are capped at 2³¹ − 1 cents (CHF 21,474,836.47), the largest value every supported database can store; above → 400 | `domain/expense.py` (`MAX_AMOUNT_CENTS`, `check_amount`), used by expenses, settlements and receipt suggestions |
+| BUG-2 | Path IDs are bounded to the 32-bit range; outside → 422, unknown IDs inside the range (incl. 0, negatives) → 404 | `interfaces/api/params.py` (`Id`) |
+| BUG-3 | Integer input fields are strict: JSON `true`/`false` and numeric strings → 422 | `interfaces/api/schemas.py` (`StrictInt`) |
+| BUG-4 | Control characters are rejected; names made only of invisible characters count as empty; zero-width joiners inside emoji stay allowed | `domain/validation.py` |
+| BUG-5 | Text is normalised to NFC before trimming, so NFC/NFD spellings are duplicates | `domain/validation.py` |
+
+Result after the fixes: 377 passed, 0 xfailed, coverage 99.79 %.
+
