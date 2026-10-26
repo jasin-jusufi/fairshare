@@ -2,7 +2,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tests.integration.helpers import pay
-from tests.known_bugs import AMOUNT_OVERFLOW
 
 POSTGRES_INTEGER_MAX = 2**31 - 1
 SQLITE_INTEGER_MAX = 2**63 - 1
@@ -93,7 +92,6 @@ def test_assignment_cannot_be_completed_through_another_household(
     assert week["assignments"][0]["completed_at"] is None
 
 
-@AMOUNT_OVERFLOW
 @pytest.mark.parametrize(
     "amount",
     [POSTGRES_INTEGER_MAX + 1, SQLITE_INTEGER_MAX + 1],
