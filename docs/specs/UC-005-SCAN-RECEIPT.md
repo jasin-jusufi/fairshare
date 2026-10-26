@@ -55,7 +55,7 @@ Unit: `ReceiptSuggestion` validation; `ReceiptService` with a stub parser (image
 Integration: AC1–AC6; the parser is replaced via `dependency_overrides` where needed
 E2E: the container runs without `RECEIPT_PARSER` → 503 (no external API, so it can run in CI)
 Unit (adapter): `OllamaReceiptParser` against a local stub HTTP server (request format, CHF → cents, nulls, malformed answers, unreachable server, missing model)
-Manual: with `RECEIPT_PARSER=ollama` and a real receipt photo, "Scan receipt" in the UI pre-fills the expense form
+Manual: with `RECEIPT_PARSER=ollama` and a real receipt photo, "Scan receipt" in the UI pre-fills the expense form (sample: `docs/assets/demo-receipt.png` → "COOP", 2395 cents)
 
 ## Design
 
