@@ -86,3 +86,11 @@ def test_settlement_amount_has_an_upper_limit() -> None:
         Settlement(
             household_id=1, from_member_id=1, to_member_id=2, amount_cents=MAX_AMOUNT_CENTS + 1
         )
+
+
+def test_suggested_transfers_stay_within_the_settlement_limit() -> None:
+    total = MAX_AMOUNT_CENTS + 10
+    transfers = suggest_transfers({1: total, 2: -total})
+    assert transfers == [Transfer(2, 1, MAX_AMOUNT_CENTS), Transfer(2, 1, 10)]
+    for t in transfers:
+        Settlement(1, t.from_member_id, t.to_member_id, t.amount_cents)
