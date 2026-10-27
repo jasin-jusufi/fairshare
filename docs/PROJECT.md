@@ -93,6 +93,6 @@ docs/
   - `RECEIPT_PARSER`: `none` (default, receipt scanning answers 503), `fake`, `ollama` or `claude`
   - `OLLAMA_URL` (default `http://localhost:11434`), `OLLAMA_MODEL` (default `qwen2.5vl:7b`)
   - `ANTHROPIC_API_KEY` (only for `claude`, from the environment or the git-ignored `.env`),
-    `CLAUDE_MODEL` (default `claude-opus-5-5`), `CLAUDE_MAX_SCANS` (default 30)
+    `CLAUDE_MODEL` (default `claude-sonnet-5-5`), `CLAUDE_MAX_SCANS` (default 30)
     (see ADR-008 to ADR-010)
 - Secrets (only in GitHub/Render, never in the repo): `RENDER_API_KEY`, `RENDER_SERVICE_ID`

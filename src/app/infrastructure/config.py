@@ -37,7 +37,7 @@ def anthropic_api_key() -> str | None:
 
 
 def claude_model() -> str:
-    return os.getenv("CLAUDE_MODEL", "claude-opus-5-5").strip()
+    return os.getenv("CLAUDE_MODEL", "claude-sonnet-5-5").strip()
 
 
 def claude_max_scans() -> int:

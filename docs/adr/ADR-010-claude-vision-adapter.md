@@ -21,7 +21,7 @@ the demo. ADR-008 kept the door open for a cloud adapter behind the same port.
 ## Decision
 
 Option 3. `ClaudeReceiptParser` in infrastructure sends the image (base64)
-and the shared prompt to `claude-opus-5-5` with `output_config.format` set to
+and the shared prompt to `claude-sonnet-5-5` with `output_config.format` set to
 the same JSON schema as the Ollama adapter (`merchant`, `total_chf`) and
 effort `low`. `RECEIPT_PARSER=claude` selects it; `ANTHROPIC_API_KEY` comes
 from the environment or the git-ignored `.env`, never from the repository.
@@ -32,6 +32,8 @@ Cost control for the USD 2 budget:
   that the adapter answers 503 without calling the API.
 - `max_tokens` is 2048 and effort `low`; measured cost per scan is recorded in
   the UC-005 spec.
+- Sonnet instead of Opus: on the sample receipt both read the same result,
+  Sonnet at half the price and faster. `CLAUDE_MODEL` can switch back.
 - A spend limit is also set in the Anthropic Console as the hard stop.
 - CI, the E2E test and Render never use this adapter: tests run against a
   stub server, so the pipeline needs no key and costs nothing.

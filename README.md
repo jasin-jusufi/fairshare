@@ -384,7 +384,7 @@ echo "ANTHROPIC_API_KEY=sk-ant-..." >> .env   # git-ignored, never commit it
 RECEIPT_PARSER=claude PYTHONPATH=src uvicorn app.main:app --reload
 ```
 
-`CLAUDE_MODEL` defaults to `claude-opus-5-5`; `CLAUDE_MAX_SCANS` (default 30)
+`CLAUDE_MODEL` defaults to `claude-sonnet-5-5`; `CLAUDE_MAX_SCANS` (default 30)
 stops API calls per server process, so the demo stays within its USD 2 budget.
 Set a spend limit in the Anthropic Console as the hard stop.
 
