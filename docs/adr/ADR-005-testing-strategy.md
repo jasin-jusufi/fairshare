@@ -17,7 +17,7 @@ Test pyramid with three levels:
 |---|---|---|
 | Unit | Domain rules, use case logic | pytest, in-memory repositories, no frameworks |
 | Integration | Acceptance criteria via HTTP + real DB | FastAPI `TestClient`, SQLite in-memory |
-| E2E | Delivered artifact | `httpx` against the running Docker container |
+| E2E | Delivered artifact | `httpx` against the running Docker container; since 2026-10-27 also Playwright (Chromium) through the web UI |
 
 TDD is visible in the Git history: per use case, first a commit
 `test(uc-NNN): ... (red)`, then `feat(uc-NNN): ...` (green), then
