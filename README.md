@@ -320,13 +320,21 @@ flowchart LR
 
 ### Setting up Render (one-time)
 
-1. Render: create a **PostgreSQL** database, copy the *Internal Database URL*.
-2. Render: **Web Service → Existing Image** `ghcr.io/jasin-jusufi/fairshare:latest`
-   (for a private package, add a GHCR credential), env `DATABASE_URL` = URL from step 1,
-   Health Check Path `/health`.
-3. Render: copy *Settings → Deploy Hook*.
+1. GitHub: after the first release, make the package `fairshare` public
+   (*Packages → fairshare → Package settings → Change visibility*), so Render can pull it.
+2. Render: *New → Blueprint*, select this repository. [`render.yaml`](render.yaml)
+   creates the PostgreSQL database and the web service from
+   `ghcr.io/jasin-jusufi/fairshare:latest` with `DATABASE_URL` and health check `/health`.
+3. Render: copy *fairshare → Settings → Deploy Hook*.
 4. GitHub: environment `production` with secret `RENDER_DEPLOY_HOOK_URL`,
    variables `APP_URL` (e.g. `https://fairshare.onrender.com`) and `CD_ENABLED=true`.
+
+The Blueprint uses Render's free plans, which suit the course demo: the free
+database expires after 30 days. For real use, switch `plan` in `render.yaml`
+to a paid tier before creating the Blueprint.
+
+Manual alternative to step 2: create the database and an *Existing Image* web
+service by hand with the same settings.
 
 ---
 
