@@ -1,6 +1,6 @@
 # UC-005-SCAN-RECEIPT
 
-> Owner: **Bajram** · Status: specified, no API key (fake parser for the demo)
+> Owner: **Bajram** (fake/none adapters), Jasin (Ollama adapter) · Status: implemented, no API key
 
 ## Intent
 Instead of typing in the amount and description, a member uploads a photo of
@@ -17,8 +17,11 @@ Secondary: receipt parser behind the port `ReceiptParser`, selected with `RECEIP
 - The household exists (UC-001).
 - No API key is used. The setting `RECEIPT_PARSER` selects the parser:
   - `none` (default): receipt scanning is switched off → 503
-  - `fake` (demo): returns the fixed suggestion "Migros", 2350 cents for every image
-- A real vision-LLM adapter (e.g. Claude) is out of scope for now.
+  - `fake` (tests/fallback): returns the fixed suggestion "Migros", 2350 cents for every image
+  - `ollama` (live demo): a local vision model via Ollama on the presenter's laptop
+    (`OLLAMA_URL`, default `http://localhost:11434`; `OLLAMA_MODEL`, default `qwen2.5vl:7b`).
+    No cloud service, no key, the image never leaves the machine (ADR-009).
+- A cloud LLM adapter (e.g. Claude) is out of scope for now.
 
 ## Flow
 
@@ -32,7 +35,7 @@ Secondary: receipt parser behind the port `ReceiptParser`, selected with `RECEIP
 
 - invalid input: not a JPEG/PNG image (checked by content, not by file name) or larger than 5 MB → 400
 - unreadable: the parser finds no amount or no usable description → 422
-- unavailable: `RECEIPT_PARSER=none` → 503
+- unavailable: `RECEIPT_PARSER=none`, Ollama not running or model not pulled → 503
 - not found: household does not exist → 404
 
 ## Acceptance
@@ -43,13 +46,16 @@ Secondary: receipt parser behind the port `ReceiptParser`, selected with `RECEIP
 - AC4 Given `RECEIPT_PARSER` is not set (`none`), When uploaded, Then 503.
 - AC5 Given a suggestion, Then **no** new expense exists afterwards.
 - AC6 Given an unknown household, When uploaded, Then 404.
+- AC7 Given `RECEIPT_PARSER=ollama` and a running model, When a receipt photo is uploaded, Then the merchant and the total (in cents) read by the model are suggested.
+- AC8 Given `RECEIPT_PARSER=ollama` but Ollama is not reachable or the model is missing, When uploaded, Then 503 with a hint how to start or pull it.
 
 ## Tests
 
 Unit: `ReceiptSuggestion` validation; `ReceiptService` with a stub parser (image checks, unreadable result, parser unavailable)
 Integration: AC1–AC6; the parser is replaced via `dependency_overrides` where needed
 E2E: the container runs without `RECEIPT_PARSER` → 503 (no external API, so it can run in CI)
-Manual: with `RECEIPT_PARSER=fake`, "Scan receipt" in the UI pre-fills the expense form
+Unit (adapter): `OllamaReceiptParser` against a local stub HTTP server (request format, CHF → cents, nulls, malformed answers, unreachable server, missing model)
+Manual: with `RECEIPT_PARSER=ollama` and a real receipt photo, "Scan receipt" in the UI pre-fills the expense form (sample: `docs/assets/demo-receipt.png` → "COOP", 2395 cents)
 
 ## Design
 

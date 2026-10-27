@@ -851,7 +851,18 @@ $("receipt-file").addEventListener("change", guard(async () => {
   if (!file) return;
   const body = new FormData();
   body.append("file", file);
-  const suggestion = await api(`${base()}/receipts`, { method: "POST", body });
+  const button = $("receipt-scan");
+  const label = button.lastChild.textContent;
+  button.disabled = true;
+  button.lastChild.textContent = "Reading receipt…";
+  toast("Reading the receipt – this can take a few seconds");
+  let suggestion;
+  try {
+    suggestion = await api(`${base()}/receipts`, { method: "POST", body });
+  } finally {
+    button.disabled = false;
+    button.lastChild.textContent = label;
+  }
   $("expense-description").value = suggestion.description;
   $("expense-amount").value = (suggestion.amount_cents / 100).toFixed(2);
   toast(`Suggested: ${suggestion.description} · ${chf(suggestion.amount_cents)} – check and add`);

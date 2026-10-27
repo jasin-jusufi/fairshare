@@ -311,7 +311,7 @@
 <script>
 const $ = (id) => document.getElementById(id);
 const BASE = location.origin;
-const TAG_EMOJI = { Households: "🏠", Expenses: "🧾", "Settle-up": "⚖️", Chores: "🧹", Operations: "🩺" };
+const TAG_EMOJI = { Households: "🏠", Expenses: "🧾", "Settle-up": "⚖️", Chores: "🧹", Receipts: "📸", Operations: "🩺" };
 const slug = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 function icon(paths, className = "") {

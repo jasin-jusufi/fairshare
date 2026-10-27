@@ -237,7 +237,7 @@ sent over the API as CHF decimals. This led to the refined ADR-004.
 
 | Level | Count | What | How |
 |---|---|---|---|
-| Unit | 268 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts, edge cases | `pytest tests/unit` |
+| Unit | 281 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts, edge cases | `pytest tests/unit` |
 | Integration | 110 | Every acceptance criterion via HTTP + real DB (SQLite in-memory), edge cases | `pytest tests/integration` |
 | E2E | 4 | Complete journey against the **running Docker container with PostgreSQL** | `BASE_URL=… pytest tests/e2e` |
 
@@ -334,7 +334,7 @@ flowchart LR
 bash scripts/setup-python.sh          # .venv + dependencies
 source .venv/bin/activate
 PYTHONPATH=src uvicorn app.main:app --reload
-RECEIPT_PARSER=fake PYTHONPATH=src uvicorn app.main:app --reload   # with the receipt demo (UC-005)
+RECEIPT_PARSER=ollama PYTHONPATH=src uvicorn app.main:app --reload # real receipt reading (UC-005)
 ```
 
 - UI: <http://localhost:8000/ui/>
@@ -351,17 +351,25 @@ docker run -p 8000:8000 -e DATABASE_URL=postgresql://u:p@host/db fairshare
 ```
 
 Configuration via environment variables only: `DATABASE_URL` (default
-`sqlite:///./fairshare.db`), `PORT` (container, default 8000) and `RECEIPT_PARSER`.
-No secrets in the repo.
+`sqlite:///./fairshare.db`), `PORT` (container, default 8000), `RECEIPT_PARSER`,
+`OLLAMA_URL` and `OLLAMA_MODEL`. No secrets in the repo.
 
 | `RECEIPT_PARSER` | Behaviour of "Scan receipt" (`POST /households/{id}/receipts`) |
 |---|---|
-| `none` (default) | Switched off, answers 503 |
-| `fake` | Demo without an API key: suggests "Migros", CHF 23.50 for every JPEG/PNG |
+| `none` (default) | Switched off, answers 503 (CI, Render) |
+| `fake` | Tests and fallback: suggests "Migros", CHF 23.50 for every JPEG/PNG |
+| `ollama` | Real AI, fully local: a vision model in [Ollama](https://ollama.com) reads merchant and total ([ADR-009](docs/adr/ADR-009-local-vision-model.md)) |
 
-A real vision-LLM adapter is not part of the project yet; it would be one more
-value here (see [ADR-008](docs/adr/ADR-008-receipt-parser-port.md)). With Docker:
-`docker run -p 8000:8000 -e RECEIPT_PARSER=fake fairshare`.
+Receipt scanning with a local model, no API key and no cloud:
+
+```bash
+ollama pull qwen2.5vl:7b                 # once, about 6 GB
+RECEIPT_PARSER=ollama PYTHONPATH=src uvicorn app.main:app --reload
+```
+
+`OLLAMA_URL` (default `http://localhost:11434`) and `OLLAMA_MODEL` (default
+`qwen2.5vl:7b`) point to another server or model. The first scan loads the model
+and takes longer; later scans take a few seconds.
 
 ### Agent setup
 

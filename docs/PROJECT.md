@@ -90,6 +90,7 @@ docs/
 - Python version: `.python-version` (3.12)
 - Configuration via environment variables only:
   - `DATABASE_URL` (default `sqlite:///./fairshare.db`)
-  - `RECEIPT_PARSER`: `none` (default, receipt scanning answers 503) or `fake`
-    (demo, fixed suggestion); see ADR-008
+  - `RECEIPT_PARSER`: `none` (default, receipt scanning answers 503), `fake` or `ollama`
+  - `OLLAMA_URL` (default `http://localhost:11434`), `OLLAMA_MODEL` (default `qwen2.5vl:7b`)
+    (see ADR-008 and ADR-009)
 - Secrets (only in GitHub/Render, never in the repo): `RENDER_API_KEY`, `RENDER_SERVICE_ID`
