@@ -118,7 +118,9 @@ jobs:
           cache-dependency-path: requirements-dev.txt
 
       - name: Install test dependencies
-        run: pip install -r requirements-dev.txt
+        run: |
+          pip install -r requirements-dev.txt
+          playwright install --with-deps chromium
 
       - name: Build Docker image
         run: docker build -t fairshare:ci .
@@ -136,10 +138,17 @@ jobs:
           docker logs fairshare-e2e
           exit 1
 
-      - name: E2E tests against container
+      - name: E2E tests against container (API + browser UI)
         env:
           BASE_URL: http://127.0.0.1:8001
-        run: pytest tests/e2e
+        run: pytest tests/e2e --tracing retain-on-failure --output test-results
+
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results
 
       - name: Container logs
         if: always()
