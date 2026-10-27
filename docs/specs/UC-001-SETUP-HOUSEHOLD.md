@@ -24,7 +24,7 @@ Secondary: —
 
 ## Errors
 
-- invalid input: household name or member name empty / whitespace only / longer than 80 characters → 400
+- invalid input: household name or member name empty / whitespace or invisible characters only / containing control characters / longer than 80 characters → 400 (names are normalised to Unicode NFC first, so differently encoded equal names count as duplicates)
 - duplicate: member name already exists in the household (case-insensitive) → 409
 - not found: household does not exist → 404
 

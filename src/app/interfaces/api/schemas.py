@@ -1,8 +1,12 @@
 from datetime import date, datetime
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, Strict
 
 from app.domain.expense import SplitMethod
+
+# Integers from clients must be JSON numbers: `true` or `"9000"` are rejected with 422.
+StrictInt = Annotated[int, Strict()]
 
 
 class OutModel(BaseModel):
@@ -40,8 +44,8 @@ class HouseholdOut(OutModel):
 
 
 class ParticipantIn(BaseModel):
-    member_id: int = Field(description="Participating member", examples=[1])
-    weight: int = Field(
+    member_id: StrictInt = Field(description="Participating member", examples=[1])
+    weight: StrictInt = Field(
         default=1,
         description="Percentage (method `percent`, total 100) or ratio (method `shares`); "
         "ignored for `equal`",
@@ -50,9 +54,9 @@ class ParticipantIn(BaseModel):
 
 
 class ExpenseCreate(BaseModel):
-    payer_id: int = Field(description="Member who paid", examples=[1])
+    payer_id: StrictInt = Field(description="Member who paid", examples=[1])
     description: str = Field(description="1–120 characters", examples=["Weekly groceries"])
-    amount_cents: int = Field(description="Amount in cents (Rappen), > 0", examples=[9000])
+    amount_cents: StrictInt = Field(description="Amount in cents (Rappen), > 0", examples=[9000])
     method: SplitMethod = Field(default=SplitMethod.EQUAL, description="Split method")
     participants: list[ParticipantIn] = Field(
         description="Participants, at least one, no duplicates",
@@ -93,9 +97,11 @@ class TransferOut(BaseModel):
 
 
 class SettlementCreate(BaseModel):
-    from_member_id: int = Field(description="Who pays (debtor)", examples=[2])
-    to_member_id: int = Field(description="Who receives (creditor)", examples=[1])
-    amount_cents: int = Field(description="Cents, > 0 and at most the open debt", examples=[3000])
+    from_member_id: StrictInt = Field(description="Who pays (debtor)", examples=[2])
+    to_member_id: StrictInt = Field(description="Who receives (creditor)", examples=[1])
+    amount_cents: StrictInt = Field(
+        description="Cents, > 0 and at most the open debt", examples=[3000]
+    )
 
 
 class SettlementOut(OutModel):
@@ -108,7 +114,7 @@ class SettlementOut(OutModel):
 
 class ChoreCreate(BaseModel):
     name: str = Field(description="1–80 characters", examples=["Bathroom"])
-    effort: int = Field(description="Effort from 1 (light) to 5 (heavy)", examples=[5])
+    effort: StrictInt = Field(description="Effort from 1 (light) to 5 (heavy)", examples=[5])
 
 
 class ChoreOut(OutModel):

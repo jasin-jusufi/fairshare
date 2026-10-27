@@ -17,7 +17,7 @@ Secondary: recipient of the payment
 ## Flow
 
 1. A member retrieves the balances: balance = paid − own share + settlements sent − settlements received.
-2. The system suggests settle-up transfers (greedy, at most n − 1 transfers, ADR-007).
+2. The system suggests settle-up transfers (greedy, at most n − 1 transfers, ADR-007); a transfer above the settlement limit of 2³¹ − 1 cents is split so that each one can be recorded.
 3. The debtor transfers the money outside the system and records the payment.
 4. The system validates and stores the payment; the balances are recalculated.
 5. Members list all recorded settlements.

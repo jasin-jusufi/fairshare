@@ -26,3 +26,5 @@ largest fractional part (ties are broken by order).
 - The invariant "sum of shares = amount" can be checked exactly and is tested.
 - The API works with `amount_cents`; only the UI converts between CHF and cents.
 - Single-currency system (CHF) — multi-currency is out of scope.
+
+> **Update 2026-10-26 (BUG-1):** amounts are capped at 2³¹ − 1 cents (CHF 21,474,836.47), the largest value the 32-bit PostgreSQL columns can store. Larger amounts return 400 instead of overflowing in production.

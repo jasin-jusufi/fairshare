@@ -1,7 +1,7 @@
 import pytest
 
 from app.domain.errors import ValidationError
-from app.domain.expense import Expense, ExpenseShare, SplitMethod
+from app.domain.expense import MAX_AMOUNT_CENTS, Expense, ExpenseShare, SplitMethod
 
 
 def make(**overrides: object) -> Expense:
@@ -41,3 +41,10 @@ def test_participant_ids() -> None:
 def test_invariants(overrides: dict) -> None:
     with pytest.raises(ValidationError):
         make(**overrides)
+
+
+def test_amount_has_an_upper_limit() -> None:
+    at_limit = MAX_AMOUNT_CENTS
+    make(amount_cents=at_limit, shares=[ExpenseShare(1, at_limit)])
+    with pytest.raises(ValidationError):
+        make(amount_cents=at_limit + 1, shares=[ExpenseShare(1, at_limit + 1)])

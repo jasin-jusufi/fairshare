@@ -6,6 +6,7 @@ from app.application.receipt_service import MAX_IMAGE_BYTES, ReceiptService
 from app.domain.receipt import ReceiptSuggestion
 from app.interfaces.api.dependencies import receipt_service
 from app.interfaces.api.openapi import INVALID, NOT_FOUND, UNAVAILABLE, UNREADABLE
+from app.interfaces.api.params import Id
 from app.interfaces.api.schemas import ReceiptSuggestionOut
 
 router = APIRouter(prefix="/households/{household_id}/receipts", tags=["Receipts"])
@@ -19,7 +20,7 @@ Image = Annotated[UploadFile, File(description="Photo of the receipt: JPEG or PN
     summary="Scan receipt",
     responses={**INVALID, **NOT_FOUND, **UNREADABLE, **UNAVAILABLE},
 )
-def scan_receipt(household_id: int, file: Image, service: Service) -> ReceiptSuggestion:
+def scan_receipt(household_id: Id, file: Image, service: Service) -> ReceiptSuggestion:
     """Suggests a description and an amount from a photo of a receipt. **Nothing is
     stored**: the client pre-fills the expense form and records the expense with
     `POST /households/{household_id}/expenses` once the member has checked it.

@@ -3,7 +3,7 @@ import random
 import pytest
 
 from app.domain.errors import ValidationError
-from app.domain.expense import Expense, ExpenseShare, SplitMethod
+from app.domain.expense import MAX_AMOUNT_CENTS, Expense, ExpenseShare, SplitMethod
 from app.domain.settlement import Settlement, Transfer, compute_balances, suggest_transfers
 
 
@@ -79,3 +79,18 @@ def test_random_households_settle_with_at_most_n_minus_one_transfers(seed: int) 
 def test_settlement_invariants(frm: int, to: int, amount: int) -> None:
     with pytest.raises(ValidationError):
         Settlement(household_id=1, from_member_id=frm, to_member_id=to, amount_cents=amount)
+
+
+def test_settlement_amount_has_an_upper_limit() -> None:
+    with pytest.raises(ValidationError):
+        Settlement(
+            household_id=1, from_member_id=1, to_member_id=2, amount_cents=MAX_AMOUNT_CENTS + 1
+        )
+
+
+def test_suggested_transfers_stay_within_the_settlement_limit() -> None:
+    total = MAX_AMOUNT_CENTS + 10
+    transfers = suggest_transfers({1: total, 2: -total})
+    assert transfers == [Transfer(2, 1, MAX_AMOUNT_CENTS), Transfer(2, 1, 10)]
+    for t in transfers:
+        Settlement(1, t.from_member_id, t.to_member_id, t.amount_cents)

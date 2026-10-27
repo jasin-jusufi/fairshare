@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from app.domain.errors import ValidationError
-from app.domain.expense import Expense
+from app.domain.expense import MAX_AMOUNT_CENTS, Expense, check_amount
 
 
 @dataclass
@@ -18,8 +18,7 @@ class Settlement:
     def __post_init__(self) -> None:
         if self.from_member_id == self.to_member_id:
             raise ValidationError("A member cannot pay themselves")
-        if self.amount_cents <= 0:
-            raise ValidationError("Amount must be positive")
+        check_amount(self.amount_cents)
 
 
 @dataclass(frozen=True)
@@ -45,7 +44,10 @@ def compute_balances(
 
 
 def suggest_transfers(balances: dict[int, int]) -> list[Transfer]:
-    """Greedy settle-up: largest debt pays largest credit, at most n-1 transfers (ADR-007)."""
+    """Greedy settle-up: largest debt pays largest credit, at most n-1 transfers (ADR-007).
+
+    A transfer above the settlement limit is split into several transfers.
+    """
     if sum(balances.values()) != 0:
         raise ValueError("Balances must sum to zero")
     remaining = dict(balances)
@@ -55,7 +57,9 @@ def suggest_transfers(balances: dict[int, int]) -> list[Transfer]:
         debtor = min(debtors, key=lambda m: (remaining[m], m))
         creditor = min(creditors, key=lambda m: (-remaining[m], m))
         amount = min(-remaining[debtor], remaining[creditor])
-        transfers.append(Transfer(debtor, creditor, amount))
+        for start in range(0, amount, MAX_AMOUNT_CENTS):
+            chunk = min(MAX_AMOUNT_CENTS, amount - start)
+            transfers.append(Transfer(debtor, creditor, chunk))
         remaining[debtor] += amount
         remaining[creditor] -= amount
     return transfers

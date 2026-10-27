@@ -29,8 +29,9 @@ Secondary: other members (participants)
 
 ## Errors
 
-- invalid input: amount ≤ 0, empty description, no participants, duplicate participants, weight ≤ 0, percentage sum ≠ 100 → 400
+- invalid input: amount ≤ 0 or above 2³¹ − 1 cents (database limit), empty description, no participants, duplicate participants, weight ≤ 0, percentage sum ≠ 100 → 400
 - unknown member: payer or participant does not belong to the household → 400
+- wrong types: JSON booleans or strings where integers are required → 422
 - not found: household or expense does not exist → 404
 
 ## Acceptance

@@ -6,6 +6,7 @@ from app.application.settlement_service import MemberBalance, SettlementService
 from app.domain.settlement import Settlement
 from app.interfaces.api.dependencies import settlement_service
 from app.interfaces.api.openapi import INVALID, NOT_FOUND
+from app.interfaces.api.params import Id
 from app.interfaces.api.schemas import BalanceOut, SettlementCreate, SettlementOut, TransferOut
 
 router = APIRouter(prefix="/households/{household_id}", tags=["Settle-up"])
@@ -15,7 +16,7 @@ Service = Annotated[SettlementService, Depends(settlement_service)]
 @router.get(
     "/balances", response_model=list[BalanceOut], summary="Get balances", responses=NOT_FOUND
 )
-def balances(household_id: int, service: Service) -> list[MemberBalance]:
+def balances(household_id: Id, service: Service) -> list[MemberBalance]:
     """Balance per member: paid − own shares + settlements sent − settlements received.
     All balances always add up to 0."""
     return service.balances(household_id)
@@ -27,7 +28,7 @@ def balances(household_id: int, service: Service) -> list[MemberBalance]:
     summary="Suggest settle-up",
     responses=NOT_FOUND,
 )
-def settle_up(household_id: int, service: Service) -> list[TransferOut]:
+def settle_up(household_id: Id, service: Service) -> list[TransferOut]:
     """Suggests transfers that bring every balance to 0. Greedy: largest debt against
     largest credit, at most n − 1 transfers (ADR-007)."""
     names = {b.member_id: b.name for b in service.balances(household_id)}
@@ -50,7 +51,7 @@ def settle_up(household_id: int, service: Service) -> list[TransferOut]:
     summary="Record settlement",
     responses={**INVALID, **NOT_FOUND},
 )
-def record_settlement(household_id: int, payload: SettlementCreate, service: Service) -> Settlement:
+def record_settlement(household_id: Id, payload: SettlementCreate, service: Service) -> Settlement:
     """Records a transfer made outside the app. The amount may exceed neither the
     payer's open debt nor the recipient's credit."""
     return service.record_settlement(
@@ -64,6 +65,6 @@ def record_settlement(household_id: int, payload: SettlementCreate, service: Ser
     summary="List settlements",
     responses=NOT_FOUND,
 )
-def list_settlements(household_id: int, service: Service) -> list[Settlement]:
+def list_settlements(household_id: Id, service: Service) -> list[Settlement]:
     """All recorded settlements in the order they were recorded."""
     return service.list_settlements(household_id)
