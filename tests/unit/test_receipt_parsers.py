@@ -27,4 +27,4 @@ def test_make_receipt_parser(mode: str, parser_type: type) -> None:
 
 def test_unknown_mode_is_rejected() -> None:
     with pytest.raises(ValueError, match="RECEIPT_PARSER"):
-        make_receipt_parser("claude")
+        make_receipt_parser("gpt")

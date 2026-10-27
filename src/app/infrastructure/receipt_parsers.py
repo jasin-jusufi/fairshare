@@ -1,10 +1,14 @@
 import base64
 import json
+import threading
 import urllib.error
 import urllib.request
 from collections.abc import Callable
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
+
+import anthropic
+from anthropic.types import MessageParam, OutputConfigParam
 
 from app.application.errors import ParserUnavailableError
 from app.application.ports.receipt_parser import ReceiptParser, ReceiptReading
@@ -23,7 +27,7 @@ class UnavailableReceiptParser:
 
     def parse(self, image: bytes, media_type: str) -> ReceiptReading:
         raise ParserUnavailableError(
-            "Receipt scanning is switched off. Set RECEIPT_PARSER=ollama (local model) or fake."
+            "Receipt scanning is switched off. Set RECEIPT_PARSER=claude, ollama or fake."
         )
 
 
@@ -39,6 +43,7 @@ ANSWER_SCHEMA = {
         "total_chf": {"type": ["number", "null"]},
     },
     "required": ["merchant", "total_chf"],
+    "additionalProperties": False,
 }
 
 
@@ -72,12 +77,7 @@ class OllamaReceiptParser:
                 {"role": "user", "content": PROMPT, "images": [base64.b64encode(image).decode()]}
             ],
         }
-        answer = self._chat(payload)
-        merchant = answer.get("merchant")
-        return ReceiptReading(
-            merchant=merchant.strip() or None if isinstance(merchant, str) else None,
-            total_cents=to_cents(answer.get("total_chf")),
-        )
+        return reading_from(self._chat(payload))
 
     def _chat(self, payload: dict[str, Any]) -> dict[str, Any]:
         request = urllib.request.Request(
@@ -99,10 +99,106 @@ class OllamaReceiptParser:
                 f"Ollama is not reachable at {self.base_url}. Start it with `ollama serve`."
             ) from error
         try:
-            answer = json.loads(body["message"]["content"])
-        except (KeyError, TypeError, ValueError):
+            content = body["message"]["content"]
+        except (KeyError, TypeError):
             return {}
-        return answer if isinstance(answer, dict) else {}
+        return json_object(content) if isinstance(content, str) else {}
+
+
+def reading_from(answer: dict[str, Any]) -> ReceiptReading:
+    merchant = answer.get("merchant")
+    return ReceiptReading(
+        merchant=merchant.strip() or None if isinstance(merchant, str) else None,
+        total_cents=to_cents(answer.get("total_chf")),
+    )
+
+
+def json_object(text: str) -> dict[str, Any]:
+    try:
+        answer = json.loads(text)
+    except ValueError:
+        return {}
+    return answer if isinstance(answer, dict) else {}
+
+
+OUTPUT: OutputConfigParam = {
+    "effort": "low",
+    "format": {"type": "json_schema", "schema": ANSWER_SCHEMA},
+}
+
+
+class ClaudeReceiptParser:
+    """Claude via the Anthropic API, capped at `max_scans` calls per process (ADR-010)."""
+
+    def __init__(
+        self,
+        api_key: str | None,
+        model: str,
+        max_scans: int,
+        base_url: str | None = None,
+        max_retries: int = 2,
+    ) -> None:
+        self.model = model
+        self.max_scans = max_scans
+        self.scans = 0
+        self._lock = threading.Lock()
+        self._client = (
+            anthropic.Anthropic(
+                api_key=api_key, base_url=base_url, max_retries=max_retries, timeout=60
+            )
+            if api_key
+            else None
+        )
+
+    def parse(self, image: bytes, media_type: str) -> ReceiptReading:
+        if self._client is None:
+            raise ParserUnavailableError(
+                "No Anthropic API key. Set ANTHROPIC_API_KEY in the environment or in .env."
+            )
+        with self._lock:
+            if self.scans >= self.max_scans:
+                raise ParserUnavailableError(
+                    f"Demo limit of {self.max_scans} scans reached (CLAUDE_MAX_SCANS)."
+                )
+            self.scans += 1
+        message: MessageParam = {
+            "role": "user",
+            "content": [
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/png" if media_type == "image/png" else "image/jpeg",
+                        "data": base64.b64encode(image).decode(),
+                    },
+                },
+                {"type": "text", "text": PROMPT},
+            ],
+        }
+        try:
+            response = self._client.messages.create(
+                model=self.model, max_tokens=2048, output_config=OUTPUT, messages=[message]
+            )
+        except anthropic.AuthenticationError as error:
+            raise ParserUnavailableError(
+                "The Anthropic API key was rejected. Check ANTHROPIC_API_KEY."
+            ) from error
+        except anthropic.APIStatusError as error:
+            raise ParserUnavailableError(
+                f"Claude answered with HTTP {error.status_code}"
+            ) from error
+        except anthropic.APIConnectionError as error:
+            raise ParserUnavailableError("The Anthropic API is not reachable.") from error
+        if response.stop_reason != "end_turn":
+            return ReceiptReading(None, None)
+        text = next((block.text for block in response.content if block.type == "text"), "")
+        return reading_from(json_object(text))
+
+
+def claude_from_settings() -> ClaudeReceiptParser:
+    return ClaudeReceiptParser(
+        config.anthropic_api_key(), config.claude_model(), config.claude_max_scans()
+    )
 
 
 def ollama_from_settings() -> OllamaReceiptParser:
@@ -110,6 +206,7 @@ def ollama_from_settings() -> OllamaReceiptParser:
 
 
 PARSERS: dict[str, Callable[[], ReceiptParser]] = {
+    "claude": claude_from_settings,
     "fake": FakeReceiptParser,
     "none": UnavailableReceiptParser,
     "ollama": ollama_from_settings,

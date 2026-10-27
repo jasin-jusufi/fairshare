@@ -26,5 +26,7 @@ def scan_receipt(household_id: Id, file: Image, service: Service) -> ReceiptSugg
     `POST /households/{household_id}/expenses` once the member has checked it.
 
     `RECEIPT_PARSER` selects the parser: `none` (default) answers 503, `fake`
-    returns the demo suggestion "Migros", 2350 cents for every image (ADR-008)."""
+    returns the demo suggestion "Migros", 2350 cents for every image (ADR-008),
+    `ollama` uses a local vision model (ADR-009) and `claude` the Anthropic API
+    (ADR-010)."""
     return service.suggest(household_id, file.file.read(MAX_IMAGE_BYTES + 1))
