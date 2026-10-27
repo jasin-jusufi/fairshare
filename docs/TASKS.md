@@ -1,6 +1,6 @@
 # TASKS.md
 
-PHASE: 4
+PHASE: 5
 STATUS: done
 
 (0=Bootstrap | 1=Specify | 2=Design | 3=Develop | 4=Validate | 5=Deploy)
@@ -11,7 +11,7 @@ docs/specs/UC-005-SCAN-RECEIPT.md (Owner: Bajram)
 
 ## Backlog
 
-- Phase 5: set up Render deployment and run `cd.yml` (Jasin + Bajram)
+- No open items
 
 ## Working agreement
 
@@ -57,3 +57,4 @@ docs/specs/UC-005-SCAN-RECEIPT.md (Owner: Bajram)
 | 2026-10-27 | UC-005 | 4 Validate | done | Jasin + Claude Code | Real check: sample receipt → "Coop", 2395 cents; ≈ USD 0.004 per scan with Opus; default switched to `claude-sonnet-5-5` (team decision, same result, ≈ USD 0.002, 1.7 s); limit answers 503 without API call. 404 tests green |
 | 2026-10-27 | UC-003 | Fast Track | done | Jasin + Claude Code | Review finding (Codex bot, PR #15): suggested transfers above the settlement cap are split (red → green); ADR-007 update note. 378 passed |
 | 2026-10-27 | UI | 4 Validate | done | Jasin + Claude Code | Playwright browser E2E (3 journeys: quick add → settle up, fair chore plan, receipt scan) in the CI `e2e` job against the container with PostgreSQL; traces uploaded on failure |
+| 2026-10-27 | all | 5 Deploy | done | Jasin + Claude Code | Release v0.1.0 (tests, image, E2E incl. Playwright, GHCR, GitHub release); Render via Blueprint; `cd.yml` with v0.1.0 green, smoke test passed; live at https://fairshare-1u2q.onrender.com |
