@@ -27,3 +27,7 @@ def test_expenses_can_be_corrected_in_the_ui(client: TestClient) -> None:
     assert 'id="expense-cancel"' in html
     assert "Save changes" in html
     assert 'method: "PUT"' in html
+
+
+def test_edit_form_uses_the_stored_weights(client: TestClient) -> None:
+    assert "share.weight" in client.get("/ui/").text

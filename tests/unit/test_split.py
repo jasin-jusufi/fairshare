@@ -56,3 +56,9 @@ def test_shares_always_sum_to_amount(amount: int, method: SplitMethod) -> None:
     shares = split_amount(amount, method, weights)
     assert sum(amounts(shares)) == amount
     assert [s.member_id for s in shares] == [1, 2, 3]
+
+
+def test_shares_remember_their_weight() -> None:
+    shares = split_amount(50, SplitMethod.SHARES, {1: 1, 2: 1, 3: 98})
+    assert [(s.amount_cents, s.weight) for s in shares] == [(1, 1), (0, 1), (49, 98)]
+    assert {s.weight for s in split_amount(100, SplitMethod.EQUAL, {1: 7, 2: 3})} == {1}

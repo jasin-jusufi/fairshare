@@ -187,3 +187,23 @@ def test_ac11_update_after_settlement(client: TestClient, household: dict, membe
     assert [(t["from_member_id"], t["to_member_id"], t["amount_cents"]) for t in transfers] == [
         (lea, noah, 1000)
     ]
+
+
+def test_ac9_shares_return_their_weights_so_an_edit_keeps_the_split(
+    client: TestClient, household: dict, members: dict
+) -> None:
+    url = f"/households/{household['id']}/expenses"
+    weights = {members["Lea"]: 1, members["Noah"]: 1, members["Mia"]: 98}
+    participants = [{"member_id": m, "weight": w} for m, w in weights.items()]
+    created = client.post(url, json=expense(members["Lea"], 50, "shares", participants)).json()
+    assert [(s["amount_cents"], s["weight"]) for s in created["shares"]] == [
+        (1, 1),
+        (0, 1),
+        (49, 98),
+    ]
+    again = [{"member_id": s["member_id"], "weight": s["weight"]} for s in created["shares"]]
+    renamed = client.put(
+        f"{url}/{created['id']}",
+        json=expense(members["Lea"], 50, "shares", again, desc="Coop"),
+    ).json()
+    assert renamed["shares"] == created["shares"]
