@@ -90,7 +90,9 @@ docs/
 - Python version: `.python-version` (3.12)
 - Configuration via environment variables only:
   - `DATABASE_URL` (default `sqlite:///./fairshare.db`)
-  - `RECEIPT_PARSER`: `none` (default, receipt scanning answers 503), `fake` or `ollama`
+  - `RECEIPT_PARSER`: `none` (default, receipt scanning answers 503), `fake`, `ollama` or `claude`
   - `OLLAMA_URL` (default `http://localhost:11434`), `OLLAMA_MODEL` (default `qwen2.5vl:7b`)
-    (see ADR-008 and ADR-009)
+  - `ANTHROPIC_API_KEY` (only for `claude`, from the environment or the git-ignored `.env`),
+    `CLAUDE_MODEL` (default `claude-opus-5-5`), `CLAUDE_MAX_SCANS` (default 30)
+    (see ADR-008 to ADR-010)
 - Secrets (only in GitHub/Render, never in the repo): `RENDER_API_KEY`, `RENDER_SERVICE_ID`

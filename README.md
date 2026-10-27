@@ -49,7 +49,7 @@ non-trivial domain problems:
 | 002 | Record expense | Equal / percent / shares split, **largest remainder**: the shares always add up exactly | [UC-002](docs/specs/UC-002-RECORD-EXPENSE.md) |
 | 003 | Settle up | Balances + **greedy settle-up with ≤ n − 1 transfers**, overpayment protection | [UC-003](docs/specs/UC-003-SETTLE-UP.md) |
 | 004 | Rotate chores | **Fairness by effort** including history (LPT heuristic) | [UC-004](docs/specs/UC-004-ROTATE-CHORES.md) |
-| 005 | Scan receipt | Suggestion from a receipt photo behind the **`ReceiptParser` port**; fake or switched-off adapter, no API key, nothing stored | [UC-005](docs/specs/UC-005-SCAN-RECEIPT.md) |
+| 005 | Scan receipt | Suggestion from a receipt photo behind the **`ReceiptParser` port**; adapters: switched off, fake, local vision model (Ollama) or Claude; nothing stored | [UC-005](docs/specs/UC-005-SCAN-RECEIPT.md) |
 
 **What is innovative?** The three core algorithms are pure, framework-free
 domain functions and are tested with properties, not just examples: shares add
@@ -144,6 +144,8 @@ sequenceDiagram
 | [006](docs/adr/ADR-006-delivery-pipeline.md) | GitHub Actions → GHCR → Render |
 | [007](docs/adr/ADR-007-settle-up-algorithm.md) | Greedy settle-up instead of exact (NP-hard) optimization |
 | [008](docs/adr/ADR-008-receipt-parser-port.md) | Receipt parsing behind a port, fake adapter instead of a real LLM |
+| [009](docs/adr/ADR-009-local-vision-model.md) | Local vision model via Ollama: real AI without a key, offline |
+| [010](docs/adr/ADR-010-claude-vision-adapter.md) | Claude as optional cloud adapter with structured output and a scan limit (USD 2 demo budget) |
 
 ---
 
@@ -237,7 +239,7 @@ sent over the API as CHF decimals. This led to the refined ADR-004.
 
 | Level | Count | What | How |
 |---|---|---|---|
-| Unit | 281 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts, edge cases | `pytest tests/unit` |
+| Unit | 294 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts, edge cases | `pytest tests/unit` |
 | Integration | 110 | Every acceptance criterion via HTTP + real DB (SQLite in-memory), edge cases | `pytest tests/integration` |
 | E2E | 4 | Complete journey against the **running Docker container with PostgreSQL** | `BASE_URL=… pytest tests/e2e` |
 
@@ -334,7 +336,8 @@ flowchart LR
 bash scripts/setup-python.sh          # .venv + dependencies
 source .venv/bin/activate
 PYTHONPATH=src uvicorn app.main:app --reload
-RECEIPT_PARSER=ollama PYTHONPATH=src uvicorn app.main:app --reload # real receipt reading (UC-005)
+RECEIPT_PARSER=claude PYTHONPATH=src uvicorn app.main:app --reload # receipt reading with Claude (UC-005)
+RECEIPT_PARSER=ollama PYTHONPATH=src uvicorn app.main:app --reload # receipt reading, fully local
 ```
 
 - UI: <http://localhost:8000/ui/>
@@ -352,13 +355,16 @@ docker run -p 8000:8000 -e DATABASE_URL=postgresql://u:p@host/db fairshare
 
 Configuration via environment variables only: `DATABASE_URL` (default
 `sqlite:///./fairshare.db`), `PORT` (container, default 8000), `RECEIPT_PARSER`,
-`OLLAMA_URL` and `OLLAMA_MODEL`. No secrets in the repo.
+`OLLAMA_URL`, `OLLAMA_MODEL`, `ANTHROPIC_API_KEY`, `CLAUDE_MODEL` and
+`CLAUDE_MAX_SCANS`. Locally they can also live in a git-ignored `.env`. No
+secrets in the repo.
 
 | `RECEIPT_PARSER` | Behaviour of "Scan receipt" (`POST /households/{id}/receipts`) |
 |---|---|
 | `none` (default) | Switched off, answers 503 (CI, Render) |
 | `fake` | Tests and fallback: suggests "Migros", CHF 23.50 for every JPEG/PNG |
 | `ollama` | Real AI, fully local: a vision model in [Ollama](https://ollama.com) reads merchant and total ([ADR-009](docs/adr/ADR-009-local-vision-model.md)) |
+| `claude` | Real AI in the cloud: Claude reads merchant and total, best accuracy, needs `ANTHROPIC_API_KEY` ([ADR-010](docs/adr/ADR-010-claude-vision-adapter.md)) |
 
 Receipt scanning with a local model, no API key and no cloud:
 
@@ -370,6 +376,17 @@ RECEIPT_PARSER=ollama PYTHONPATH=src uvicorn app.main:app --reload
 `OLLAMA_URL` (default `http://localhost:11434`) and `OLLAMA_MODEL` (default
 `qwen2.5vl:7b`) point to another server or model. The first scan loads the model
 and takes longer; later scans take a few seconds.
+
+Receipt scanning with Claude (photos are sent to Anthropic):
+
+```bash
+echo "ANTHROPIC_API_KEY=sk-ant-..." >> .env   # git-ignored, never commit it
+RECEIPT_PARSER=claude PYTHONPATH=src uvicorn app.main:app --reload
+```
+
+`CLAUDE_MODEL` defaults to `claude-opus-5-5`; `CLAUDE_MAX_SCANS` (default 30)
+stops API calls per server process, so the demo stays within its USD 2 budget.
+Set a spend limit in the Anthropic Console as the hard stop.
 
 ### Agent setup
 
