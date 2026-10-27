@@ -26,7 +26,7 @@ TAGS: list[dict[str, Any]] = [
     {
         "name": "Receipts",
         "description": "Suggest description and amount from a receipt photo (UC-005). "
-        "Nothing is stored; `RECEIPT_PARSER` selects the parser (ADR-008).",
+        "Nothing is stored; `RECEIPT_PARSER` selects the parser (ADR-008 to ADR-010).",
     },
     {"name": "Operations", "description": "Health check for containers, Render and smoke tests."},
 ]
@@ -42,4 +42,4 @@ NOT_FOUND = error(404, "Household or resource does not exist")
 INVALID = error(400, "Business rule violated, e.g. empty name or invalid amount")
 CONFLICT = error(409, "Conflicts with the current state, e.g. a duplicate")
 UNREADABLE = error(422, "Receipt could not be read, e.g. no amount found")
-UNAVAILABLE = error(503, "Receipt scanning is switched off (RECEIPT_PARSER=none)")
+UNAVAILABLE = error(503, "Receipt scanning is switched off, or the model is unavailable")
