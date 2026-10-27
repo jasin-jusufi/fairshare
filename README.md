@@ -239,8 +239,8 @@ sent over the API as CHF decimals. This led to the refined ADR-004.
 
 | Level | Count | What | How |
 |---|---|---|---|
-| Unit | 294 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts, edge cases | `pytest tests/unit` |
-| Integration | 110 | Every acceptance criterion via HTTP + real DB (SQLite in-memory), edge cases | `pytest tests/integration` |
+| Unit | 297 | Domain rules, algorithms (including property tests with fixed seeds), use cases with in-memory repositories, architecture contracts, edge cases | `pytest tests/unit` |
+| Integration | 114 | Every acceptance criterion via HTTP + real DB (SQLite in-memory), edge cases | `pytest tests/integration` |
 | E2E | 7 | API journey and **browser journeys through the UI with Playwright** (household, quick add, settle up, fair chore plan, receipt scan) against the **running Docker container with PostgreSQL** | `BASE_URL=… pytest tests/e2e` |
 
 Coverage: **99 %** (gate 90 %). Static checks: `ruff`, `mypy --strict`,
