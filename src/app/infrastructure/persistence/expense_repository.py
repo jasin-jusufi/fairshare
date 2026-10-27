@@ -55,6 +55,19 @@ class SqlAlchemyExpenseRepository:
         )
         return [to_domain(m) for m in self._session.scalars(query)]
 
+    def save(self, expense: Expense) -> Expense:
+        model = self._session.get_one(ExpenseModel, expense.id)
+        model.payer_id = expense.payer_id
+        model.description = expense.description
+        model.amount_cents = expense.amount_cents
+        model.method = expense.method.value
+        model.shares = [
+            ExpenseShareModel(member_id=s.member_id, amount_cents=s.amount_cents)
+            for s in expense.shares
+        ]
+        self._session.commit()
+        return to_domain(model)
+
     def delete(self, expense_id: int) -> None:
         self._session.delete(self._session.get_one(ExpenseModel, expense_id))
         self._session.commit()
