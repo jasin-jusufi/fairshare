@@ -24,7 +24,9 @@ jobs:
           cache-dependency-path: requirements-dev.txt
 
       - name: Install test dependencies
-        run: pip install -r requirements-dev.txt
+        run: |
+          pip install -r requirements-dev.txt
+          playwright install --with-deps chromium
 
       - name: Unit and integration tests
         run: pytest tests/unit tests/integration --cov

@@ -30,3 +30,15 @@ def ollama_url() -> str:
 
 def ollama_model() -> str:
     return os.getenv("OLLAMA_MODEL", "qwen2.5vl:7b").strip()
+
+
+def anthropic_api_key() -> str | None:
+    return os.getenv("ANTHROPIC_API_KEY", "").strip() or None
+
+
+def claude_model() -> str:
+    return os.getenv("CLAUDE_MODEL", "claude-sonnet-5-5").strip()
+
+
+def claude_max_scans() -> int:
+    return int(os.getenv("CLAUDE_MAX_SCANS", "30"))

@@ -38,4 +38,5 @@ into 422.
 - The adapter is tested against a stub HTTP server, so tests stay offline.
 - The first request after starting Ollama loads the model and can take
   10–30 s; warm it up before presenting.
-- Swapping in a cloud model later is another adapter, as ADR-008 intended.
+- Swapping in a cloud model later is another adapter, as ADR-008 intended
+  (done in ADR-010).

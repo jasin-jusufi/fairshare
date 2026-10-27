@@ -45,3 +45,6 @@ coverage.xml
 .pdm-build/
 .pixi/
 .ipynb_checkpoints/
+
+# Playwright
+test-results/

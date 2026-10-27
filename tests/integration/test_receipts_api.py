@@ -108,7 +108,7 @@ def test_upload_without_file_is_rejected(demo: TestClient) -> None:
 
 
 def test_unknown_receipt_parser_stops_the_app(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("RECEIPT_PARSER", "claude")
+    monkeypatch.setenv("RECEIPT_PARSER", "gpt")
     with pytest.raises(ValueError, match="RECEIPT_PARSER"):
         create_app(database_url="sqlite:///:memory:", create_schema=True)
 
