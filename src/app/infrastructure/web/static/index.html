@@ -177,6 +177,8 @@
     .icon-btn:hover { transform: scale(1.07); }
     .icon-btn.ghost { color: var(--muted); box-shadow: none; background: transparent; border-color: transparent; }
     .icon-btn.ghost:hover { color: var(--neg); background: rgba(255, 255, 255, 0.7); }
+    #receipt-hint { margin: -4px 0 0; font-size: 13px; color: var(--muted); }
+    #receipt-scan:disabled { opacity: 0.5; cursor: not-allowed; }
     .icon-btn.ghost.edit:hover { color: var(--ink); }
     .row-actions { display: flex; gap: 10px; flex-wrap: wrap; }
     .rows li.editing { background: rgba(255, 255, 255, 0.75); border-radius: 18px; }
@@ -338,6 +340,7 @@
             <button class="btn soft" type="button" id="receipt-scan"><span data-icon="camera"></span>Scan receipt</button>
             <input id="receipt-file" type="file" accept="image/jpeg,image/png" hidden>
           </div>
+          <p id="receipt-hint" hidden>Receipt scanning is off on this server – enter the amount by hand.</p>
           <div class="row">
             <input id="expense-amount" type="number" min="0.05" step="0.05" placeholder="Amount in CHF" aria-label="Amount in CHF" required>
             <select id="expense-payer" aria-label="Paid by"></select>
@@ -972,6 +975,11 @@ $("week-prev").addEventListener("click", guard(async () => { state.week = addDay
 $("week-next").addEventListener("click", guard(async () => { state.week = addDays(state.week, 7); await refresh(); }));
 
 loadHouseholds().catch((error) => toast(error.message, true));
+api("/receipt-scanning").then(({ enabled }) => {
+  $("receipt-scan").disabled = !enabled;
+  $("receipt-scan").title = enabled ? "Read description and amount from a photo" : "Receipt scanning is off on this server";
+  $("receipt-hint").hidden = enabled;
+}).catch(() => {});
 </script>
 </body>
 </html>

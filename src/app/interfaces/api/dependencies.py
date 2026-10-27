@@ -30,3 +30,7 @@ def receipt_service() -> ReceiptService:
 
 def receipt_parser() -> ReceiptParser:
     raise NotImplementedError(PROVIDED_BY_INFRASTRUCTURE)
+
+
+def receipt_scanning_mode() -> str:
+    raise NotImplementedError(PROVIDED_BY_INFRASTRUCTURE)

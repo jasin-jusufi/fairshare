@@ -151,6 +151,13 @@ class WeekPlanOut(OutModel):
     assignments: list[AssignmentOut]
 
 
+class ReceiptScanningOut(BaseModel):
+    enabled: bool = Field(description="False when scanning is switched off on this server")
+    mode: str = Field(
+        description="Selected parser: none, fake, ollama or claude", examples=["none"]
+    )
+
+
 class ReceiptSuggestionOut(OutModel):
     description: str = Field(
         description="Suggested description, 1–120 characters", examples=["Migros"]

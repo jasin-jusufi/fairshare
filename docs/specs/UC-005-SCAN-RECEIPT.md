@@ -53,11 +53,13 @@ Secondary: receipt parser behind the port `ReceiptParser`, selected with `RECEIP
 - AC8 Given `RECEIPT_PARSER=ollama` but Ollama is not reachable or the model is missing, When uploaded, Then 503 with a hint how to start or pull it.
 - AC9 Given `RECEIPT_PARSER=claude` and a valid key, When a receipt photo is uploaded, Then the merchant and the total (in cents) read by Claude are suggested.
 - AC10 Given `RECEIPT_PARSER=claude` but no or an invalid key, or `CLAUDE_MAX_SCANS` scans already made, When uploaded, Then 503 with a hint, and no API call is made once the limit is reached.
+- AC11 Given any server, When `GET /receipt-scanning`, Then 200 with `enabled` (false only for `none`) and the `mode`; nothing is uploaded and no model is called.
+- AC12 Given scanning is switched off, Then the web UI shows "Scan receipt" disabled with the hint "Receipt scanning is off on this server", so nobody uploads a photo in vain (feedback from the live deployment, 2026-10-27).
 
 ## Tests
 
 Unit: `ReceiptSuggestion` validation; `ReceiptService` with a stub parser (image checks, unreadable result, parser unavailable)
-Integration: AC1–AC6; the parser is replaced via `dependency_overrides` where needed
+Integration: AC1–AC6, AC11–AC12; the parser is replaced via `dependency_overrides` where needed
 E2E: the container runs without `RECEIPT_PARSER` → 503 (no external API, so it can run in CI)
 Unit (adapter): `OllamaReceiptParser` against a local stub HTTP server (request format, CHF → cents, nulls, malformed answers, unreachable server, missing model)
 Unit (adapter): `ClaudeReceiptParser` against a stub of the Messages API (request: model, image, schema, effort; CHF → cents; refusal; missing key; auth/connection errors; scan limit)
@@ -70,7 +72,7 @@ Manual (Claude, 2026-10-27): same sample with `RECEIPT_PARSER=claude` → "COOP"
 |---|---|
 | domain | `ReceiptSuggestion` (value object: description 1–120 characters, `amount_cents` > 0) |
 | application | Port `ReceiptParser` (`Protocol`, returns `ReceiptReading`); `ReceiptService` (household check, JPEG/PNG by file signature, ≤ 5 MB → 400, builds the suggestion); `ReceiptUnreadableError` (422), `ParserUnavailableError` (503) |
-| interfaces | `POST /households/{id}/receipts` (`UploadFile`), schema `ReceiptSuggestionOut`, tag `Receipts`, error mapping 422/503, dependencies `receipt_service` and `receipt_parser` |
+| interfaces | `GET /receipt-scanning` (status for the UI, dependency `receipt_scanning_mode`), `POST /households/{id}/receipts` (`UploadFile`), schema `ReceiptSuggestionOut`, tag `Receipts`, error mapping 422/503, dependencies `receipt_service` and `receipt_parser` |
 | infrastructure | `FakeReceiptParser`, `UnavailableReceiptParser`, `OllamaReceiptParser` (ADR-009), `ClaudeReceiptParser` (ADR-010, `anthropic` SDK); `create_app` selects one from `RECEIPT_PARSER`, an unknown value stops the app at startup |
 
 Nothing is stored, so there is no migration. New dependency `python-multipart`
