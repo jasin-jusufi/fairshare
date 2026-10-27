@@ -42,7 +42,7 @@ Decisions: see `docs/adr/`.
 | Resource (OpenAPI tag) | Endpoints | UC |
 |---|---|---|
 | Households | `POST/GET /households`, `GET /households/{id}`, `POST /households/{id}/members` | 001 |
-| Expenses | `POST/GET /households/{id}/expenses`, `DELETE …/expenses/{expense_id}` | 002 |
+| Expenses | `POST/GET /households/{id}/expenses`, `PUT/DELETE …/expenses/{expense_id}` | 002 |
 | Settle-up | `GET …/balances`, `GET …/settle-up`, `POST/GET …/settlements` | 003 |
 | Chores | `POST/GET …/chores`, `POST …/chore-plans`, `GET …/chore-plans/{week}`, `POST …/assignments/{id}/complete`, `GET …/chore-load` | 004 |
 | Receipts | `POST …/receipts` (suggestion only, nothing is stored), `GET /receipt-scanning` (status for the UI) | 005 |

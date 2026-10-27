@@ -28,6 +28,7 @@ class SplitMethod(StrEnum):
 class ExpenseShare:
     member_id: int
     amount_cents: int
+    weight: int | None = None
     id: int | None = None
 
 
@@ -52,7 +53,10 @@ def split_amount(
     leftover = amount_cents - sum(amounts.values())
     for member in sorted(weights, key=lambda m: -remainders[m])[:leftover]:
         amounts[member] += 1
-    return [ExpenseShare(member_id=member, amount_cents=amounts[member]) for member in weights]
+    return [
+        ExpenseShare(member_id=member, amount_cents=amounts[member], weight=weights[member])
+        for member in weights
+    ]
 
 
 @dataclass

@@ -109,3 +109,18 @@ def test_ac9_chore_load_per_member(client: TestClient, household: dict) -> None:
 def test_unknown_household(client: TestClient) -> None:
     assert client.get("/households/999/chores").status_code == 404
     assert client.get("/households/999/chore-load").status_code == 404
+
+
+def test_ac10_new_chores_can_be_planned_into_a_planned_week(
+    client: TestClient, household: dict, members: dict
+) -> None:
+    hid = household["id"]
+    client.post(f"/households/{hid}/chores", json={"name": "Bathroom", "effort": 5})
+    status, first = plan(client, hid, "2026-10-26")
+    assert (status, by_chore(client, first, members)) == (201, {"Bathroom": "Lea"})
+    client.post(f"/households/{hid}/chores", json={"name": "Kitchen", "effort": 3})
+    status, added = plan(client, hid, "2026-10-28")
+    assert (status, by_chore(client, added, members)) == (201, {"Kitchen": "Noah"})
+    week = client.get(f"/households/{hid}/chore-plans/2026-10-26").json()
+    assert by_chore(client, week, members) == {"Bathroom": "Lea", "Kitchen": "Noah"}
+    assert week["assignments"][0] == first["assignments"][0]

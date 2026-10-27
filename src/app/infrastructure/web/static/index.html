@@ -179,6 +179,9 @@
     .icon-btn.ghost:hover { color: var(--neg); background: rgba(255, 255, 255, 0.7); }
     #receipt-hint { margin: -4px 0 0; font-size: 13px; color: var(--muted); }
     #receipt-scan:disabled { opacity: 0.5; cursor: not-allowed; }
+    .icon-btn.ghost.edit:hover { color: var(--ink); }
+    .row-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .rows li.editing { background: rgba(255, 255, 255, 0.75); border-radius: 18px; }
     .icon-btn svg { width: 18px; height: 18px; }
 
     input, select { border-radius: 999px; border: 1px solid var(--frame); background: rgba(255, 255, 255, 0.78);
@@ -235,11 +238,11 @@
     .dots i.on { background: var(--accent); }
     .week-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
     .week-nav strong { flex: 1; text-align: center; font-weight: 500; }
-    .check { width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(42, 38, 48, 0.14);
-             background: #fff; display: grid; place-items: center; color: transparent; transition: all .2s; flex: none; }
-    .check:hover { border-color: var(--pos); color: var(--pos); }
-    .check.done { background: var(--pos); border-color: var(--pos); color: #fff; cursor: default; }
-    .check svg { width: 16px; height: 16px; stroke-width: 2.4; }
+    .done-btn { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 8px 14px; border-radius: 999px;
+                border: 1.5px solid var(--pos); background: #fff; color: var(--pos); font: inherit; font-size: 14px;
+                font-weight: 600; cursor: pointer; transition: all .2s; }
+    .done-btn:hover { background: var(--pos); color: #fff; }
+    .done-btn.done { background: var(--pos); color: #fff; cursor: default; }
     li.is-done .title { text-decoration: line-through; color: var(--muted); }
     .loadbar { height: 10px; border-radius: 999px; background: rgba(42, 38, 48, 0.06); overflow: hidden; margin-top: 8px; }
     .loadbar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #ffb48c, var(--accent), var(--accent-2)); transition: width .5s; }
@@ -329,7 +332,7 @@
     <!-- Expenses -->
     <section class="view" id="view-expenses">
       <div class="glass card s5">
-        <h2>Add expense</h2>
+        <h2 id="expense-heading">Add expense</h2>
         <p class="sub">Leftover cents are shared fairly – the total always adds up.</p>
         <form class="form" id="expense-form" autocomplete="off">
           <div class="row">
@@ -348,7 +351,10 @@
             <button type="button" data-method="shares">Shares</button>
           </div>
           <div class="chips" id="expense-participants"></div>
-          <div><button class="btn"><span data-icon="plus"></span>Add expense</button></div>
+          <div class="row-actions">
+            <button class="btn" id="expense-submit"><span data-icon="plus"></span><span>Add expense</span></button>
+            <button class="btn soft" type="button" id="expense-cancel" hidden>Cancel</button>
+          </div>
         </form>
       </div>
       <div class="glass card s7">
@@ -448,6 +454,7 @@ const ICONS = {
   left: '<path d="M15 6l-6 6 6 6"/>',
   right: '<path d="M9 6l6 6-6 6"/>',
   camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
 };
 const PALETTE = [
   "linear-gradient(135deg,#ffb38a,#f0683c)", "linear-gradient(135deg,#a8b6ff,#7b6cf0)",
@@ -499,7 +506,7 @@ const EMPTY = { household: null, expenses: [], balances: [], transfers: [], sett
 const state = {
   households: [], householdId: null, members: [], data: EMPTY,
   view: "overview", method: "equal", effort: 3, week: mondayOf(iso(new Date())),
-  excluded: new Set(),
+  excluded: new Set(), editing: null, weights: {},
 };
 
 async function api(path, options = {}) {
@@ -575,7 +582,7 @@ function render() {
 function renderTopbar() {
   $("households").replaceChildren(...state.households.map((x) =>
     h("button", { type: "button", class: `pill${x.id === state.householdId ? " active" : ""}`,
-      onclick: guard(async () => { state.householdId = x.id; state.excluded.clear(); await refresh(); }) }, x.name)));
+      onclick: guard(async () => { state.householdId = x.id; state.editing = null; state.weights = {}; state.excluded.clear(); await refresh(); }) }, x.name)));
   $("member-stack").replaceChildren(...state.members.slice(0, 6).map((m) => avatar(m.id)));
 }
 
@@ -643,26 +650,33 @@ function artCard(el, label, value, hint, view) {
 }
 
 function expenseRow(e) {
-  return h("li", {},
+  return h("li", { class: state.editing?.id === e.id ? "editing" : "" },
     avatar(e.payer_id),
     h("div", { class: "grow" },
       h("div", { class: "title" }, e.description),
       h("div", { class: "meta" }, `${nameOf(e.payer_id)} · ${e.shares.map((s) => `${nameOf(s.member_id)} ${chf(s.amount_cents)}`).join(" · ")}`)),
     h("div", { class: "amount" }, chf(e.amount_cents)),
+    h("button", { class: "icon-btn ghost edit", title: "Edit", "aria-label": `Edit ${e.description}`, onclick: () => startEdit(e) },
+      svg("edit")),
     h("button", { class: "icon-btn ghost", title: "Delete", "aria-label": `Delete ${e.description}`,
-      onclick: guard(async () => { await api(`${base()}/expenses/${e.id}`, { method: "DELETE" }); toast("Expense deleted"); await refresh(); }) },
+      onclick: guard(async () => {
+        await api(`${base()}/expenses/${e.id}`, { method: "DELETE" });
+        if (state.editing?.id === e.id) stopEdit();
+        toast("Expense deleted");
+        await refresh();
+      }) },
       svg("trash")));
 }
 
 function assignmentRow(a) {
   const done = Boolean(a.completed_at);
   return h("li", { class: done ? "is-done" : "" },
-    h("button", { class: `check${done ? " done" : ""}`, "aria-label": done ? "Done" : `Mark ${a.chore_name} as done`, disabled: done,
-      onclick: guard(async () => { await api(`${base()}/assignments/${a.id}/complete`, { method: "POST" }); toast(`${a.chore_name} done 🎉`); await refresh(); }) },
-      svg("check")),
+    avatar(a.member_id, true),
     h("div", { class: "grow" }, h("div", { class: "title" }, a.chore_name), h("div", { class: "meta" }, nameOf(a.member_id))),
     dots(a.effort),
-    avatar(a.member_id, true));
+    h("button", { class: `done-btn${done ? " done" : ""}`, "aria-label": done ? `${a.chore_name} is done` : `Mark ${a.chore_name} as done`, disabled: done,
+      onclick: guard(async () => { await api(`${base()}/assignments/${a.id}/complete`, { method: "POST" }); toast(`${a.chore_name} done 🎉`); await refresh(); }) },
+      done ? "Done ✓" : "Done"));
 }
 
 function dots(effort) {
@@ -671,11 +685,16 @@ function dots(effort) {
 
 function renderExpenses() {
   const { expenses } = state.data;
+  const payer = $("expense-payer").value;
   $("expense-payer").replaceChildren(...state.members.map((m) => new Option(`paid by ${m.name}`, m.id)));
+  if (state.members.some((m) => String(m.id) === payer)) $("expense-payer").value = payer;
+  $("expense-heading").textContent = state.editing ? "Edit expense" : "Add expense";
+  $("expense-submit").lastChild.textContent = state.editing ? "Save changes" : "Add expense";
+  $("expense-cancel").hidden = !state.editing;
   for (const b of $("expense-method").children) b.classList.toggle("active", b.dataset.method === state.method);
   renderParticipants();
   const total = expenses.reduce((sum, e) => sum + e.amount_cents, 0);
-  $("expense-total").textContent = `${expenses.length} expenses · total ${chf(total)}`;
+  $("expense-total").textContent = `${expenses.length} expense${expenses.length === 1 ? "" : "s"} · total ${chf(total)}`;
   fill($("expenses"), expenses.slice().reverse(), expenseRow, "No expenses yet.");
 }
 
@@ -693,7 +712,7 @@ function renderParticipants() {
     });
     if (state.method !== "equal" && !off) {
       const fallback = state.method === "percent" ? Math.floor(100 / n) + (index < 100 % n ? 1 : 0) : 1;
-      chip.append(h("input", { type: "number", min: 1, value: fallback, "aria-label": `Weight for ${m.name}` }),
+      chip.append(h("input", { type: "number", min: 1, value: state.weights[m.id] ?? fallback, "aria-label": `Weight for ${m.name}` }),
         state.method === "percent" ? "%" : "×");
     }
     return chip;
@@ -739,7 +758,11 @@ function renderChores() {
   fill($("chores"), chores, (c) => h("li", {},
     h("div", { class: "grow" }, h("div", { class: "title" }, c.name)), dots(c.effort)), "No chores yet.");
   $("week-label").textContent = weekLabel(state.week);
-  $("plan-week").hidden = plan.assignments.length > 0;
+  const planned = new Set(plan.assignments.map((a) => a.chore_id));
+  const missingChores = chores.filter((c) => !planned.has(c.id));
+  $("plan-week").hidden = plan.assignments.length > 0 && missingChores.length === 0;
+  $("plan-week").lastChild.textContent = plan.assignments.length
+    ? `Plan ${missingChores.length} new chore${missingChores.length === 1 ? "" : "s"}` : "Plan fairly";
   fill($("assignments"), plan.assignments, assignmentRow, "This week is not planned yet – “Plan fairly” assigns chores by effort.");
   const max = Math.max(1, ...load.map((l) => l.effort_points));
   fill($("load"), load, (l) => h("li", {},
@@ -786,6 +809,61 @@ async function settle(t) {
   await refresh();
 }
 
+function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+
+function weightsOf(expense) {
+  if (expense.method === "equal") return {};
+  if (expense.shares.every((share) => share.weight)) {
+    return Object.fromEntries(expense.shares.map((share) => [share.member_id, share.weight]));
+  }
+  const amounts = Object.fromEntries(expense.shares.map((s) => [s.member_id, s.amount_cents]));
+  if (expense.method === "shares") {
+    const divisor = Object.values(amounts).reduce(gcd);
+    return Object.fromEntries(Object.entries(amounts).map(([id, cents]) => [id, cents / divisor]));
+  }
+  if (expense.method !== "percent") return {};
+  const weights = Object.fromEntries(Object.entries(amounts).map(([id, cents]) =>
+    [id, Math.max(1, Math.round((cents * 100) / expense.amount_cents))]));
+  const largest = Object.keys(weights).reduce((a, b) => (weights[a] >= weights[b] ? a : b));
+  weights[largest] += 100 - Object.values(weights).reduce((a, b) => a + b, 0);
+  return weights;
+}
+
+function startEdit(expense) {
+  state.editing = expense;
+  state.method = expense.method;
+  state.weights = weightsOf(expense);
+  const ids = new Set(expense.shares.map((s) => s.member_id));
+  state.excluded = new Set(state.members.filter((m) => !ids.has(m.id)).map((m) => m.id));
+  show("expenses");
+  $("expense-description").value = expense.description;
+  $("expense-amount").value = (expense.amount_cents / 100).toFixed(2);
+  $("expense-payer").value = expense.payer_id;
+  renderExpenses();
+  $("expense-description").focus();
+}
+
+function stopEdit() {
+  state.editing = null;
+  state.weights = {};
+  state.excluded.clear();
+  $("expense-description").value = "";
+  $("expense-amount").value = "";
+  renderExpenses();
+}
+
+async function updateExpense(expenseId, payerId, description, amountCents, method, participants) {
+  await api(`${base()}/expenses/${expenseId}`, {
+    method: "PUT",
+    body: JSON.stringify({ payer_id: payerId, description, amount_cents: amountCents, method, participants }),
+  });
+  toast(`${description} updated · ${chf(amountCents)}`);
+  state.editing = null;
+  state.weights = {};
+  state.excluded.clear();
+  await refresh();
+}
+
 async function recordExpense(payerId, description, amountCents, method, participants) {
   await api(`${base()}/expenses`, {
     method: "POST",
@@ -824,10 +902,13 @@ $("quick-form").addEventListener("submit", guard(async () => {
   $("quick-text").value = "";
 }));
 
+$("expense-cancel").addEventListener("click", stopEdit);
+
 $("expense-method").addEventListener("click", (event) => {
   const method = event.target.closest("button")?.dataset.method;
   if (!method) return;
   state.method = method;
+  state.weights = {};
   renderExpenses();
 });
 
@@ -838,8 +919,10 @@ $("expense-form").addEventListener("submit", guard(async () => {
     const id = Number(chip.dataset.member);
     return weight ? { member_id: id, weight: Number(weight.value) } : { member_id: id };
   });
-  await recordExpense(Number($("expense-payer").value), $("expense-description").value,
-    Math.round(Number($("expense-amount").value) * 100), state.method, participants);
+  const args = [Number($("expense-payer").value), $("expense-description").value,
+    Math.round(Number($("expense-amount").value) * 100), state.method, participants];
+  if (state.editing) await updateExpense(state.editing.id, ...args);
+  else await recordExpense(...args);
   $("expense-description").value = "";
   $("expense-amount").value = "";
 }));
@@ -882,8 +965,10 @@ $("chore-form").addEventListener("submit", guard(async () => {
 
 $("plan-week").addEventListener("click", guard(async () => {
   requireHousehold();
-  await api(`${base()}/chore-plans`, { method: "POST", body: JSON.stringify({ week_start: state.week }) });
-  toast("Week planned fairly ✨");
+  const result = await api(`${base()}/chore-plans`, { method: "POST", body: JSON.stringify({ week_start: state.week }) });
+  toast(state.data.plan.assignments.length
+    ? `${result.assignments.map((a) => `${a.chore_name} → ${nameOf(a.member_id)}`).join(", ")} ✨`
+    : "Week planned fairly ✨");
   await refresh();
 }));
 $("week-prev").addEventListener("click", guard(async () => { state.week = addDays(state.week, -7); await refresh(); }));

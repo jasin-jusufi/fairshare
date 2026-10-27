@@ -46,6 +46,31 @@ def list_expenses(household_id: Id, service: Service) -> list[Expense]:
     return service.list_expenses(household_id)
 
 
+@router.put(
+    "/{expense_id}",
+    response_model=ExpenseOut,
+    summary="Correct expense",
+    responses={**INVALID, **NOT_FOUND},
+)
+def update_expense(
+    household_id: Id, expense_id: Id, payload: ExpenseCreate, service: Service
+) -> Expense:
+    """Replaces payer, description, amount, split method and participants of an
+    expense. The shares are recomputed with the same rules as when recording; the
+    expense keeps its ID and recording time. Balances and settle-up suggestions
+    follow immediately, also when settlements were already recorded.
+    """
+    return service.update_expense(
+        household_id,
+        expense_id,
+        payload.payer_id,
+        payload.description,
+        payload.amount_cents,
+        payload.method,
+        [Participant(p.member_id, p.weight) for p in payload.participants],
+    )
+
+
 @router.delete("/{expense_id}", status_code=204, summary="Delete expense", responses=NOT_FOUND)
 def delete_expense(household_id: Id, expense_id: Id, service: Service) -> Response:
     """Deletes an expense recorded by mistake. Balances are recalculated immediately."""
