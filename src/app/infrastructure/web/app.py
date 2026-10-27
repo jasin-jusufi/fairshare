@@ -42,7 +42,8 @@ DbSession = Annotated[Session, Depends(get_session)]
 
 def create_app(database_url: str | None = None, create_schema: bool | None = None) -> FastAPI:
     url = database_url or config.database_url()
-    parser = make_receipt_parser(config.receipt_parser_mode())
+    scanning_mode = config.receipt_parser_mode()
+    parser = make_receipt_parser(scanning_mode)
     engine = make_engine(url)
     if create_schema if create_schema is not None else url.startswith("sqlite"):
         create_db_schema(engine)
@@ -90,11 +91,13 @@ def create_app(database_url: str | None = None, create_schema: bool | None = Non
     app.dependency_overrides[dependencies.chore_service] = chore_service
     app.dependency_overrides[dependencies.receipt_parser] = lambda: parser
     app.dependency_overrides[dependencies.receipt_service] = receipt_service
+    app.dependency_overrides[dependencies.receipt_scanning_mode] = lambda: scanning_mode
     app.include_router(households.router)
     app.include_router(expenses.router)
     app.include_router(settlements.router)
     app.include_router(chores.router)
     app.include_router(receipts.router)
+    app.include_router(receipts.status_router)
     register_error_handlers(app)
 
     @app.get("/health", tags=["Operations"], summary="Health check")
