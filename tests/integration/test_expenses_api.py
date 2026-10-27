@@ -115,3 +115,75 @@ def test_ac8_delete_expense(client: TestClient, household: dict, members: dict) 
 
 def test_expenses_of_unknown_household(client: TestClient) -> None:
     assert client.get("/households/999/expenses").status_code == 404
+
+
+def test_ac9_update_expense(client: TestClient, household: dict, members: dict) -> None:
+    url = f"/households/{household['id']}/expenses"
+    both = [{"member_id": members["Lea"]}, {"member_id": members["Noah"]}]
+    created = client.post(url, json=expense(members["Lea"], 5000, "equal", both)).json()
+    halves = [{**p, "weight": 50} for p in both]
+    r = client.put(
+        f"{url}/{created['id']}",
+        json=expense(members["Noah"], 6000, "percent", halves, desc="Coop"),
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert (body["id"], body["created_at"]) == (created["id"], created["created_at"])
+    assert (body["payer_id"], body["description"], body["method"]) == (
+        members["Noah"],
+        "Coop",
+        "percent",
+    )
+    assert shares_of(body) == [3000, 3000]
+    assert client.get(url).json() == [body]
+
+
+def test_ac10_invalid_update_and_unknown_expense(
+    client: TestClient, household: dict, members: dict
+) -> None:
+    url = f"/households/{household['id']}/expenses"
+    lea = [{"member_id": members["Lea"]}]
+    created = client.post(url, json=expense(members["Lea"], 3000, "equal", lea)).json()
+    wrong_sum = [{"member_id": members["Lea"], "weight": 90}]
+    assert (
+        client.put(
+            f"{url}/{created['id']}", json=expense(members["Lea"], 3000, "percent", wrong_sum)
+        ).status_code
+        == 400
+    )
+    other = client.post("/households", json={"name": "Other"}).json()
+    mia = client.post(f"/households/{other['id']}/members", json={"name": "Mia"}).json()["id"]
+    assert (
+        client.put(f"{url}/{created['id']}", json=expense(mia, 3000, "equal", lea)).status_code
+        == 400
+    )
+    assert client.get(url).json() == [created]
+    assert (
+        client.put(f"{url}/999", json=expense(members["Lea"], 3000, "equal", lea)).status_code
+        == 404
+    )
+    assert (
+        client.put(
+            f"/households/{other['id']}/expenses/{created['id']}",
+            json=expense(mia, 3000, "equal", [{"member_id": mia}]),
+        ).status_code
+        == 404
+    )
+
+
+def test_ac11_update_after_settlement(client: TestClient, household: dict, members: dict) -> None:
+    base = f"/households/{household['id']}"
+    lea, noah = members["Lea"], members["Noah"]
+    both = [{"member_id": lea}, {"member_id": noah}]
+    created = client.post(f"{base}/expenses", json=expense(lea, 5000, "equal", both)).json()
+    client.post(
+        f"{base}/settlements",
+        json={"from_member_id": noah, "to_member_id": lea, "amount_cents": 2500},
+    )
+    client.put(f"{base}/expenses/{created['id']}", json=expense(lea, 3000, "equal", both))
+    balances = {b["member_id"]: b["balance_cents"] for b in client.get(f"{base}/balances").json()}
+    assert (balances[lea], balances[noah]) == (-1000, 1000)
+    transfers = client.get(f"{base}/settle-up").json()
+    assert [(t["from_member_id"], t["to_member_id"], t["amount_cents"]) for t in transfers] == [
+        (lea, noah, 1000)
+    ]
