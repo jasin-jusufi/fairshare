@@ -327,6 +327,10 @@ flowchart LR
 4. GitHub: environment `production` with secret `RENDER_DEPLOY_HOOK_URL`,
    variables `APP_URL` (e.g. `https://fairshare.onrender.com`) and `CD_ENABLED=true`.
 
+The Blueprint uses Render's free plans, which suit the course demo: the free
+database expires after 30 days. For real use, switch `plan` in `render.yaml`
+to a paid tier before creating the Blueprint.
+
 Manual alternative to step 2: create the database and an *Existing Image* web
 service by hand with the same settings.
 

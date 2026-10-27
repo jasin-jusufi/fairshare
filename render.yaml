@@ -1,5 +1,7 @@
 # Render Blueprint: PostgreSQL + web service from the released GHCR image (ADR-006).
 # Deploys are triggered by the manual CD workflow (deploy hook), not by Render itself.
+# Free plans are for the course demo only: Render's free PostgreSQL expires after
+# 30 days and is then deleted. For real use, switch both plans to a paid tier.
 databases:
   - name: fairshare-db
     plan: free
