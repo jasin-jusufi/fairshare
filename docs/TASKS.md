@@ -54,3 +54,4 @@ docs/specs/UC-005-SCAN-RECEIPT.md (Owner: Bajram)
 | 2026-10-26 | UC-005 | 1–2 Specify/Design | done | Jasin + Claude Code | Third adapter `ollama` (local vision model, no key): AC7–AC8, ADR-009 |
 | 2026-10-26 | UC-005 | 3 Develop | done | Jasin + Claude Code | TDD: 13 adapter tests against a stub Ollama server (red → green); UI shows progress while reading |
 | 2026-10-26 | UC-005 | 4 Validate | done | Jasin + Claude Code | Manual check with `qwen2.5vl:7b` on an Apple M5: sample receipt `docs/assets/demo-receipt.png` → "COOP", 2395 cents (correct); cold 10.9 s, warm 1.1 s; no expense stored. 390 tests green |
+| 2026-10-27 | UC-003 | Fast Track | done | Jasin + Claude Code | Review finding (Codex bot, PR #15): suggested transfers above the settlement cap are split (red → green); ADR-007 update note. 378 passed |
