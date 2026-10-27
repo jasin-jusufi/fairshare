@@ -119,3 +119,19 @@ def test_receipt_endpoint_is_documented(client: TestClient) -> None:
     assert operation["tags"] == ["Receipts"]
     assert {"400", "404", "422", "503"} <= set(operation["responses"])
     assert "multipart/form-data" in operation["requestBody"]["content"]
+
+
+def test_ac11_scanning_status_is_off_by_default(client: TestClient) -> None:
+    r = client.get("/receipt-scanning")
+    assert r.status_code == 200
+    assert r.json() == {"enabled": False, "mode": "none"}
+
+
+def test_ac11_scanning_status_shows_the_parser(demo: TestClient) -> None:
+    assert demo.get("/receipt-scanning").json() == {"enabled": True, "mode": "fake"}
+
+
+def test_ac12_ui_explains_when_scanning_is_off(client: TestClient) -> None:
+    html = client.get("/ui/").text
+    assert "/receipt-scanning" in html
+    assert "Receipt scanning is off on this server" in html
