@@ -67,6 +67,12 @@ class ExpenseCreate(BaseModel):
 class ShareOut(OutModel):
     member_id: int = Field(examples=[2])
     amount_cents: int = Field(description="Share in cents", examples=[3000])
+    weight: int | None = Field(
+        default=None,
+        description="Weight used for the split (1 for `equal`); null for expenses recorded "
+        "before weights were stored",
+        examples=[1],
+    )
 
 
 class ExpenseOut(OutModel):

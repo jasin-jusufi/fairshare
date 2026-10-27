@@ -53,6 +53,11 @@ class InMemoryExpenseRepository:
     def list_by_household(self, household_id: int) -> list[Expense]:
         return [deepcopy(e) for e in self._items.values() if e.household_id == household_id]
 
+    def save(self, expense: Expense) -> Expense:
+        assert expense.id is not None
+        self._items[expense.id] = deepcopy(expense)
+        return expense
+
     def delete(self, expense_id: int) -> None:
         del self._items[expense_id]
 

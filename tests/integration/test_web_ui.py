@@ -26,3 +26,15 @@ def test_assignments_have_a_labelled_done_button(client: TestClient) -> None:
     assert "done-btn" in html
     assert "Done ✓" in html
     assert "missingChores" in html
+
+
+def test_expenses_can_be_corrected_in_the_ui(client: TestClient) -> None:
+    html = client.get("/ui/").text
+    assert 'id="expense-submit"' in html
+    assert 'id="expense-cancel"' in html
+    assert "Save changes" in html
+    assert 'method: "PUT"' in html
+
+
+def test_edit_form_uses_the_stored_weights(client: TestClient) -> None:
+    assert "share.weight" in client.get("/ui/").text
