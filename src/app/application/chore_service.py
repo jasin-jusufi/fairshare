@@ -51,7 +51,7 @@ class ChoreService:
             household_id,
             missing,
             sorted(household.member_ids()),
-            self._past_load(household_id),
+            self._past_load(household_id, until=week),
             week,
         )
         return self._assignments.add_all(assignments)
@@ -76,8 +76,9 @@ class ChoreService:
             if member.id is not None
         ]
 
-    def _past_load(self, household_id: int) -> dict[int, int]:
+    def _past_load(self, household_id: int, until: date | None = None) -> dict[int, int]:
         load: Counter[int] = Counter()
         for assignment in self._assignments.list_by_household(household_id):
-            load[assignment.member_id] += assignment.effort
+            if until is None or assignment.week_start <= until:
+                load[assignment.member_id] += assignment.effort
         return dict(load)

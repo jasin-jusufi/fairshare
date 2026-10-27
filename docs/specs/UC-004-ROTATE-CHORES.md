@@ -18,7 +18,7 @@ Secondary: other members (receive assignments)
 
 1. A member records chores with a name and effort (1–5 points).
 2. A member plans a week (any date → Monday of that week).
-3. The system assigns each chore exactly once: the most demanding one first, to the member with the lowest total load so far (history + already assigned this week); ties → lower member ID (LPT heuristic).
+3. The system assigns each chore exactly once: the most demanding one first, to the member with the lowest total load so far (history up to and including this week, later weeks are ignored); ties → lower member ID (LPT heuristic).
 4. Members see the weekly plan and tick off completed chores with a clearly labelled "Done" button.
 5. Chores added after a week was planned can be planned into that week later: only the
    chores missing from the week are assigned, by the same rule and counting the load
