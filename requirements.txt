@@ -5,3 +5,4 @@ alembic>=1.13
 psycopg[binary]>=3.2
 python-dotenv>=1.0
 python-multipart>=0.0.9
+anthropic>=2.3

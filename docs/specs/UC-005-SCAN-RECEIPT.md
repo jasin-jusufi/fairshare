@@ -1,6 +1,6 @@
 # UC-005-SCAN-RECEIPT
 
-> Owner: **Bajram** (fake/none adapters), Jasin (Ollama adapter) · Status: implemented, no API key
+> Owner: **Bajram** (fake/none adapters), Jasin (Ollama and Claude adapters) · Status: implemented
 
 ## Intent
 Instead of typing in the amount and description, a member uploads a photo of
@@ -15,13 +15,16 @@ Secondary: receipt parser behind the port `ReceiptParser`, selected with `RECEIP
 ## Preconditions
 
 - The household exists (UC-001).
-- No API key is used. The setting `RECEIPT_PARSER` selects the parser:
+- The setting `RECEIPT_PARSER` selects the parser:
   - `none` (default): receipt scanning is switched off → 503
   - `fake` (tests/fallback): returns the fixed suggestion "Migros", 2350 cents for every image
   - `ollama` (live demo): a local vision model via Ollama on the presenter's laptop
     (`OLLAMA_URL`, default `http://localhost:11434`; `OLLAMA_MODEL`, default `qwen2.5vl:7b`).
     No cloud service, no key, the image never leaves the machine (ADR-009).
-- A cloud LLM adapter (e.g. Claude) is out of scope for now.
+  - `claude` (live demo, best accuracy): Claude via the Anthropic API
+    (`ANTHROPIC_API_KEY` from the environment or `.env`; `CLAUDE_MODEL`, default
+    `claude-sonnet-5-5`; `CLAUDE_MAX_SCANS`, default 30 per server process). Budget
+    for the demo: USD 2 (ADR-010).
 
 ## Flow
 
@@ -35,7 +38,7 @@ Secondary: receipt parser behind the port `ReceiptParser`, selected with `RECEIP
 
 - invalid input: not a JPEG/PNG image (checked by content, not by file name) or larger than 5 MB → 400
 - unreadable: the parser finds no amount or no usable description → 422
-- unavailable: `RECEIPT_PARSER=none`, Ollama not running or model not pulled → 503
+- unavailable: `RECEIPT_PARSER=none`, Ollama not running or model not pulled, Claude key missing or invalid, scan limit reached → 503
 - not found: household does not exist → 404
 
 ## Acceptance
@@ -48,6 +51,8 @@ Secondary: receipt parser behind the port `ReceiptParser`, selected with `RECEIP
 - AC6 Given an unknown household, When uploaded, Then 404.
 - AC7 Given `RECEIPT_PARSER=ollama` and a running model, When a receipt photo is uploaded, Then the merchant and the total (in cents) read by the model are suggested.
 - AC8 Given `RECEIPT_PARSER=ollama` but Ollama is not reachable or the model is missing, When uploaded, Then 503 with a hint how to start or pull it.
+- AC9 Given `RECEIPT_PARSER=claude` and a valid key, When a receipt photo is uploaded, Then the merchant and the total (in cents) read by Claude are suggested.
+- AC10 Given `RECEIPT_PARSER=claude` but no or an invalid key, or `CLAUDE_MAX_SCANS` scans already made, When uploaded, Then 503 with a hint, and no API call is made once the limit is reached.
 
 ## Tests
 
@@ -55,7 +60,9 @@ Unit: `ReceiptSuggestion` validation; `ReceiptService` with a stub parser (image
 Integration: AC1–AC6; the parser is replaced via `dependency_overrides` where needed
 E2E: the container runs without `RECEIPT_PARSER` → 503 (no external API, so it can run in CI)
 Unit (adapter): `OllamaReceiptParser` against a local stub HTTP server (request format, CHF → cents, nulls, malformed answers, unreachable server, missing model)
+Unit (adapter): `ClaudeReceiptParser` against a stub of the Messages API (request: model, image, schema, effort; CHF → cents; refusal; missing key; auth/connection errors; scan limit)
 Manual: with `RECEIPT_PARSER=ollama` and a real receipt photo, "Scan receipt" in the UI pre-fills the expense form (sample: `docs/assets/demo-receipt.png` → "COOP", 2395 cents)
+Manual (Claude, 2026-10-27): same sample with `RECEIPT_PARSER=claude` → "COOP", 2395 cents, correct with `claude-sonnet-5-5` (940 input / 22 output tokens ≈ USD 0.002 per scan, under 2 s) and with `claude-opus-5-5` (≈ USD 0.004, 2–4 s); with `CLAUDE_MAX_SCANS=1` the second upload answers 503 without an API call; no expense stored. 30 scans ≈ USD 0.06, well inside the USD 2 budget
 
 ## Design
 
@@ -64,7 +71,7 @@ Manual: with `RECEIPT_PARSER=ollama` and a real receipt photo, "Scan receipt" in
 | domain | `ReceiptSuggestion` (value object: description 1–120 characters, `amount_cents` > 0) |
 | application | Port `ReceiptParser` (`Protocol`, returns `ReceiptReading`); `ReceiptService` (household check, JPEG/PNG by file signature, ≤ 5 MB → 400, builds the suggestion); `ReceiptUnreadableError` (422), `ParserUnavailableError` (503) |
 | interfaces | `POST /households/{id}/receipts` (`UploadFile`), schema `ReceiptSuggestionOut`, tag `Receipts`, error mapping 422/503, dependencies `receipt_service` and `receipt_parser` |
-| infrastructure | `FakeReceiptParser`, `UnavailableReceiptParser`; `create_app` selects one from `RECEIPT_PARSER`, an unknown value stops the app at startup |
+| infrastructure | `FakeReceiptParser`, `UnavailableReceiptParser`, `OllamaReceiptParser` (ADR-009), `ClaudeReceiptParser` (ADR-010, `anthropic` SDK); `create_app` selects one from `RECEIPT_PARSER`, an unknown value stops the app at startup |
 
 Nothing is stored, so there is no migration. New dependency `python-multipart`
 (FastAPI needs it for uploads). Why a port with a fake adapter instead of a
