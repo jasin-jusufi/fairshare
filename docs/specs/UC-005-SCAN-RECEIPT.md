@@ -62,6 +62,7 @@ E2E: the container runs without `RECEIPT_PARSER` → 503 (no external API, so it
 Unit (adapter): `OllamaReceiptParser` against a local stub HTTP server (request format, CHF → cents, nulls, malformed answers, unreachable server, missing model)
 Unit (adapter): `ClaudeReceiptParser` against a stub of the Messages API (request: model, image, schema, effort; CHF → cents; refusal; missing key; auth/connection errors; scan limit)
 Manual: with `RECEIPT_PARSER=ollama` and a real receipt photo, "Scan receipt" in the UI pre-fills the expense form (sample: `docs/assets/demo-receipt.png` → "COOP", 2395 cents)
+Manual (Claude, 2026-10-27): same sample with `RECEIPT_PARSER=claude` → "Coop", 2395 cents, correct; 940 input / 22 output tokens ≈ USD 0.004 per scan, 2–4 s; with `CLAUDE_MAX_SCANS=1` the second upload answers 503 without an API call; no expense stored. 30 scans ≈ USD 0.13, well inside the USD 2 budget
 
 ## Design
 
