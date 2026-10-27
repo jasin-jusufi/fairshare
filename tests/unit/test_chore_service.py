@@ -68,3 +68,14 @@ def test_load_by_member(service: ChoreService) -> None:
 def test_unknown_household(service: ChoreService) -> None:
     with pytest.raises(NotFoundError):
         service.list_chores(9)
+
+
+def test_planning_again_assigns_only_new_chores(service: ChoreService) -> None:
+    service.add_chore(1, "Bathroom", 5)
+    [bathroom] = service.plan_week(1, MONDAY)
+    service.add_chore(1, "Kitchen", 3)
+    added = service.plan_week(1, MONDAY)
+    assert [(a.chore_name, a.member_id) for a in added] == [("Kitchen", 2)]
+    assert service.week_plan(1, MONDAY) == [bathroom, *added]
+    with pytest.raises(ConflictError):
+        service.plan_week(1, MONDAY)

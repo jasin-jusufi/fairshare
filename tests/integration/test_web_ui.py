@@ -19,3 +19,10 @@ def test_expense_form_offers_receipt_scan(client: TestClient) -> None:
     assert 'id="receipt-scan"' in html
     assert 'accept="image/jpeg,image/png"' in html
     assert "/receipts" in html
+
+
+def test_assignments_have_a_labelled_done_button(client: TestClient) -> None:
+    html = client.get("/ui/").text
+    assert "done-btn" in html
+    assert "Done ✓" in html
+    assert "missingChores" in html
