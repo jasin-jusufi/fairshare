@@ -2,18 +2,23 @@
 
 Focus according to the assignment: **approach and learnings**, not the app.
 
+Slides: `FairShare-Presentation.pptx` (Bajram's deck, speaker notes per slide).
+
 | # | Min | Who | Slide | Key message / evidence |
 |---|---|---|---|---|
-| 1 | 0:30 | Jasin | Title + problem | Shared-flat money and chores: rounding to the cent, many transfers, unfair distribution |
-| 2 | 1:30 | Jasin | Live demo | Quick add "Groceries 45.50" → Settle up → "Paid" → "Plan fairly" → **scan a receipt with Claude** |
-| 3 | 1:00 | Jasin | Architecture | Layer diagram from the README; **import-linter makes the rule executable**; one port, four receipt adapters |
-| 4 | 1:00 | Jasin | ADRs | 10 ADRs; examples ADR-004 (cents), ADR-007 (greedy instead of NP-hard), ADR-010 (cloud AI with a budget) |
-| 5 | 1:30 | Bajram | Coding agents | AGENTS.md as router, skills per phase, TASKS log, AI-LOG; prompt → spec → red tests → green; hook runs ruff on every agent edit |
-| 6 | 1:30 | Bajram | Tests | Pyramid 294 / 110 / 7, property tests, 158 edge-case tests found **5 real bugs**; Playwright through the UI against Postgres |
-| 7 | 1:00 | Bajram | Delivery | PR + 4 required checks → tag → GHCR → manual CD to Render → smoke test |
-| 8 | 2:00 | both | Challenges & learnings | see below |
+| 1 | 0:20 | Jasin | Title | Focus on approach and learnings, not features |
+| 2 | 0:10 | Jasin | Agenda | Problem → architecture → agents and tools → testing and deployment → learnings |
+| 3 | 0:50 | Jasin | Problem + use cases | Rounding, many transfers, unfair chores; 5 UCs, each specified before coding |
+| 4 | 1:30 | Jasin | Clean Architecture | **import-linter makes the rule executable**; if the agent breaks it, the build turns red |
+| 5 | 1:00 | Jasin | 10 ADRs | ADR-004 (cents), ADR-007 (greedy instead of NP-hard), ADR-008–010 (port → Ollama → Claude with a budget) |
+| 6 | 1:30 | Bajram | Coding agents | AI-SDLC loop per UC, AGENTS.md router, spec first, TASKS + AI-LOG, edit hook, red → green commit trail |
+| 7 | 1:00 | Bajram | Tool selection | Claude Code (terminal) + Copilot (inline), same AGENTS.md; stack chosen for fast agent feedback |
+| 8 | 1:30 | Bajram | Testing | Pyramid 294 / 110 / 7 (Playwright through the UI), 99 % coverage, 158 edge-case tests found 5 bugs, all fixed |
+| 9 | 1:00 | Bajram | CI, release, deployment | PR → 4 required checks → tag → GHCR → manual CD to Render → smoke test |
+| 10 | 1:10 | both | Challenges and learnings | see below |
+| 11 | 0:10 | Jasin | Guardrails instead of trust | Questions |
 
-## Demo plan (slide 2)
+## Optional live demo (Q&A or instead of the screenshot on slide 3)
 
 1. Start before the talk: `RECEIPT_PARSER=claude PYTHONPATH=src .venv/bin/uvicorn app.main:app`
    and scan `docs/assets/demo-receipt.png` once (checks key and network).
