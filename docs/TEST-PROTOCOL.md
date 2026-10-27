@@ -172,3 +172,5 @@ The requests were then sent through FastAPI's `TestClient` against that database
 
 Result after the fixes: 377 passed, 0 xfailed, coverage 99.79 %.
 
+Follow-up from code review (Codex bot on PR #15): with the new amount cap, settle-up could suggest a transfer above 2³¹ − 1 cents that the settlement endpoint then rejected. Suggestions are now split at the cap (`test_suggested_transfers_stay_within_the_settlement_limit`). 378 passed.
+

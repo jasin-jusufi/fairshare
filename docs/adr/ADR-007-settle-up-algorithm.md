@@ -30,3 +30,9 @@ layer.
   property in tests (sum 0, upper bound, all balances 0 afterwards).
 - Settlements must not exceed outstanding debts, so that typos cannot create
   new debts.
+
+**Update 2026-10-27:** a single settlement is capped at 2³¹ − 1 cents
+(ADR-004). A suggested transfer above that cap is split into several
+transfers between the same pair, so every suggestion can be recorded. The
+n − 1 bound counts debtor–creditor pairs; it only differs for balances above
+CHF 21 million.
