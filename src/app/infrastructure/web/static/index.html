@@ -233,11 +233,11 @@
     .dots i.on { background: var(--accent); }
     .week-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
     .week-nav strong { flex: 1; text-align: center; font-weight: 500; }
-    .check { width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(42, 38, 48, 0.14);
-             background: #fff; display: grid; place-items: center; color: transparent; transition: all .2s; flex: none; }
-    .check:hover { border-color: var(--pos); color: var(--pos); }
-    .check.done { background: var(--pos); border-color: var(--pos); color: #fff; cursor: default; }
-    .check svg { width: 16px; height: 16px; stroke-width: 2.4; }
+    .done-btn { display: inline-flex; align-items: center; gap: 6px; flex: none; padding: 8px 14px; border-radius: 999px;
+                border: 1.5px solid var(--pos); background: #fff; color: var(--pos); font: inherit; font-size: 14px;
+                font-weight: 600; cursor: pointer; transition: all .2s; }
+    .done-btn:hover { background: var(--pos); color: #fff; }
+    .done-btn.done { background: var(--pos); color: #fff; cursor: default; }
     li.is-done .title { text-decoration: line-through; color: var(--muted); }
     .loadbar { height: 10px; border-radius: 999px; background: rgba(42, 38, 48, 0.06); overflow: hidden; margin-top: 8px; }
     .loadbar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #ffb48c, var(--accent), var(--accent-2)); transition: width .5s; }
@@ -654,12 +654,12 @@ function expenseRow(e) {
 function assignmentRow(a) {
   const done = Boolean(a.completed_at);
   return h("li", { class: done ? "is-done" : "" },
-    h("button", { class: `check${done ? " done" : ""}`, "aria-label": done ? "Done" : `Mark ${a.chore_name} as done`, disabled: done,
-      onclick: guard(async () => { await api(`${base()}/assignments/${a.id}/complete`, { method: "POST" }); toast(`${a.chore_name} done 🎉`); await refresh(); }) },
-      svg("check")),
+    avatar(a.member_id, true),
     h("div", { class: "grow" }, h("div", { class: "title" }, a.chore_name), h("div", { class: "meta" }, nameOf(a.member_id))),
     dots(a.effort),
-    avatar(a.member_id, true));
+    h("button", { class: `done-btn${done ? " done" : ""}`, "aria-label": done ? `${a.chore_name} is done` : `Mark ${a.chore_name} as done`, disabled: done,
+      onclick: guard(async () => { await api(`${base()}/assignments/${a.id}/complete`, { method: "POST" }); toast(`${a.chore_name} done 🎉`); await refresh(); }) },
+      done ? "Done ✓" : "Done"));
 }
 
 function dots(effort) {
@@ -736,7 +736,11 @@ function renderChores() {
   fill($("chores"), chores, (c) => h("li", {},
     h("div", { class: "grow" }, h("div", { class: "title" }, c.name)), dots(c.effort)), "No chores yet.");
   $("week-label").textContent = weekLabel(state.week);
-  $("plan-week").hidden = plan.assignments.length > 0;
+  const planned = new Set(plan.assignments.map((a) => a.chore_id));
+  const missingChores = chores.filter((c) => !planned.has(c.id));
+  $("plan-week").hidden = plan.assignments.length > 0 && missingChores.length === 0;
+  $("plan-week").lastChild.textContent = plan.assignments.length
+    ? `Plan ${missingChores.length} new chore${missingChores.length === 1 ? "" : "s"}` : "Plan fairly";
   fill($("assignments"), plan.assignments, assignmentRow, "This week is not planned yet – “Plan fairly” assigns chores by effort.");
   const max = Math.max(1, ...load.map((l) => l.effort_points));
   fill($("load"), load, (l) => h("li", {},
@@ -879,8 +883,10 @@ $("chore-form").addEventListener("submit", guard(async () => {
 
 $("plan-week").addEventListener("click", guard(async () => {
   requireHousehold();
-  await api(`${base()}/chore-plans`, { method: "POST", body: JSON.stringify({ week_start: state.week }) });
-  toast("Week planned fairly ✨");
+  const result = await api(`${base()}/chore-plans`, { method: "POST", body: JSON.stringify({ week_start: state.week }) });
+  toast(state.data.plan.assignments.length
+    ? `${result.assignments.map((a) => `${a.chore_name} → ${nameOf(a.member_id)}`).join(", ")} ✨`
+    : "Week planned fairly ✨");
   await refresh();
 }));
 $("week-prev").addEventListener("click", guard(async () => { state.week = addDays(state.week, -7); await refresh(); }));

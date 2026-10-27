@@ -48,7 +48,9 @@ def list_chores(household_id: Id, service: Service) -> list[Chore]:
 )
 def plan_week(household_id: Id, payload: WeekPlanCreate, service: Service) -> WeekPlan:
     """Assigns every chore exactly once: the heaviest first, to the member with the
-    lowest load so far (including previous weeks). Each week can be planned only once."""
+    lowest load so far (including previous weeks). Planning an already planned week
+    again assigns only the chores added since and returns just those; with nothing
+    new it returns 409."""
     assignments = service.plan_week(household_id, payload.week_start)
     return WeekPlan(week_start_of(payload.week_start), assignments)
 

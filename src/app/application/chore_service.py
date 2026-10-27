@@ -40,13 +40,16 @@ class ChoreService:
         return self._chores.list_by_household(household_id)
 
     def plan_week(self, household_id: int, day: date) -> list[ChoreAssignment]:
+        """Plans the chores still missing from the week; an untouched week gets all of them."""
         household = require_household(self._households, household_id)
         week = week_start_of(day)
-        if self._assignments.list_by_household(household_id, week):
+        planned = {a.chore_id for a in self._assignments.list_by_household(household_id, week)}
+        missing = [c for c in self._chores.list_by_household(household_id) if c.id not in planned]
+        if planned and not missing:
             raise ConflictError(f"Week starting {week.isoformat()} is already planned")
         assignments = plan_week(
             household_id,
-            self._chores.list_by_household(household_id),
+            missing,
             sorted(household.member_ids()),
             self._past_load(household_id),
             week,
