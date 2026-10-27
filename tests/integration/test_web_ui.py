@@ -19,3 +19,15 @@ def test_expense_form_offers_receipt_scan(client: TestClient) -> None:
     assert 'id="receipt-scan"' in html
     assert 'accept="image/jpeg,image/png"' in html
     assert "/receipts" in html
+
+
+def test_expenses_can_be_corrected_in_the_ui(client: TestClient) -> None:
+    html = client.get("/ui/").text
+    assert 'id="expense-submit"' in html
+    assert 'id="expense-cancel"' in html
+    assert "Save changes" in html
+    assert 'method: "PUT"' in html
+
+
+def test_edit_form_uses_the_stored_weights(client: TestClient) -> None:
+    assert "share.weight" in client.get("/ui/").text

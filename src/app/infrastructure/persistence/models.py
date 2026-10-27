@@ -50,6 +50,7 @@ class ExpenseShareModel(Base):
     expense_id: Mapped[int] = mapped_column(ForeignKey("expenses.id"), index=True)
     member_id: Mapped[int] = mapped_column(ForeignKey("members.id"))
     amount_cents: Mapped[int] = mapped_column(Integer)
+    weight: Mapped[int | None] = mapped_column(Integer)
 
 
 class SettlementModel(Base):
