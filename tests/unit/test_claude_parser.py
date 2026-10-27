@@ -12,7 +12,7 @@ from app.application.ports.receipt_parser import ReceiptReading
 from app.infrastructure.receipt_parsers import ClaudeReceiptParser, make_receipt_parser
 
 IMAGE = b"\xff\xd8\xfffake-jpeg"
-MODEL = "claude-opus-5-5"
+MODEL = "claude-sonnet-5-5"
 
 
 class StubMessagesApi:
@@ -183,5 +183,5 @@ def test_factory_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv(name, raising=False)
     created = make_receipt_parser("claude")
     assert isinstance(created, ClaudeReceiptParser)
-    assert created.model == "claude-opus-5-5"
+    assert created.model == "claude-sonnet-5-5"
     assert created.max_scans == 30
