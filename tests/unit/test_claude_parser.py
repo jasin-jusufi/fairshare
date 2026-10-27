@@ -53,7 +53,7 @@ def server() -> Iterator[tuple[StubMessagesApi, str]]:
             stub.requests.append(
                 {
                     "path": self.path,
-                    "api_key": self.headers.get("x-api-key"),
+                    "auth": self.headers.get("Authorization"),
                     "body": json.loads(self.rfile.read(length)),
                 }
             )
@@ -96,7 +96,7 @@ def test_sends_image_model_schema_and_low_effort(claude: tuple[StubMessagesApi, 
     [request] = stub.requests
     body = request["body"]
     assert request["path"] == "/v1/messages"
-    assert request["api_key"] == "test-key"
+    assert request["auth"] == "Bearer test-key"
     assert body["model"] == MODEL
     assert body["max_tokens"] == 2048
     assert body["output_config"]["effort"] == "low"
