@@ -805,6 +805,10 @@ async function settle(t) {
 function gcd(a, b) { return b ? gcd(b, a % b) : a; }
 
 function weightsOf(expense) {
+  if (expense.method === "equal") return {};
+  if (expense.shares.every((share) => share.weight)) {
+    return Object.fromEntries(expense.shares.map((share) => [share.member_id, share.weight]));
+  }
   const amounts = Object.fromEntries(expense.shares.map((s) => [s.member_id, s.amount_cents]));
   if (expense.method === "shares") {
     const divisor = Object.values(amounts).reduce(gcd);

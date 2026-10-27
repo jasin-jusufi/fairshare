@@ -16,7 +16,9 @@ def to_domain(model: ExpenseModel) -> Expense:
         method=SplitMethod(model.method),
         created_at=as_utc(model.created_at),
         shares=[
-            ExpenseShare(id=s.id, member_id=s.member_id, amount_cents=s.amount_cents)
+            ExpenseShare(
+                id=s.id, member_id=s.member_id, amount_cents=s.amount_cents, weight=s.weight
+            )
             for s in model.shares
         ],
     )
@@ -35,7 +37,9 @@ class SqlAlchemyExpenseRepository:
             method=expense.method.value,
             created_at=expense.created_at,
             shares=[
-                ExpenseShareModel(member_id=s.member_id, amount_cents=s.amount_cents)
+                ExpenseShareModel(
+                    member_id=s.member_id, amount_cents=s.amount_cents, weight=s.weight
+                )
                 for s in expense.shares
             ],
         )
@@ -62,7 +66,7 @@ class SqlAlchemyExpenseRepository:
         model.amount_cents = expense.amount_cents
         model.method = expense.method.value
         model.shares = [
-            ExpenseShareModel(member_id=s.member_id, amount_cents=s.amount_cents)
+            ExpenseShareModel(member_id=s.member_id, amount_cents=s.amount_cents, weight=s.weight)
             for s in expense.shares
         ]
         self._session.commit()

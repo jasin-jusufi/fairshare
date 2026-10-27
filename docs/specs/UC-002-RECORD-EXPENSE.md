@@ -51,6 +51,7 @@ Secondary: other members (participants)
 - AC8 Given an expense, When `DELETE …/expenses/{expense_id}`, Then 204 and it is no longer in the list; unknown ID → 404.
 - AC9 Given Lea paid 5000 `equal` for Lea and Noah, When `PUT …/expenses/{expense_id}` with 6000 `percent` 50/50 paid by Noah, Then 200 with the same `id` and `created_at`, payer Noah and shares 3000/3000.
 - AC10 Given an expense, When it is updated with invalid input (e.g. percentages summing to 90) or a member of another household, Then 400 and the expense is unchanged; unknown expense, or an expense of another household → 404.
+- AC9b Given 50 cents split `shares` 1:1:98 (shares 1/0/49), Then each share returns its `weight`, and saving the expense again with those weights and a new description leaves the shares unchanged.
 - AC11 Given Lea paid 5000 `equal` for Lea and Noah and Noah already settled 2500, When the amount is corrected to 3000, Then Noah's balance is +1000 and settle-up suggests Lea → Noah 1000.
 
 ## Tests
@@ -67,7 +68,7 @@ E2E: record and list an expense against the container
 | domain | `Expense`, `ExpenseShare` (entities), `SplitMethod`, `split_amount()` (largest remainder), `UnknownMemberError` |
 | application | `ExpenseService` (`record_expense`, `update_expense`, `list_expenses`, `delete_expense`), port `ExpenseRepository` (`save` replaces an expense and its shares) |
 | interfaces | Router `/households/{id}/expenses` (`PUT /{expense_id}` reuses `ExpenseCreate`), schemas `ExpenseCreate`, `ParticipantIn`, `ExpenseOut`, `ShareOut` |
-| infrastructure | `ExpenseModel`, `ExpenseShareModel`, `SqlAlchemyExpenseRepository`, migration |
+| infrastructure | `ExpenseModel`, `ExpenseShareModel` (stores the share's `weight` since 2026-10-27, so an edit reloads the exact split; older `equal` shares backfilled with 1), `SqlAlchemyExpenseRepository`, migrations |
 
 The API works with `amount_cents` (exact, no rounding over HTTP); only the UI
 converts between CHF and cents (refinement of ADR-004).
