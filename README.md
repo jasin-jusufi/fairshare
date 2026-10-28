@@ -19,7 +19,7 @@ chores fairly by effort. Built as the capstone project for the module
 | **Team** | Jasin Jusufi, Bajram Kurto Elezi |
 | **Stack** | Python 3.12 · FastAPI · SQLAlchemy 2 · Alembic · PostgreSQL / SQLite · Docker · GitHub Actions · Render |
 | **Agents** | Claude Code (main agent), GitHub Copilot |
-| **Live** | <https://fairshare-1u2q.onrender.com/ui/> (API reference: [`/docs`](https://fairshare-1u2q.onrender.com/docs), release [v0.1.0](https://github.com/jasin-jusufi/fairshare/releases/tag/v0.1.0); free Render plan, the first request after idling takes about 30 s) |
+| **Live** | <https://fairshare-1u2q.onrender.com/ui/> (API reference: [`/docs`](https://fairshare-1u2q.onrender.com/docs), release [v0.2.0](https://github.com/jasin-jusufi/fairshare/releases/tag/v0.2.0); free Render plan, the first request after idling takes about 30 s) |
 
 ---
 
