@@ -13,7 +13,7 @@ Slides: `FairShare-Presentation.pptx` (Bajram's deck, speaker notes per slide).
 | 5 | 1:00 | Jasin | 10 ADRs | ADR-004 (cents), ADR-007 (greedy instead of NP-hard), ADR-008–010 (port → Ollama → Claude with a budget) |
 | 6 | 1:30 | Bajram | Coding agents | AI-SDLC loop per UC, AGENTS.md router, spec first, TASKS + AI-LOG, edit hook, red → green commit trail |
 | 7 | 1:00 | Bajram | Tool selection | Claude Code (terminal) + Copilot (inline), same AGENTS.md; stack chosen for fast agent feedback |
-| 8 | 1:30 | Bajram | Testing | Pyramid 294 / 110 / 7 (Playwright through the UI), 99 % coverage, 158 edge-case tests found 5 bugs, all fixed |
+| 8 | 1:30 | Bajram | Testing | Pyramid 300 / 121 / 7 (Playwright through the UI), 99 % coverage, 158 edge-case tests found 5 bugs, all fixed |
 | 9 | 1:00 | Bajram | CI, release, deployment | PR → 4 required checks → tag → GHCR → manual CD to Render → smoke test |
 | 10 | 1:10 | both | Challenges and learnings | see below |
 | 11 | 0:10 | Jasin | Guardrails instead of trust | Questions |

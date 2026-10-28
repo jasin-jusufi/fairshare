@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_TITLE = "FairShare API"
-API_VERSION = "0.1.0"
+API_VERSION = "0.2.0"
 API_DESCRIPTION = "Shared household expenses, fair settle-up and chore rotation"
 
 
